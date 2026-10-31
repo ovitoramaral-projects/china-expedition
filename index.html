@@ -12,13 +12,13 @@
 </head>
 <body>
   <header class="topbar">
-    <a class="brand" href="#today"><span class="brand-mark" data-icon="mountain-snow"></span><span>China Expedition</span></a>
+    <a class="brand" href="#itinerary"><b>China Expedition</b><span lang="zh">川 · 滇</span></a>
     <span class="brand-dates">6–20 Nov 2026</span>
   </header>
 
   <main>
+    <section class="view" id="v-itinerary" aria-label="Itinerary"><div class="content"></div></section>
     <section class="view" id="v-today" aria-label="Today"><div class="content"></div></section>
-    <section class="view" id="v-route" aria-label="Route"><div class="content"></div></section>
     <section class="view" id="v-places" aria-label="Places"><div class="content"></div></section>
     <section class="view" id="v-guide" aria-label="Guide"><div class="content"></div></section>
   </main>
@@ -27,18 +27,18 @@
   <article class="detail" id="detail" hidden></article>
 
   <nav class="tabbar" aria-label="Sections">
+    <a href="#itinerary" data-view="itinerary" data-icon="route"><span>Itinerary</span></a>
     <a href="#today" data-view="today" data-icon="sun"><span>Today</span></a>
-    <a href="#route" data-view="route" data-icon="route"><span>Route</span></a>
-    <a href="#places" data-view="places" data-icon="mountain-snow"><span>Places</span></a>
+    <a href="#places" data-view="places" data-icon="map-pin"><span>Places</span></a>
     <a href="#guide" data-view="guide" data-icon="book-open"><span>Guide</span></a>
   </nav>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="icons.js"></script>
-  <script src="art.js"></script>
   <script src="data.js"></script>
   <script src="places.js"></script>
+  <script src="destinations.js"></script>
   <script src="photos.js"></script>
   <script src="app.js"></script>
 </body>
