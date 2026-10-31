@@ -214,6 +214,7 @@
       return `<li class="${cls}" id="d-${d.date}" data-i="${i}">
         <span class="dot" aria-hidden="true"></span>
         <button class="day-head" type="button" aria-expanded="false" aria-controls="b-${i}">
+          <span class="thumb">${sceneArt(d.date, SCENE[d.date], { flags: FLAGS_DAYS.has(d.date) })}</span>
           <span class="day-meta"><strong>${esc(d.label)}</strong><span>${dow(d.date)} ${dayNum(d.date)} Nov</span>${tags}</span>
           <span class="day-title"><span>${esc(d.title)}</span>${ICON.chev}</span>
           <ol class="route">${d.route.map((r) => `<li class="${r.endsWith("?") ? "uncertain" : ""}">${esc(r)}</li>`).join("")}</ol>
@@ -307,8 +308,9 @@
     $("#stayList").innerHTML = seen.map(({ key, nights }) => {
       const s = STAYS[key], a = nights[0], b = nights[nights.length - 1];
       const range = a === b ? `${dayNum(a.date)} Nov` : `${dayNum(a.date)}–${dayNum(b.date)} Nov`;
-      return `<li class="${a.region}"><span class="nights">${range}<small>${nights.length} night${nights.length > 1 ? "s" : ""}</small></span>
-        <span><a class="nm" href="#d-${a.date}" data-i="${DAYS.indexOf(a)}">${esc(s.name)}</a><div class="tw">${esc(ELEV[a.date].town.replace("?", ""))}</div></span>
+      return `<li class="${a.region}"><span class="thumb">${sceneArt(a.date, SCENE[a.date], { flags: FLAGS_DAYS.has(a.date) })}</span>
+        <span><a class="nm" href="#d-${a.date}" data-i="${DAYS.indexOf(a)}">${esc(s.name)}</a>
+          <div class="tw">${esc(ELEV[a.date].town.replace("?", ""))} · <span class="nights">${range}, ${nights.length} night${nights.length > 1 ? "s" : ""}</span></div></span>
         <a class="btn icon-btn" href="${esc(s.map)}" target="_blank" rel="noopener" aria-label="Find ${esc(s.name)} in Amap">${ICON.map}Map</a></li>`;
     }).join("");
     $("#stayList").addEventListener("click", (e) => {
@@ -420,6 +422,12 @@
     // Stars (shown in dark mode) and a pale sun / moon.
     for (let i = 0; i < 130; i++) sky += `<circle class="star" cx="${(r() * W).toFixed(1)}" cy="${(r() * H * 0.45).toFixed(1)}" r="${(r() * 0.9 + 0.3).toFixed(2)}" opacity="${(r() * 0.6 + 0.3).toFixed(2)}"/>`;
     sky += `<circle class="orb" cx="${(500 + r() * 200).toFixed(0)}" cy="${(46 + r() * 40).toFixed(0)}" r="13"/>`;
+    // A few soft clouds that drift slowly.
+    for (let c = 0; c < 4; c++) {
+      const cx = 380 + c * 140 + r() * 80, cy = 30 + r() * 70, s = 0.7 + r() * 0.8;
+      sky += `<g class="cloud c${c}" transform="translate(${cx.toFixed(0)} ${cy.toFixed(0)}) scale(${s.toFixed(2)})">
+        <ellipse cx="0" cy="0" rx="34" ry="7"/><ellipse cx="-12" cy="-4" rx="16" ry="7"/><ellipse cx="10" cy="-6" rx="18" ry="8"/></g>`;
+    }
 
     // Ridge layers back → front: [base y, amplitude, octaves, sharpness]
     const L = {
@@ -562,7 +570,10 @@
     // Vertical scroll inside a day: give the progress bar a backing once past the art.
     t.addEventListener("scroll", (e) => {
       if (e.target === t) return;
-      $("#v-journey").classList.toggle("scrolled", e.target.scrollTop > e.target.firstElementChild.offsetHeight - 60);
+      const sc = e.target, art = sc.firstElementChild.offsetHeight;
+      $("#v-journey").classList.toggle("scrolled", sc.scrollTop > art - 60);
+      // Depth on vertical scroll: far ridges sink slower than near ones.
+      if (!reduceMotion) sc.style.setProperty("--sy", Math.min(sc.scrollTop, art).toFixed(0));
     }, { passive: true, capture: true });
     document.addEventListener("click", (e) => {
       const g = e.target.closest("[data-go]"); if (!g) return;
@@ -599,6 +610,8 @@
   function setScene(idx) {
     sceneIdx = idx;
     const sc = track().children[idx];
+    // Arrival: the day's heading rises in once each time you land on it.
+    [...track().children].forEach((el, j) => el.classList.toggle("arrived", j === idx));
     if (sc) $("#v-journey").classList.toggle("scrolled", sc.scrollTop > sc.firstElementChild.offsetHeight - 60);
     document.querySelectorAll(".seg").forEach((s, j) => {
       s.classList.toggle("done", j + 1 < idx);
@@ -616,6 +629,12 @@
     if (currentView !== "journey") showView("journey");
     t.scrollTo({ left: i * t.clientWidth, behavior: instant || reduceMotion ? "instant" : "smooth" });
     setScene(i);
+  }
+
+  function renderBanners() {
+    document.querySelectorAll(".page-art").forEach((el) => {
+      el.innerHTML = sceneArt(el.dataset.key, el.dataset.kind, { flags: el.dataset.flags === "1" });
+    });
   }
 
   /* ---------- Views (hash routing) ---------- */
@@ -645,6 +664,7 @@
 
   /* ---------- Boot ---------- */
   renderJourney();
+  renderBanners();
   renderStatus();
   renderStrip();
   renderDays();

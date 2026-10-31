@@ -491,10 +491,11 @@ body[data-view="journey"] { overflow: hidden; }
 
 /* Parallax: layers slide at different speeds as you swipe between days. */
 .art .pl, .art .sky { transition: none; will-change: transform; }
-.art .sky { transform: translateX(calc(var(--p) * 4px)); }
-.art .pl0 { transform: translateX(calc(var(--p) * 14px)); }
-.art .pl1 { transform: translateX(calc(var(--p) * 30px)); }
-.art .pl2 { transform: translateX(calc(var(--p) * 52px)); }
+.scene { --sy: 0; }
+.art .sky { transform: translate(calc(var(--p) * 4px), calc(var(--sy) * .30px)); }
+.art .pl0 { transform: translate(calc(var(--p) * 14px), calc(var(--sy) * .22px)); }
+.art .pl1 { transform: translate(calc(var(--p) * 30px), calc(var(--sy) * .14px)); }
+.art .pl2 { transform: translate(calc(var(--p) * 52px), calc(var(--sy) * .07px)); }
 .art .pl3 { transform: translateX(calc(var(--p) * 80px)); }
 @media (prefers-reduced-motion: reduce) { .art .pl, .art .sky { transform: none; } }
 
@@ -606,3 +607,46 @@ body[data-view="journey"] { overflow: hidden; }
 @media (hover: hover) and (min-width: 46rem) { .nav-arrow { display: grid; } }
 
 .toast { bottom: calc(var(--tabbar-h) + 1rem); }
+
+/* ---------- More immersion ---------- */
+.art .cloud ellipse { fill: #fff; opacity: .55; }
+@media (prefers-color-scheme: dark) { .art .cloud ellipse { fill: #9fb0c4; opacity: .12; } }
+@media (prefers-reduced-motion: no-preference) {
+  .art .cloud { animation: drift 70s linear infinite alternate; }
+  .art .cloud.c1 { animation-duration: 95s; animation-direction: alternate-reverse; }
+  .art .cloud.c2 { animation-duration: 120s; }
+  .art .cloud.c3 { animation-duration: 84s; animation-direction: alternate-reverse; }
+  .art .orb { animation: glow 6s ease-in-out infinite alternate; }
+
+  /* Arrival: date, title and route rise in when you land on a day. */
+  .scene.arrived .scene-head > * { animation: rise .7s var(--ease) both; }
+  .scene.arrived .scene-head > :nth-child(2) { animation-delay: .08s; }
+  .scene.arrived .scene-head > :nth-child(3) { animation-delay: .16s; }
+}
+/* The cloud groups carry their own translate(); drift with the CSS `translate` property so both apply. */
+@keyframes drift { from { translate: -60px 0; } to { translate: 60px 0; } }
+@keyframes glow { to { opacity: .6; } }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+
+/* Landscape banners on Timeline, Stays and Guide */
+.page-art {
+  --region: var(--sich); position: relative; height: min(30dvh, 15rem); min-height: 9rem; overflow: hidden;
+  background: linear-gradient(180deg, var(--sky-top), var(--sky-bot) 70%);
+}
+.page-art.yunnan { --region: var(--yun); }
+.page-art + .page-head { padding-top: 0; margin-top: -1.5rem; position: relative; }
+
+/* Thumbnails: a small window onto each day's landscape */
+.thumb {
+  display: block; position: relative; overflow: hidden; border-radius: .7rem;
+  background: linear-gradient(180deg, var(--sky-top), var(--sky-bot) 75%);
+}
+.thumb .art .ly3 { fill: color-mix(in srgb, var(--region) 85%, var(--deep)); }
+.thumb .art .cloud, .thumb .art .star { display: none; }
+.day-head { display: grid; grid-template-columns: minmax(0, 1fr) 4.4rem; column-gap: .9rem; }
+.day-head > :not(.thumb) { grid-column: 1; }
+.day-head .thumb { grid-column: 2; grid-row: 1 / span 3; width: 4.4rem; height: 4.4rem; align-self: center; }
+.day.is-open .day-head .thumb { box-shadow: 0 0 0 2px var(--region); }
+.stays li { grid-template-columns: 4rem minmax(0, 1fr) auto; }
+.stays .thumb { width: 4rem; height: 4rem; }
+.stays .nights { display: inline; font: inherit; color: inherit; }
