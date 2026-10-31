@@ -3,75 +3,99 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f3eee4" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#16140f" media="(prefers-color-scheme: dark)">
-  <meta name="description" content="Interactive day-by-day itinerary for the November 2026 Western Sichuan & Yunnan expedition.">
+  <meta name="theme-color" content="#f3f5f4" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#0f141b" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Interactive day-by-day journey for the November 2026 Western Sichuan & Yunnan expedition.">
   <title>China Expedition · Nov 6–20, 2026</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23b8432f'/><path d='M5 23l7-10 5 6 3-4 7 8z' fill='%23f3eee4'/></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%233a5f95'/><path d='M4 24l7-11 4 5 4-7 9 13z' fill='%23f5f7f6'/></svg>">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <a class="skip" href="#days">Skip to itinerary</a>
+  <!-- ============ JOURNEY: one immersive page per day ============ -->
+  <section class="view journey" id="v-journey" aria-label="Journey, one day per page">
+    <div class="progress" id="progress" role="tablist" aria-label="Days"></div>
+    <div class="track" id="track"></div>
+    <button class="nav-arrow prev" id="prevScene" type="button" aria-label="Previous day">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
+    </button>
+    <button class="nav-arrow next" id="nextScene" type="button" aria-label="Next day">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+    </button>
+  </section>
 
-  <header class="hero">
-    <div class="mark" aria-hidden="true"><span>川</span><span class="mark-line"></span><span>滇</span></div>
-    <h1>China Expedition</h1>
-    <p class="lede">6 to 20 November 2026. From Chengdu up into the Kham highlands, over to Meili and Shangri-La, then down the Tea Horse Road to Dali and Kunming.</p>
-    <p class="status" id="status" aria-live="polite"></p>
-    <figure class="profile">
-      <div class="profile-scroll"><svg id="profile" role="group" aria-label="Altitude of each night's stay. Tap a night to jump to that day."></svg></div>
-      <figcaption>Where you sleep each night, by altitude. Approximate town elevations from general references, not from your booking files. Dashed peaks are each day's high point.</figcaption>
-    </figure>
-  </header>
-
-  <nav class="strip" id="strip" aria-label="Jump to day">
-    <div class="strip-inner" id="stripInner"></div>
-  </nav>
-
-  <main>
-    <section id="days" class="section" aria-labelledby="daysTitle">
+  <!-- ============ TIMELINE ============ -->
+  <section class="view page" id="v-timeline" aria-labelledby="daysTitle" hidden>
+    <header class="page-head">
+      <h1 id="daysTitle">Timeline</h1>
+      <p class="status" id="status" aria-live="polite"></p>
+    </header>
+    <nav class="strip" id="strip" aria-label="Jump to day">
+      <div class="strip-inner" id="stripInner"></div>
+    </nav>
+    <div class="page-body">
       <div class="section-head">
-        <h2 id="daysTitle">Day by day</h2>
-        <button class="link-btn" id="toggleAll" type="button">Expand all</button>
+        <div class="filters" role="radiogroup" aria-label="Filter days" id="filters">
+          <button role="radio" aria-checked="true" data-filter="all">All</button>
+          <button role="radio" aria-checked="false" data-filter="sichuan">Sichuan</button>
+          <button role="radio" aria-checked="false" data-filter="yunnan">Yunnan</button>
+          <button role="radio" aria-checked="false" data-filter="flags">To confirm <span class="count" id="flagCount"></span></button>
+        </div>
       </div>
-      <div class="filters" role="radiogroup" aria-label="Filter days" id="filters">
-        <button role="radio" aria-checked="true" data-filter="all">All</button>
-        <button role="radio" aria-checked="false" data-filter="sichuan">Sichuan</button>
-        <button role="radio" aria-checked="false" data-filter="yunnan">Yunnan</button>
-        <button role="radio" aria-checked="false" data-filter="flags">To confirm <span class="count" id="flagCount"></span></button>
-      </div>
+      <button class="link-btn" id="toggleAll" type="button">Expand all</button>
       <ol class="days" id="dayList"></ol>
-    </section>
+    </div>
+  </section>
 
-    <section id="stays" class="section" aria-labelledby="staysTitle">
-      <h2 id="staysTitle">Where we sleep</h2>
-      <ol class="stays" id="stayList"></ol>
-    </section>
+  <!-- ============ STAYS ============ -->
+  <section class="view page" id="v-stays" aria-labelledby="staysTitle" hidden>
+    <header class="page-head">
+      <h1 id="staysTitle">Where we sleep</h1>
+      <p class="page-sub">Eleven stays, fourteen nights. Tap a name to see that day.</p>
+    </header>
+    <div class="page-body"><ol class="stays" id="stayList"></ol></div>
+  </section>
 
-    <section id="guide" class="section" aria-labelledby="guideTitle">
-      <h2 id="guideTitle">Field notes</h2>
-      <h3>The documentary arc</h3>
+  <!-- ============ GUIDE ============ -->
+  <section class="view page" id="v-guide" aria-labelledby="guideTitle" hidden>
+    <header class="page-head">
+      <h1 id="guideTitle">Field guide</h1>
+      <p class="page-sub">How to travel, look and photograph on this route.</p>
+    </header>
+    <div class="page-body">
+      <h2>The documentary arc</h2>
       <ol class="arc" id="arcList"></ol>
-      <h3>Practical</h3>
+      <h2>Practical</h2>
       <ul class="practical" id="practicalList"></ul>
-      <h3>On the ground</h3>
+      <h2>On the ground</h2>
       <div id="fieldList"></div>
-    </section>
-
-    <section id="gear" class="section" aria-labelledby="gearTitle">
-      <div class="section-head">
-        <h2 id="gearTitle">Camera kit</h2>
+      <div class="section-head gear-head">
+        <h2>Camera kit</h2>
         <span class="pill" id="gearProgress"></span>
       </div>
       <div id="gearList"></div>
       <button class="link-btn" id="gearReset" type="button">Reset checklist</button>
-    </section>
-  </main>
+      <footer class="foot">
+        <p><span class="flag-dot" aria-hidden="true"></span> <strong>To confirm</strong> marks a conflict between the itinerary and the bookings. Ask the organiser or driver; don't guess.</p>
+        <p>Map links open <strong>Amap 高德地图</strong> keyword searches, not exact pins. Check the result before you navigate.</p>
+      </footer>
+    </div>
+  </section>
 
-  <footer class="foot">
-    <p>Built from the working itinerary and hotel vouchers. Items marked <span class="flag-dot" aria-hidden="true"></span> <strong>To confirm</strong> are conflicts between sources. Ask the organiser or driver; don't guess.</p>
-    <p>Map links open <strong>Amap 高德地图</strong> keyword searches, not exact pins. Check the result before you navigate.</p>
-  </footer>
+  <!-- ============ TAB BAR ============ -->
+  <nav class="tabbar" aria-label="Views">
+    <a href="#journey" data-view="journey">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 19l6-9 4 5 3-4 7 8z"/><circle cx="17" cy="6" r="2"/></svg>
+      <span>Journey</span></a>
+    <a href="#timeline" data-view="timeline">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="6" cy="5" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="6" cy="19" r="2"/><path d="M11 5h10M11 12h10M11 19h7"/></svg>
+      <span>Timeline</span></a>
+    <a href="#stays" data-view="stays">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 20V9l9-5 9 5v11"/><path d="M9 20v-6h6v6"/></svg>
+      <span>Stays</span></a>
+    <a href="#guide" data-view="guide">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 8h6"/></svg>
+      <span>Guide</span></a>
+  </nav>
 
   <dialog class="sheet" id="sheet" aria-labelledby="sheetTitle">
     <div class="sheet-grip" aria-hidden="true"></div>

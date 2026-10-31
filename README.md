@@ -19,10 +19,11 @@ Open `index.html` in a browser. Add `?date=2026-11-12` to the URL to preview how
 
 ## What it does now
 
-- Altitude profile of every night's stay. Tap a night to jump to that day.
-- Sticky date strip that follows your scroll and highlights today (China time).
-- Day cards that expand to show the summary, focus, route options, conflicts to confirm, and tonight's hotel with copy-address, call, and Amap search links.
-- Filters for Sichuan / Yunnan / "To confirm" days.
-- Places for each day: tap one to open a guide sheet with what it is, history, what to look for, photography, food, restaurant leads, cautions, sources and Amap search.
-- List of hotels, documentary arc, practical notes, on-the-ground protocols.
-- Camera kit checklist that remembers what's packed on this device.
+Four views, switched from the tab bar:
+
+- **Journey** (default): one full-screen page per day that you swipe through like stories. Each day has its own generated landscape (snow peaks, plateau with prayer flags, villages, Erhai lake, city skyline) with gentle parallax, then the plan, places (tap for the guide sheet), tonight's hotel and a "Next day" button. Opens on today during the trip. A cover page has the altitude profile.
+- **Timeline**: the whole trip as a list, with the date strip, filters (Sichuan / Yunnan / To confirm) and expandable day cards.
+- **Stays**: every hotel, with nights and an Amap link.
+- **Guide**: documentary arc, practical notes, on-the-ground protocols, and the camera-kit checklist (saved on this device).
+
+Direct links: `#journey`, `#timeline`, `#stays`, `#guide`.
