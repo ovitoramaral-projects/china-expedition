@@ -80,9 +80,9 @@
   /* =====================================================================
      Images: real photo if registered, otherwise a quiet typographic cover
      ===================================================================== */
-  function cover(key, zh, region) {
+  function cover(key, zh, region, small = false) {
     const ph = PHOTOS[key];
-    if (ph) return `<img src="${esc(ph.src)}" alt="" loading="lazy" decoding="async">`;
+    if (ph) return `<img src="${esc(small ? ph.small : ph.src)}" alt="" loading="lazy" decoding="async">`;
     return `<span class="cover ${region}" aria-hidden="true"><span class="cover-zh" lang="zh">${esc(clean(zh || "").replace(/\s*·\s*/g, " "))}</span></span>`;
   }
 
@@ -95,7 +95,7 @@
     const st = d.stay && STAYS[d.stay];
     const alt = ELEV[nights[0] || d.days[0]];
     return `<a class="card ${d.region}" href="#dest-${d.id}" data-key="dest-${d.id}">
-      <span class="card-media">${cover(d.id, d.zh, d.region)}</span>
+      <span class="card-media">${cover("dest-" + d.id, d.zh, d.region)}</span>
       <span class="pills"><span class="pill">${DESTS.indexOf(d) === 0 ? "First stop" : DESTS.indexOf(d) === DESTS.length - 1 ? "Last stop" : `Stop ${DESTS.indexOf(d) + 1}`}</span>${isNow ? `<span class="pill now">${icon("locate-fixed")}You are here</span>` : ""}</span>
       <span class="card-panel">
         <span class="eyebrow">${esc(dayRange(d))}</span>
@@ -180,7 +180,7 @@
           <span class="tl-node" aria-hidden="true">${st === "done" ? icon("circle-check") : ""}</span>
           <div class="tl-body">
             <a class="tl-head" href="#dest-${d.id}">
-              <span class="tl-thumb">${cover(d.id, d.zh, d.region)}</span>
+              <span class="tl-thumb">${cover("dest-" + d.id, d.zh, d.region, true)}</span>
               <span><span class="eyebrow">${i === 0 ? "First stop" : i === DESTS.length - 1 ? "Last stop" : `Stop ${i + 1}`} · ${esc(dateRange(d.days))}${st === "now" ? ` · <em>You are here</em>` : st === "done" ? " · Done" : ""}</span>
               <span class="tl-name">${esc(d.name)}</span></span>
               ${icon("chevron-right")}
@@ -223,7 +223,10 @@
         <p>${icon("triangle-alert")}<span><b>To confirm</b> marks a conflict between the itinerary and the bookings. Ask the organiser or driver; don't guess.</span></p>
         <p>${icon("map")}<span>Map links open <b>Amap 高德地图</b> keyword searches, not exact pins. Check the result before you navigate.</span></p>
         <p>${icon("info")}<span>Icons by Lucide (ISC licence).</span></p>
-      </footer>`;
+      </footer>
+      <details class="credits"><summary>Photo credits (${Object.keys(PHOTOS).length})${icon("chevron-down")}</summary>
+        <ul>${Object.entries(PHOTOS).map(([k, ph]) => `<li><b>${esc(k.startsWith("dest-") ? DEST[k.slice(5)].name : PLACES[k]?.name || k)}</b> <a href="${esc(ph.page)}" target="_blank" rel="noopener">${esc(ph.title)}</a><br><span>${esc(ph.credit)}</span></li>`).join("")}</ul>
+      </details>`;
     const update = () => { $("#gearProgress").textContent = `${Object.values(state).filter(Boolean).length} of ${total} packed`; };
     el.addEventListener("change", (e) => {
       const cb = e.target.closest("input[data-item]"); if (!cb) return;
@@ -275,12 +278,13 @@
     return `<li class="place st-${P.status}" id="pl-${id}">
       <details ${open ? "open" : ""}>
         <summary>
-          <span class="pl-thumb">${cover(id, P.zh || P.name, destOfPlace(id).region)}</span>
+          <span class="pl-thumb">${cover(id, P.zh || P.name, destOfPlace(id).region, true)}</span>
           <span class="pl-text"><span class="pl-name">${esc(P.name)}</span>
             <span class="pl-sub">${P.zh ? `<span lang="zh">${esc(clean(P.zh))}</span> · ` : ""}${esc(P.kind)}${P.status !== "planned" ? ` · <em>${esc(PLACE_STATUS[P.status])}</em>` : ""}</span></span>
           ${icon("chevron-down", "pl-chev")}
         </summary>
         <div class="pl-body">
+          ${PHOTOS[id] ? `<figure class="pl-photo"><img src="${esc(PHOTOS[id].src)}" alt="${esc(P.name)}" loading="lazy" decoding="async"><figcaption><a href="${esc(PHOTOS[id].page)}" target="_blank" rel="noopener">${esc(PHOTOS[id].credit)}</a></figcaption></figure>` : ""}
           <p>${esc(P.about)}</p>
           <div class="d-actions">
             ${P.map ? `<a class="btn primary" href="${esc(P.map)}" target="_blank" rel="noopener">${icon("navigation")}Open in Amap</a>` : ""}
@@ -325,9 +329,9 @@
     const sources = [...new Map(d.places.flatMap((p) => PLACES[p].sources || []).map((s) => [s[1], s])).values()];
     const role = (x) => DAY[x].stay !== d.stay && d.stay ? "Leaving" : x === arrival.date && prev ? "Arriving" : "";
     const plateau = ["tagong", "yajiang", "yading", "meili", "shangrila", "siguniang"].includes(d.id);
-    return `<div class="d-hero">${cover(d.id, d.zh, d.region)}
+    return `<div class="d-hero">${cover("dest-" + d.id, d.zh, d.region)}
         <a class="d-back" href="${lastView()}" aria-label="Back">${icon("chevron-left")}</a>
-        ${PHOTOS[d.id] ? `<span class="d-credit">${esc(PHOTOS[d.id].credit)}</span>` : ""}
+        ${PHOTOS["dest-" + d.id] ? `<a class="d-credit" href="${esc(PHOTOS["dest-" + d.id].page)}" target="_blank" rel="noopener">${esc(PHOTOS["dest-" + d.id].credit)}</a>` : ""}
       </div>
       <div class="d-sheet">
         <p class="eyebrow">${regionName(d.region)} · ${idx === 0 ? "First stop" : idx === DESTS.length - 1 ? "Last stop" : `Stop ${idx + 1}`} · ${esc(dayRange(d))}</p>
