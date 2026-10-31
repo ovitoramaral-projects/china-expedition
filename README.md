@@ -10,20 +10,20 @@ Open `index.html` in a browser. Add `?date=2026-11-12` to the URL to preview how
 
 | File | What it holds |
 |---|---|
-| `data.js` | All trip content: days, stays, map links, elevations, notes, gear. Edit this file to change what the page shows. |
-| `places.js` | Place guide for every stop (from `knowledge/location_field_guide_v1.4.md`) and which day each belongs to |
-| `app.js` | Rendering and interaction |
+| `data.js` | Days, stays, elevations, practical notes, gear, crew |
+| `places.js` | Place guide for every stop (from `knowledge/location_field_guide_v1.4.md`) |
+| `photos.js` | Photo slots: drop a JPG in `assets/photos/` and register it with its credit |
+| `art.js` | Generated landscape illustrations, used until a real photo exists |
+| `icons.js` | Lucide icons (ISC), inlined |
+| `app.js` | Views, cards, detail pages, time-based progress |
 | `styles.css` | Look and feel (light + dark) |
-| `knowledge/` | Source material from the planning handoff (itinerary, field guide, master guide, camera list) |
-| `.claude/skills/` | Claude Code skills used on this project (design, accessibility, storyboard, …) |
+| `knowledge/` | Source material from the planning handoff |
+| `.claude/skills/` | Claude Code skills used on this project |
 
 ## What it does now
 
-Four views, switched from the tab bar:
+Four tabs: **Today** (where you probably are, estimated from the date and time in China; today's places; tonight's stay; the crew), **Route** (the itinerary with progress and a live marker on today's row, plus the altitude chart), **Places** (photo cards for every stop and stay, with filters), **Guide** (crew, documentary arc, practical notes, camera kit).
 
-- **Journey** (default): one full-screen page per day that you swipe through like stories. Each day has its own generated landscape (snow peaks, plateau with prayer flags, villages, Erhai lake, city skyline) with gentle parallax, then the plan, places (tap for the guide sheet), tonight's hotel and a "Next day" button. Opens on today during the trip. A cover page has the altitude profile.
-- **Timeline**: the whole trip as a list, with the date strip, filters (Sichuan / Yunnan / To confirm) and expandable day cards.
-- **Stays**: every hotel, with nights and an Amap link.
-- **Guide**: documentary arc, practical notes, on-the-ground protocols, and the camera-kit checklist (saved on this device).
+Tap any card to expand it into a full page: place guide, hotel details, or the whole day. Direct links: `#today`, `#route`, `#places`, `#guide`, `#place-pearl`, `#stay-lijiang`, `#day-2026-11-13`.
 
-Direct links: `#journey`, `#timeline`, `#stays`, `#guide`.
+Preview any moment with `?date=2026-11-13&time=14:30`.

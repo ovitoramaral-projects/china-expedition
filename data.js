@@ -276,7 +276,7 @@ const DAYS = [
     route: ["Shangri-La", "Songzanlin Monastery", "Lijiang"],
     summary: "Visit Songzanlin, one of Yunnan's most important Tibetan Buddhist monasteries, then drive to Lijiang.",
     focus: "Monastery architecture, religious life, and the move into Naxi cultural territory.",
-    notes: ["One traveller is dropped at the airport today."],
+    notes: ["Anastasia is dropped at the airport today and leaves the trip here."],
     stay: "lijiang",
   },
   {
@@ -359,3 +359,11 @@ const ELEV = {
   "2026-11-19": { town: "Dali", m: 2000 },
   "2026-11-20": { town: "Kunming", m: 1900 },
 };
+
+// The crew (first names only). `until` = last day with the group.
+const CREW = [
+  { name: "Vitor" },
+  { name: "Ricardo" },
+  { name: "Ikho" },
+  { name: "Anastasia", until: "2026-11-16", leaves: "Leaves on 16 Nov, dropped at the airport on the way to Lijiang" },
+];

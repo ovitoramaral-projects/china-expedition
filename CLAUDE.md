@@ -1,6 +1,6 @@
 # China Expedition — project rules
 
-Static site (index.html + styles.css + app.js + data.js + places.js). No build step, no frameworks, **no external resources** (Google Fonts/CDNs are blocked or slow in mainland China). Mobile-first; it is used on a phone in the field.
+Static site (index.html + styles.css + app.js + data.js + places.js + photos.js + art.js + icons.js). No build step, no frameworks, **no external resources** (Google Fonts/CDNs are blocked or slow in mainland China). Mobile-first; it is used on a phone in the field.
 
 ## Content rules (from the planning handoff, `knowledge/HANDOFF_README.md`)
 1. The current route is `knowledge/itinerary_working.txt`. The older supplier itinerary is historical reference only.
@@ -12,4 +12,4 @@ Static site (index.html + styles.css + app.js + data.js + places.js). No build s
 6. Storyboards: follow `.claude/skills/cinematic-storyboard` (every frame exactly 4:3).
 
 ## Privacy
-The repo must never contain the booking PDF, booking/confirmation numbers, PINs, or travellers' names, emails or phone numbers. Hotel public contact numbers are fine.
+The repo must never contain the booking PDF, booking/confirmation numbers, PINs, or travellers' surnames, emails or phone numbers. The crew's first names (Vitor, Ricardo, Ikho, Anastasia), given by the user, are fine and live in `CREW` in data.js. Hotel public contact numbers are fine.

@@ -3,115 +3,43 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <meta name="theme-color" content="#f3f5f4" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#0f141b" media="(prefers-color-scheme: dark)">
-  <meta name="description" content="Interactive day-by-day journey for the November 2026 Western Sichuan & Yunnan expedition.">
+  <meta name="theme-color" content="#f6f3ee" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#171614" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Day-by-day companion for the November 2026 Western Sichuan & Yunnan expedition.">
   <title>China Expedition · Nov 6–20, 2026</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%233a5f95'/><path d='M4 24l7-11 4 5 4-7 9 13z' fill='%23f5f7f6'/></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%231d1c1a'/><path d='M5 23l7-10 4 5 3-4 8 9z' fill='%23f6f3ee'/></svg>">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <!-- ============ JOURNEY: one immersive page per day ============ -->
-  <section class="view journey" id="v-journey" aria-label="Journey, one day per page">
-    <div class="progress" id="progress" role="tablist" aria-label="Days"></div>
-    <div class="track" id="track"></div>
-    <button class="nav-arrow prev" id="prevScene" type="button" aria-label="Previous day">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 6-6 6 6 6"/></svg>
-    </button>
-    <button class="nav-arrow next" id="nextScene" type="button" aria-label="Next day">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
-    </button>
-  </section>
+  <header class="topbar">
+    <a class="brand" href="#today"><span class="brand-mark" data-icon="mountain-snow"></span><span>China Expedition</span></a>
+    <span class="brand-dates">6–20 Nov 2026</span>
+  </header>
 
-  <!-- ============ TIMELINE ============ -->
-  <section class="view page" id="v-timeline" aria-labelledby="daysTitle" hidden>
-    <div class="page-art sichuan" data-key="timeline-banner" data-kind="peaks" aria-hidden="true"></div>
-    <header class="page-head">
-      <h1 id="daysTitle">Timeline</h1>
-      <p class="status" id="status" aria-live="polite"></p>
-    </header>
-    <nav class="strip" id="strip" aria-label="Jump to day">
-      <div class="strip-inner" id="stripInner"></div>
-    </nav>
-    <div class="page-body">
-      <div class="section-head">
-        <div class="filters" role="radiogroup" aria-label="Filter days" id="filters">
-          <button role="radio" aria-checked="true" data-filter="all">All</button>
-          <button role="radio" aria-checked="false" data-filter="sichuan">Sichuan</button>
-          <button role="radio" aria-checked="false" data-filter="yunnan">Yunnan</button>
-          <button role="radio" aria-checked="false" data-filter="flags">To confirm <span class="count" id="flagCount"></span></button>
-        </div>
-      </div>
-      <button class="link-btn" id="toggleAll" type="button">Expand all</button>
-      <ol class="days" id="dayList"></ol>
-    </div>
-  </section>
+  <main>
+    <section class="view" id="v-today" aria-label="Today"><div class="content"></div></section>
+    <section class="view" id="v-route" aria-label="Route"><div class="content"></div></section>
+    <section class="view" id="v-places" aria-label="Places"><div class="content"></div></section>
+    <section class="view" id="v-guide" aria-label="Guide"><div class="content"></div></section>
+  </main>
 
-  <!-- ============ STAYS ============ -->
-  <section class="view page" id="v-stays" aria-labelledby="staysTitle" hidden>
-    <div class="page-art yunnan" data-key="stays-banner" data-kind="village" aria-hidden="true"></div>
-    <header class="page-head">
-      <h1 id="staysTitle">Where we sleep</h1>
-      <p class="page-sub">Eleven stays, fourteen nights. Tap a name to see that day.</p>
-    </header>
-    <div class="page-body"><ol class="stays" id="stayList"></ol></div>
-  </section>
+  <!-- Expanded card: place, stay or day -->
+  <article class="detail" id="detail" hidden></article>
 
-  <!-- ============ GUIDE ============ -->
-  <section class="view page" id="v-guide" aria-labelledby="guideTitle" hidden>
-    <div class="page-art sichuan" data-key="guide-banner-2" data-kind="plateau" data-flags="1" aria-hidden="true"></div>
-    <header class="page-head">
-      <h1 id="guideTitle">Field guide</h1>
-      <p class="page-sub">How to travel, look and photograph on this route.</p>
-    </header>
-    <div class="page-body">
-      <h2>The documentary arc</h2>
-      <ol class="arc" id="arcList"></ol>
-      <h2>Practical</h2>
-      <ul class="practical" id="practicalList"></ul>
-      <h2>On the ground</h2>
-      <div id="fieldList"></div>
-      <div class="section-head gear-head">
-        <h2>Camera kit</h2>
-        <span class="pill" id="gearProgress"></span>
-      </div>
-      <div id="gearList"></div>
-      <button class="link-btn" id="gearReset" type="button">Reset checklist</button>
-      <footer class="foot">
-        <p><span class="flag-dot" aria-hidden="true"></span> <strong>To confirm</strong> marks a conflict between the itinerary and the bookings. Ask the organiser or driver; don't guess.</p>
-        <p>Map links open <strong>Amap 高德地图</strong> keyword searches, not exact pins. Check the result before you navigate.</p>
-      </footer>
-    </div>
-  </section>
-
-  <!-- ============ TAB BAR ============ -->
-  <nav class="tabbar" aria-label="Views">
-    <a href="#journey" data-view="journey">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M2 19l6-9 4 5 3-4 7 8z"/><circle cx="17" cy="6" r="2"/></svg>
-      <span>Journey</span></a>
-    <a href="#timeline" data-view="timeline">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="6" cy="5" r="2"/><circle cx="6" cy="12" r="2"/><circle cx="6" cy="19" r="2"/><path d="M11 5h10M11 12h10M11 19h7"/></svg>
-      <span>Timeline</span></a>
-    <a href="#stays" data-view="stays">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 20V9l9-5 9 5v11"/><path d="M9 20v-6h6v6"/></svg>
-      <span>Stays</span></a>
-    <a href="#guide" data-view="guide">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 21V5M9 8h6"/></svg>
-      <span>Guide</span></a>
+  <nav class="tabbar" aria-label="Sections">
+    <a href="#today" data-view="today" data-icon="sun"><span>Today</span></a>
+    <a href="#route" data-view="route" data-icon="route"><span>Route</span></a>
+    <a href="#places" data-view="places" data-icon="mountain-snow"><span>Places</span></a>
+    <a href="#guide" data-view="guide" data-icon="book-open"><span>Guide</span></a>
   </nav>
-
-  <dialog class="sheet" id="sheet" aria-labelledby="sheetTitle">
-    <div class="sheet-grip" aria-hidden="true"></div>
-    <button class="sheet-close" id="sheetClose" type="button" aria-label="Close">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
-    </button>
-    <div class="sheet-body" id="sheetBody"></div>
-  </dialog>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+  <script src="icons.js"></script>
+  <script src="art.js"></script>
   <script src="data.js"></script>
   <script src="places.js"></script>
+  <script src="photos.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
