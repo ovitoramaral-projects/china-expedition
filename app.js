@@ -73,6 +73,8 @@
   const catOf = (k) => /monastery|temple|grotto/i.test(k) ? "sacred" : /route stop|plateau stop/i.test(k) ? "stops" : /village|town|tower/i.test(k) ? "towns" : "mountains";
   const STATUS_ICON = { planned: "circle-check", unconfirmed: "triangle-alert", optional: "signpost" };
   const destHasFlags = (d) => d.days.some((x) => DAY[x].flags);
+  const dayRange = (d) => { const ls = [...new Set(d.days.map((x) => DAY[x].label))]; const n = (l) => l.replace("Day ", "");
+    return ls.length === 1 ? ls[0] : ls[0] === "Arrival" ? `Arrival – Day ${n(ls.at(-1))}` : `Days ${n(ls[0])} – ${n(ls.at(-1))}`; };
   const dateRange = (dates) => !dates.length ? "" : dates.length === 1 ? short(dates[0]) : `${dayNum(dates[0])}–${dayNum(dates.at(-1))} Nov`;
 
   /* =====================================================================
@@ -94,9 +96,9 @@
     const alt = ELEV[nights[0] || d.days[0]];
     return `<a class="card ${d.region}" href="#dest-${d.id}" data-key="dest-${d.id}">
       <span class="card-media">${cover(d.id, d.zh, d.region)}</span>
-      ${isNow ? `<span class="badge">${icon("locate-fixed")}You are here</span>` : ""}
+      <span class="pills"><span class="pill">${DESTS.indexOf(d) === 0 ? "First stop" : DESTS.indexOf(d) === DESTS.length - 1 ? "Last stop" : `Stop ${DESTS.indexOf(d) + 1}`}</span>${isNow ? `<span class="pill now">${icon("locate-fixed")}You are here</span>` : ""}</span>
       <span class="card-panel">
-        <span class="eyebrow">${regionName(d.region)} · Stop ${DESTS.indexOf(d) + 1} of ${DESTS.length}</span>
+        <span class="eyebrow">${esc(dayRange(d))}</span>
         <span class="card-title">${esc(d.name)}</span>
         <span class="card-zh" lang="zh">${esc(d.zh)}</span>
         <span class="meta">
@@ -130,11 +132,10 @@
 
   function renderItinerary() {
     const el = $("#v-itinerary .content");
-    const chips = [["all", "All", null], ["sichuan", "Sichuan", null], ["yunnan", "Yunnan", null],
-      ...Object.entries(CATS).filter(([k]) => k !== "stops").map(([k, c]) => [k, c.label, c.icon]), ["flags", "To confirm", "triangle-alert"]];
+    const chips = [["all", "All", null], ...Object.entries(CATS).filter(([k]) => k !== "stops").map(([k, c]) => [k, c.label, c.icon])];
     el.innerHTML = `
       <h1 class="display">Itinerary</h1>
-      <p class="lede">Twelve stops from Chengdu to Kunming. Open one for its story, the days you spend there, every place to visit and where you sleep.</p>
+      <p class="lede">Twelve stops from Chengdu to Kunming, through Sichuan and then Yunnan. Open a stop for its story, the days you spend there, the places to visit and where you sleep.</p>
       ${progressCard()}
       <div class="chips" role="radiogroup" aria-label="Filter destinations">
         ${chips.map(([k, l, ic]) => `<button role="radio" aria-checked="${k === "all"}" data-filter="${k}">${ic ? icon(ic) : ""}${esc(l)}</button>`).join("")}
@@ -149,7 +150,7 @@
   function drawDests() {
     $$("#v-itinerary .chips button").forEach((b) => b.setAttribute("aria-checked", b.dataset.filter === destFilter));
     const f = destFilter;
-    const match = (d) => f === "all" || d.region === f || (f === "flags" ? destHasFlags(d) : d.places.some((p) => catOf(PLACES[p].kind) === f));
+    const match = (d) => f === "all" || d.places.some((p) => catOf(PLACES[p].kind) === f);
     const out = ["sichuan", "yunnan"].map((r) => {
       const list = DESTS.filter((d) => d.region === r && match(d));
       return list.length ? `<h2 class="group-title"><span>${regionName(r)}</span><small>${r === "sichuan" ? "6 – 13 Nov" : "14 – 20 Nov"}</small></h2><div class="cards grid">${list.map((d) => destCard(d)).join("")}</div>` : "";
@@ -158,67 +159,40 @@
   }
 
   /* =====================================================================
-     TODAY
+     TIMELINE — what's done, where you are, what's next
      ===================================================================== */
   function crewLine(date) {
     const on = CREW.filter((c) => !c.until || c.until >= date), leaving = CREW.filter((c) => c.until === date);
     return `<p class="crew-line">${icon("footprints")}<span><b>Crew</b> ${esc(on.map((c) => c.name).join(", "))}${leaving.length ? ` · ${esc(leaving.map((c) => c.name).join(", "))} flies out today` : ""}</span></p>`;
   }
-  function renderToday() {
-    const el = $("#v-today .content");
-    const d = today || DAY[phase === "before" ? FIRST : LAST], cur = currentDest();
-    const title = phase === "during" ? "Today" : phase === "before" ? "Day one" : "The last day";
+  function renderTimeline() {
+    const el = $("#v-timeline .content"), cur = currentDest(), where = whereNow();
+    const ci = DESTS.indexOf(cur);
+    const state = (i) => phase === "after" || (phase === "during" && i < ci) ? "done" : phase === "during" && i === ci ? "now" : "next";
     el.innerHTML = `
-      <h1 class="display">${title}</h1>
-      <p class="lede">${dowLong(d.date)} ${dayNum(d.date)} November · ${esc(d.label)}</p>
+      <h1 class="display">Timeline</h1>
+      <p class="lede">${phase === "during" ? `${esc(today.label)}, ${dowLong(today.date)} ${dayNum(today.date)} November. ${where ? esc(where.label) + "." : ""}` : phase === "before" ? "Nothing travelled yet. The journey starts on Friday 6 November in Chengdu." : "The whole route, travelled."}</p>
       ${progressCard()}
-      ${crewLine(d.date)}
-      ${dayBlock(d, { open: true })}
-      <h2 class="section-title">${phase === "during" ? "You are in" : "Where it starts"}</h2>
-      <div class="cards">${destCard(cur)}</div>`;
-  }
-
-  /* =====================================================================
-     PLACES (all places, by type)
-     ===================================================================== */
-  let placeFilter = "all";
-  function placeCard(id) {
-    const P = PLACES[id], dest = destOfPlace(id), day = DAYS.find((x) => (DAY_PLACES[x.date] || []).includes(id));
-    return `<a class="card small ${dest.region} st-${P.status}" href="#place-${id}" data-key="place-${id}">
-      <span class="card-media">${cover(id, P.zh || P.name, dest.region)}</span>
-      <span class="card-panel">
-        <span class="eyebrow">${esc(P.kind)}</span>
-        <span class="card-title">${esc(P.name)}</span>
-        <span class="meta">
-          <span>${icon("map-pin")}${esc(dest.name)}</span>
-          ${day ? `<span>${icon("calendar-days")}${short(day.date)} · ${esc(day.label)}</span>` : ""}
-        </span>
-        <span class="card-foot"><span class="st">${icon(STATUS_ICON[P.status])}${esc(PLACE_STATUS[P.status])}</span></span>
-      </span>
-    </a>`;
-  }
-  function renderPlaces() {
-    const el = $("#v-places .content");
-    const all = DESTS.flatMap((d) => d.places);
-    const counts = Object.fromEntries(Object.keys(CATS).map((c) => [c, all.filter((id) => catOf(PLACES[id].kind) === c).length]));
-    el.innerHTML = `
-      <h1 class="display">Places</h1>
-      <p class="lede">Every place to visit on the route, by type. Each opens inside its destination.</p>
-      <div class="chips" role="radiogroup" aria-label="Filter places">
-        <button role="radio" aria-checked="true" data-filter="all">All <span>${all.length}</span></button>
-        ${Object.entries(CATS).map(([k, c]) => `<button role="radio" aria-checked="false" data-filter="${k}">${icon(c.icon)}${c.label} <span>${counts[k]}</span></button>`).join("")}
-      </div>
-      <div class="cards grid" id="placeCards"></div>`;
-    $(".chips", el).addEventListener("click", (e) => {
-      const b = e.target.closest("[data-filter]"); if (!b) return;
-      placeFilter = b.dataset.filter; drawPlaces();
-    });
-    drawPlaces();
-  }
-  function drawPlaces() {
-    $$("#v-places .chips button").forEach((b) => b.setAttribute("aria-checked", b.dataset.filter === placeFilter));
-    const ids = DESTS.flatMap((d) => d.places).filter((id) => placeFilter === "all" || catOf(PLACES[id].kind) === placeFilter);
-    $("#placeCards").innerHTML = ids.map(placeCard).join("");
+      ${crewLine(today ? today.date : FIRST)}
+      <ol class="tl">${DESTS.map((d, i) => {
+        const st = state(i);
+        return `<li class="tl-stop ${st} ${d.region}">
+          <span class="tl-node" aria-hidden="true">${st === "done" ? icon("circle-check") : ""}</span>
+          <div class="tl-body">
+            <a class="tl-head" href="#dest-${d.id}">
+              <span class="tl-thumb">${cover(d.id, d.zh, d.region)}</span>
+              <span><span class="eyebrow">${i === 0 ? "First stop" : i === DESTS.length - 1 ? "Last stop" : `Stop ${i + 1}`} · ${esc(dateRange(d.days))}${st === "now" ? ` · <em>You are here</em>` : st === "done" ? " · Done" : ""}</span>
+              <span class="tl-name">${esc(d.name)}</span></span>
+              ${icon("chevron-right")}
+            </a>
+            <ol class="tl-days">${d.days.filter((x) => DAY[x].stay === d.stay || !d.stay || x === d.days[0]).map((x) => {
+              const dd = DAY[x], past = phase === "after" || (today && x < today.date), isToday = today && x === today.date;
+              return `<li class="${past ? "past" : ""} ${isToday ? "today" : ""}"><a href="#dest-${d.id}"><b>${dow(x)} ${dayNum(x)}</b><span>${esc(dd.title)}</span>${dd.flags ? icon("triangle-alert", "warn-i") : ""}</a>
+                ${isToday && where ? `<span class="tl-live">${icon("locate-fixed")}${esc(where.label)}</span>` : ""}</li>`;
+            }).join("")}</ol>
+          </div>
+        </li>`;
+      }).join("")}</ol>`;
   }
 
   /* =====================================================================
@@ -356,7 +330,7 @@
         ${PHOTOS[d.id] ? `<span class="d-credit">${esc(PHOTOS[d.id].credit)}</span>` : ""}
       </div>
       <div class="d-sheet">
-        <p class="eyebrow">${regionName(d.region)} · Stop ${idx + 1} of ${DESTS.length}</p>
+        <p class="eyebrow">${regionName(d.region)} · ${idx === 0 ? "First stop" : idx === DESTS.length - 1 ? "Last stop" : `Stop ${idx + 1}`} · ${esc(dayRange(d))}</p>
         <h1 class="d-title">${esc(d.name)}</h1>
         <p class="d-zh" lang="zh">${esc(d.zh)}</p>
 
@@ -424,7 +398,7 @@
   /* =====================================================================
      Routing
      ===================================================================== */
-  const VIEWS = ["itinerary", "today", "places", "guide"];
+  const VIEWS = ["itinerary", "timeline", "guide"];
   let view = "itinerary", booted = false, lastCard = null;
   const lastView = () => "#" + view;
   const scrollMemo = {};
@@ -492,8 +466,7 @@
   /* ---------- Boot ---------- */
   $$("[data-icon]").forEach((el) => el.insertAdjacentHTML("afterbegin", icon(el.dataset.icon)));
   renderItinerary();
-  renderToday();
-  renderPlaces();
+  renderTimeline();
   renderGuide();
   setView(VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "itinerary");
   route();
