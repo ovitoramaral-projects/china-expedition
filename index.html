@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#f3eee4" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#16140f" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Interactive day-by-day itinerary for the November 2026 Western Sichuan & Yunnan expedition.">
+  <title>China Expedition · Nov 6–20, 2026</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23b8432f'/><path d='M5 23l7-10 5 6 3-4 7 8z' fill='%23f3eee4'/></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#days">Skip to itinerary</a>
+
+  <header class="hero">
+    <div class="mark" aria-hidden="true"><span>川</span><span class="mark-line"></span><span>滇</span></div>
+    <h1>China Expedition</h1>
+    <p class="lede">6 to 20 November 2026. From Chengdu up into the Kham highlands, over to Meili and Shangri-La, then down the Tea Horse Road to Dali and Kunming.</p>
+    <p class="status" id="status" aria-live="polite"></p>
+    <figure class="profile">
+      <div class="profile-scroll"><svg id="profile" role="group" aria-label="Altitude of each night's stay. Tap a night to jump to that day."></svg></div>
+      <figcaption>Where you sleep each night, by altitude. Approximate town elevations from general references, not from your booking files. Dashed peaks are each day's high point.</figcaption>
+    </figure>
+  </header>
+
+  <nav class="strip" id="strip" aria-label="Jump to day">
+    <div class="strip-inner" id="stripInner"></div>
+  </nav>
+
+  <main>
+    <section id="days" class="section" aria-labelledby="daysTitle">
+      <div class="section-head">
+        <h2 id="daysTitle">Day by day</h2>
+        <button class="link-btn" id="toggleAll" type="button">Expand all</button>
+      </div>
+      <div class="filters" role="radiogroup" aria-label="Filter days" id="filters">
+        <button role="radio" aria-checked="true" data-filter="all">All</button>
+        <button role="radio" aria-checked="false" data-filter="sichuan">Sichuan</button>
+        <button role="radio" aria-checked="false" data-filter="yunnan">Yunnan</button>
+        <button role="radio" aria-checked="false" data-filter="flags">To confirm <span class="count" id="flagCount"></span></button>
+      </div>
+      <ol class="days" id="dayList"></ol>
+    </section>
+
+    <section id="stays" class="section" aria-labelledby="staysTitle">
+      <h2 id="staysTitle">Where we sleep</h2>
+      <ol class="stays" id="stayList"></ol>
+    </section>
+
+    <section id="guide" class="section" aria-labelledby="guideTitle">
+      <h2 id="guideTitle">Field notes</h2>
+      <h3>The documentary arc</h3>
+      <ol class="arc" id="arcList"></ol>
+      <h3>Practical</h3>
+      <ul class="practical" id="practicalList"></ul>
+    </section>
+
+    <section id="gear" class="section" aria-labelledby="gearTitle">
+      <div class="section-head">
+        <h2 id="gearTitle">Camera kit</h2>
+        <span class="pill" id="gearProgress"></span>
+      </div>
+      <div id="gearList"></div>
+      <button class="link-btn" id="gearReset" type="button">Reset checklist</button>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <p>Built from the working itinerary and hotel vouchers. Items marked <span class="flag-dot" aria-hidden="true"></span> <strong>To confirm</strong> are conflicts between sources. Ask the organiser or driver; don't guess.</p>
+    <p>Map links open <strong>Amap 高德地图</strong> keyword searches, not exact pins. Check the result before you navigate.</p>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
