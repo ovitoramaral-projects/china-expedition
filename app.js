@@ -136,7 +136,7 @@
       ${s.note ? `<p class="stay-note">${esc(s.note)}</p>` : ""}
       <div class="actions">
         <a class="btn primary" href="${esc(s.map)}" target="_blank" rel="noopener">${ICON.map}Find in Amap</a>
-        ${s.phone ? `<a class="btn" href="tel:${esc(s.phone.replace(/[^\d+]/g, ""))}">${ICON.phone}Call</a>` : ""}
+        ${s.phone ? `<a class="btn" href="tel:${esc(s.phone.replace(/[^\d+]/g, ""))}">${ICON.phone}${esc(s.phone.replace(/\s*\(.*\)/, ""))}</a>` : ""}
       </div>
       ${s.nearby ? `<ul class="nearby" aria-label="Nearby, opens Amap">${s.nearby.map(([n, u, dist]) =>
         `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}${dist ? `<small>${esc(dist)}</small>` : ""}</a></li>`).join("")}</ul>` : ""}
