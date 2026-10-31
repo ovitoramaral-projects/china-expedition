@@ -320,6 +320,79 @@ main { max-width: 56rem; margin: 0 auto; padding: 0 var(--pad); }
   .day::before { left: 1.25rem; }
   .dot { left: .75rem; }
   .day-inner { grid-template-columns: 1fr 22rem; align-items: start; column-gap: 2rem; }
-  .day-inner > .stay { grid-column: 2; grid-row: 1 / span 6; }
+  .day-inner > .stay { grid-column: 2; grid-row: 1 / span 9; }
   .day-inner > :not(.stay) { grid-column: 1; }
 }
+
+/* ---------- Places in a day ---------- */
+.places-title { margin: 0 0 .35rem; font: 600 .8rem var(--body); color: var(--mist); }
+.places ul { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; }
+.place-row {
+  all: unset; box-sizing: border-box; width: 100%; cursor: pointer;
+  display: grid; gap: .1rem; padding: .65rem .85rem .65rem 1rem; min-height: 2.75rem;
+  border-radius: .6rem; background: color-mix(in srgb, var(--region) 7%, var(--paper));
+  border-left: 3px solid var(--region);
+}
+.place-row:hover { background: color-mix(in srgb, var(--region) 13%, var(--paper)); }
+.place-row:focus-visible { outline: 2px solid var(--sich); outline-offset: 2px; }
+.place-row.optional { border-left-style: dashed; background: transparent; border: 1px dashed var(--rule); border-left: 3px dashed var(--region); }
+.place-row.unconfirmed { border-left-color: var(--lamp); }
+.pr-main { display: flex; flex-wrap: wrap; align-items: baseline; gap: .1rem .5rem; }
+.pr-name { font-weight: 650; font-size: .95rem; }
+.pr-zh { font-family: var(--han); color: var(--mist); font-size: .9rem; }
+.pr-meta { font-size: .78rem; color: var(--mist); }
+.pr-meta em { font-style: normal; color: var(--lamp-ink); }
+.place-row.optional .pr-meta em { color: var(--mist); }
+
+/* ---------- Bottom sheet ---------- */
+.sheet {
+  --region: var(--sich);
+  position: fixed; inset: auto 0 0 0; margin: 0 auto; width: 100%; max-width: 40rem;
+  max-height: 88dvh; padding: 0; border: 0; border-radius: 1.1rem 1.1rem 0 0;
+  background: var(--paper); color: var(--ink);
+  box-shadow: 0 -8px 40px rgb(0 0 0 / .18);
+}
+.sheet.yunnan { --region: var(--yun); }
+.sheet[open] { display: flex; flex-direction: column; animation: sheet-up .32s var(--ease); }
+.sheet::backdrop { background: rgb(10 16 22 / .45); animation: fade .32s var(--ease); }
+@keyframes sheet-up { from { transform: translateY(100%); } }
+@keyframes fade { from { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .sheet[open], .sheet::backdrop { animation: none; } }
+@media (min-width: 46rem) {
+  .sheet { inset: 0; margin: auto; max-height: 85dvh; border-radius: 1.1rem; }
+  .sheet[open] { animation-name: fade; }
+}
+.sheet-grip { width: 2.5rem; height: 4px; border-radius: 2px; background: var(--rule); margin: .6rem auto 0; flex: 0 0 auto; }
+.sheet-close {
+  position: absolute; top: .6rem; right: .6rem; width: 2.75rem; height: 2.75rem;
+  display: grid; place-items: center; border: 0; border-radius: 50%;
+  background: var(--snow); cursor: pointer;
+}
+.sheet-close svg { width: 1.2rem; height: 1.2rem; }
+.sheet-body {
+  overflow-y: auto; overscroll-behavior: contain;
+  padding: .75rem var(--pad) calc(2rem + env(safe-area-inset-bottom));
+  font-size: .95rem;
+}
+.sh-meta { margin: 0 3rem .2rem 0; font-size: .8rem; color: var(--region); font-weight: 600; }
+.sheet h3 { margin: 0 3rem 0 0; font-size: 1.7rem; font-weight: 800; color: var(--ink); }
+.sh-zh { margin: .15rem 0 0; font: 1.25rem var(--han); color: var(--mist); }
+.sh-status { display: inline-block; margin: .6rem 0 0; padding: .1rem .55rem; border-radius: 999px; font-size: .74rem; font-weight: 600;
+  background: color-mix(in srgb, var(--region) 12%, transparent); color: var(--region); }
+.sh-status.unconfirmed { background: var(--lamp-bg); color: var(--lamp-ink); }
+.sh-status.optional { background: var(--snow); color: var(--mist); }
+.sheet .actions { margin-top: .9rem; }
+.sh-about { font-size: 1.02rem; margin: 1rem 0 0; }
+.sheet section { margin-top: 1.25rem; }
+.sheet h4 { margin: 0 0 .35rem; font: 700 1rem var(--display); font-stretch: condensed; color: var(--region); }
+.sheet section p { margin: 0; }
+.sheet section ul { margin: 0; padding-left: 1.1rem; display: grid; gap: .35rem; }
+.sheet .eat { list-style: none; padding: 0; gap: .6rem; }
+.sheet .eat a, .sheet .src a { color: var(--region); font-weight: 600; }
+.sh-fine { font-size: .78rem; color: var(--mist); margin: .2rem 0 .4rem; }
+.sheet-body > .sh-fine:last-child { margin-top: 1.5rem; }
+
+/* ---------- Field protocols ---------- */
+.field { border-bottom: 1px solid var(--rule); }
+.field summary { cursor: pointer; padding: .8rem 0; font-weight: 600; min-height: 2.75rem; list-style-position: inside; }
+.field ul { margin: 0 0 1rem; padding-left: 1.1rem; display: grid; gap: .35rem; color: var(--mist); font-size: .92rem; }

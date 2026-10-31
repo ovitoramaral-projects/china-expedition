@@ -54,6 +54,8 @@
       <ol class="arc" id="arcList"></ol>
       <h3>Practical</h3>
       <ul class="practical" id="practicalList"></ul>
+      <h3>On the ground</h3>
+      <div id="fieldList"></div>
     </section>
 
     <section id="gear" class="section" aria-labelledby="gearTitle">
@@ -71,9 +73,18 @@
     <p>Map links open <strong>Amap 高德地图</strong> keyword searches, not exact pins. Check the result before you navigate.</p>
   </footer>
 
+  <dialog class="sheet" id="sheet" aria-labelledby="sheetTitle">
+    <div class="sheet-grip" aria-hidden="true"></div>
+    <button class="sheet-close" id="sheetClose" type="button" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <div class="sheet-body" id="sheetBody"></div>
+  </dialog>
+
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="data.js"></script>
+  <script src="places.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

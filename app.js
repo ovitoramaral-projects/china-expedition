@@ -143,6 +143,60 @@
     </div>`;
   }
 
+  /* ---------- Places ---------- */
+  function placesBlock(d) {
+    const ids = DAY_PLACES[d.date];
+    if (!ids) return "";
+    return `<div class="places"><h4 class="places-title">Places · ${ids.length}</h4><ul>${ids.map((id) => {
+      const p = PLACES[id];
+      return `<li><button type="button" class="place-row ${p.status}" data-place="${id}">
+        <span class="pr-main"><span class="pr-name">${esc(p.name)}</span>${p.zh ? `<span class="pr-zh" lang="zh">${esc(p.zh)}</span>` : ""}</span>
+        <span class="pr-meta">${esc(p.kind)}${p.status !== "planned" ? ` · <em>${esc(PLACE_STATUS[p.status])}</em>` : ""}</span>
+      </button></li>`;
+    }).join("")}</ul></div>`;
+  }
+
+  const list = (title, items) => items && items.length
+    ? `<section><h4>${title}</h4><ul>${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul></section>` : "";
+  const para = (title, text) => text ? `<section><h4>${title}</h4><p>${esc(text)}</p></section>` : "";
+
+  function openPlace(id) {
+    const p = PLACES[id];
+    const day = DAYS.find((d) => (DAY_PLACES[d.date] || []).includes(id));
+    const sheet = $("#sheet");
+    sheet.className = "sheet " + (day && day.region === "yunnan" ? "yunnan" : "sichuan");
+    $("#sheetBody").innerHTML = `
+      <p class="sh-meta">${esc(p.kind)}${day ? ` · ${dow(day.date)} ${dayNum(day.date)} Nov` : ""}</p>
+      <h3 id="sheetTitle">${esc(p.name)}</h3>
+      ${p.zh ? `<p class="sh-zh" lang="zh">${esc(p.zh)}</p>` : ""}
+      <p class="sh-status ${p.status}">${esc(PLACE_STATUS[p.status])}</p>
+      ${p.map ? `<div class="actions"><a class="btn primary" href="${esc(p.map)}" target="_blank" rel="noopener">${ICON.map}Search in Amap</a>
+        ${p.zh ? `<button class="btn" type="button" data-copy="${esc(p.zh.replace(/[?？]/g, "").split(" · ")[0])}">${ICON.copy}Copy Chinese name</button>` : ""}</div>` : ""}
+      <p class="sh-about">${esc(p.about)}</p>
+      ${para("History & context", p.history)}
+      ${list("What to look for", p.look)}
+      ${list("What to do", p.todo)}
+      ${list("Photography", p.photo)}
+      ${para("Food to look for", p.food)}
+      ${p.eat ? `<section><h4>Restaurant leads</h4><p class="sh-fine">Leads, not reservations. Check the Chinese name and that it's open on the day.</p><ul class="eat">${p.eat.map(([n, t, u]) =>
+        `<li><b>${esc(n)}</b> ${esc(t)}${u ? ` <a href="${esc(u)}" target="_blank" rel="noopener">Listing</a>` : ""}</li>`).join("")}</ul></section>` : ""}
+      ${list("Care & cautions", p.care)}
+      ${p.sources ? `<section><h4>Sources</h4><ul class="src">${p.sources.map(([n, u]) => `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}</a></li>`).join("")}</ul></section>` : ""}
+      <p class="sh-fine">From the location field guide v1.4. Amap links are keyword searches; check you've picked the right result.</p>`;
+    $("#sheetBody").scrollTop = 0;
+    if (!sheet.open) sheet.showModal();
+  }
+
+  function initSheet() {
+    const sheet = $("#sheet");
+    $("#sheetClose").addEventListener("click", () => sheet.close());
+    sheet.addEventListener("click", (e) => { if (e.target === sheet) sheet.close(); }); // backdrop tap
+    document.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-place]");
+      if (b) openPlace(b.dataset.place);
+    });
+  }
+
   function renderDays() {
     const list = $("#dayList");
     list.innerHTML = DAYS.map((d, i) => {
@@ -168,6 +222,7 @@
           <p class="focus"><b>Focus.</b> ${esc(d.focus)}</p>
           ${d.options ? `<ul class="options">${d.options.map(([k, v]) => `<li><span>${esc(k)}</span>${esc(v)}</li>`).join("")}</ul>` : ""}
           ${d.notes ? `<ul class="notes">${d.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}
+          ${placesBlock(d)}
           ${stayBlock(d.stay, d)}
         </div></div></div>
       </li>`;
@@ -262,6 +317,7 @@
   /* ---------- Guide ---------- */
   function renderGuide() {
     $("#arcList").innerHTML = ARC.map(([t, d]) => `<li><b>${esc(t)}</b><span>${esc(d)}</span></li>`).join("");
+    $("#fieldList").innerHTML = FIELD.map(([t, items]) => `<details class="field"><summary>${esc(t)}</summary><ul>${items.map((i) => `<li>${esc(i)}</li>`).join("")}</ul></details>`).join("");
     $("#practicalList").innerHTML = PRACTICAL.map(([t, d]) => `<li><b>${esc(t)}</b><span>${esc(d)}</span></li>`).join("");
   }
 
@@ -296,7 +352,9 @@
   /* ---------- Copy address ---------- */
   let toastTimer;
   function toast(msg) {
-    const t = $("#toast"); t.textContent = msg; t.classList.add("show");
+    const t = $("#toast"), sheet = $("#sheet");
+    (sheet.open ? sheet : document.body).append(t); // keep the toast above an open sheet
+    t.textContent = msg; t.classList.add("show");
     clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove("show"), 1800);
   }
   document.addEventListener("click", async (e) => {
@@ -318,6 +376,7 @@
   renderStays();
   renderGuide();
   renderGear();
+  initSheet();
   trackActive();
 
   const hashDay = DAYS.findIndex((d) => location.hash === `#d-${d.date}`);
