@@ -263,12 +263,13 @@ const PLACES = {
   jadeDragon: {
     name: "Jade Dragon Snow Mountain", zh: "玉龙雪山", kind: "Mountain", status: "planned",
     map: amap("玉龙雪山", C.lijiang),
-    about: "The plan prefers viewpoints with the mountain behind the town instead of automatically taking the glacier cable car (up to about 4,506 m).",
+    about: "The snow range above Lijiang. Decided: enjoy it from below, at Blue Moon Valley and the Impression Lijiang show, rather than the crowded glacier cable car to about 4,500 m.",
     todo: [
-      "Skipping the cable car: Black Dragon Pool for the classic view if it's clear, then Baisha or Shuhe for a quieter walk, then the old town late afternoon.",
-      "Taking the cable car: prioritise the mountain and Blue Moon Valley, then see if there's time for Yuhu Village.",
+      "Blue Moon Valley for the lakes, waterfalls and mountain views.",
+      "Impression Lijiang: traditional music and dance with the mountain as backdrop.",
+      "If plans change: Yuhu and Baisha villages for Naxi architecture and a quieter day.",
     ],
-    care: ["The cable car means a rapid move to very high altitude and can be cancelled for weather. Oxygen is no guarantee against altitude illness.", "Don't assume the mountain will be visible. Keep the plan flexible."],
+    care: ["Don't assume the mountain will be visible. Cloud can close in; the valley and the show still work without the peak.", "The scenic area sits high (around 3,000 m at Blue Moon Valley by general references). Walk slowly and keep warm layers handy."],
   },
   blackDragon: {
     name: "Black Dragon Pool", zh: "黑龙潭公园", kind: "Viewpoint · park", status: "planned",
@@ -284,7 +285,7 @@ const PLACES = {
     care: ["If cloud has closed in, the mountain won't be visible from here."],
   },
   baisha: {
-    name: "Baisha", zh: "白沙古镇", kind: "Naxi village", status: "planned",
+    name: "Baisha", zh: "白沙古镇", kind: "Naxi village", status: "optional",
     map: amap("白沙古镇", C.lijiang),
     about: "A quieter Naxi settlement north of Lijiang with views toward the mountain. It was the earlier centre of Mu-family power before the move to Dayan (today's old town).",
     care: ["Confirm which mural or heritage site the driver intends."],
@@ -305,11 +306,20 @@ const PLACES = {
     about: "A historic settlement of lanes, springs and courtyard houses: a slower, quieter walk than Lijiang, and still a lived-in place.",
   },
   blueMoon: {
-    name: "Blue Moon Valley", zh: "蓝月谷", kind: "Valley", status: "optional",
+    name: "Blue Moon Valley", zh: "蓝月谷", kind: "Lakes & waterfalls", status: "planned",
     map: amap("蓝月谷", C.lijiang),
-    about: "Turquoise water below the snow mountain. Part of the cable-car version of the day.",
-    photo: ["Don't over-saturate the water until it looks artificial."],
-    care: ["Stay on paths; don't enter the water or restricted areas."],
+    about: "Turquoise lakes and waterfalls in a valley below Jade Dragon Snow Mountain, with big mountain views. The chosen way to see the mountain on 17 Nov, and a great place for landscape photography.",
+    look: ["The colour of the water against the white limestone terraces.", "Waterfalls between the lakes.", "The snow peaks above the valley when the cloud lifts."],
+    photo: ["Use the ND filter for silky waterfalls; keep the tripod low and steady.", "Don't over-saturate the turquoise until it looks artificial."],
+    care: ["Stay on paths; don't enter the water or restricted areas.", "Confirm tickets and the scenic-area shuttle with the driver."],
+  },
+  impression: {
+    name: "Impression Lijiang show", zh: "印象丽江", kind: "Outdoor performance", status: "planned",
+    map: amap("印象丽江", C.lijiang),
+    about: "A large outdoor performance of traditional music and dancing, staged with Jade Dragon Snow Mountain as the backdrop. Chosen for 17 Nov alongside Blue Moon Valley.",
+    look: ["The scale of the cast against the mountain.", "Costume, drums and song as performance: a staged show, not a village ritual."],
+    photo: ["Check the venue's photography rules before the show starts.", "A longer lens isolates performers against the snow."],
+    care: ["Book tickets and confirm the showtime: the plan has it for the evening, so check the schedule on the day.", "It's outdoors at altitude and can get cold quickly. Bring a warm layer."],
   },
 
   /* ---------------- Nov 18 ---------------- */
@@ -385,7 +395,7 @@ const DAY_PLACES = {
   "2026-11-14": ["meili"],
   "2026-11-15": ["feilai", "dukezong"],
   "2026-11-16": ["songzanlin", "napa"],
-  "2026-11-17": ["jadeDragon", "blackDragon", "wangu", "baisha", "lijiangOld", "shuhe", "blueMoon"],
+  "2026-11-17": ["blueMoon", "impression", "jadeDragon", "blackDragon", "wangu", "baisha", "lijiangOld", "shuhe"],
   "2026-11-18": ["shaxi", "shibaoshan"],
   "2026-11-19": ["erhai", "daliOld", "xizhou", "zhoucheng"],
 };

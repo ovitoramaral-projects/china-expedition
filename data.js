@@ -281,15 +281,16 @@ const DAYS = [
   },
   {
     date: "2026-11-17", label: "Day 11", region: "yunnan",
-    title: "Jade Dragon Snow Mountain & Lijiang",
-    route: ["Lijiang", "Jade Dragon Snow Mountain"],
-    summary: "Look for viewpoints with the mountain behind the town rather than automatically taking the glacier gondola (optional).",
-    focus: "Mountain-and-town compositions, Naxi cultural landscapes, tourism's influence on the old town.",
+    title: "Blue Moon Valley & Impression Lijiang",
+    route: ["Lijiang", "Blue Moon Valley", "Impression Lijiang show", "Lijiang"],
+    summary: "A Jade Dragon Snow Mountain day without the summit: Blue Moon Valley's turquoise lakes, waterfalls and mountain views, then the Impression Lijiang show, a large outdoor performance of traditional music and dance with the snow mountain as its backdrop. No glacier cable car to 4,500 m.",
+    focus: "Landscape photography at the lakes, then Naxi music and dance against the mountain.",
     options: [
-      ["Viewpoint", "Black Dragon Pool"],
-      ["Viewpoint", "Wangu Pavilion"],
-      ["Viewpoint", "Baisha area"],
+      ["Chosen", "Blue Moon Valley, then the Impression Lijiang show."],
+      ["Not doing", "The summit cable car to around 4,500 m: crowded and very high."],
+      ["Not chosen", "Yuhu & Baisha villages, the quieter cultural alternative. Still nearby if plans change."],
     ],
+    notes: ["Book show tickets and confirm the showtime and transfer with the driver."],
     stay: "lijiang",
   },
   {

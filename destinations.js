@@ -27,7 +27,7 @@ const DESTS = [
   { id: "shangrila", name: "Shangri-La", zh: "香格里拉", region: "yunnan",
     days: ["2026-11-15", "2026-11-16"], stay: "shangrila", lead: "dukezong", places: ["dukezong", "songzanlin", "napa"], voucher: 2 },
   { id: "lijiang", name: "Lijiang", zh: "丽江", region: "yunnan",
-    days: ["2026-11-16", "2026-11-17"], stay: "lijiang", lead: "lijiangOld", places: ["lijiangOld", "jadeDragon", "blackDragon", "wangu", "baisha", "shuhe", "blueMoon"], voucher: 2 },
+    days: ["2026-11-16", "2026-11-17"], stay: "lijiang", lead: "lijiangOld", places: ["lijiangOld", "blueMoon", "impression", "jadeDragon", "blackDragon", "wangu", "baisha", "shuhe"], voucher: 2 },
   { id: "shaxi", name: "Shaxi", zh: "沙溪", region: "yunnan",
     days: ["2026-11-18"], stay: "shaxi", lead: "shaxi", places: ["shaxi", "shibaoshan"], voucher: 1 },
   { id: "dali", name: "Erhai & Dali", zh: "洱海 · 大理", region: "yunnan",
