@@ -38,7 +38,7 @@ const STAYS = {
       ["太古里 Taikoo Li", amap("成都远洋太古里", C.chengdu), "≈650 m (listing figure)"],
       ["IFS", amap("成都国际金融中心", C.chengdu), "≈630 m (listing figure)"],
     ],
-    note: "Two rooms on two vouchers: Vitor & Ricardo's room is booked 6–8 Nov; Ikho & Anastasia's room 7–8 Nov. Airport pickup available for a fee — contact the hostel at least 72 h before arrival.",
+    note: "Two rooms on two vouchers: Vitor & Ricardo arrive 6 Nov (booked 6–8 Nov); Ikho & Anastasia arrive 7 Nov (booked 7–8 Nov). Airport pickup available for a fee — contact the hostel at least 72 h before arrival.",
   },
   siguniang: {
     name: "Qianyu Cloud Lodge",
@@ -182,9 +182,7 @@ const DAYS = [
     summary: "Transfer to the hostel and check in. Keep the evening relaxed after the journey.",
     focus: "Arrival, rest — and if energy permits, an evening walk around Chunxi Road or Taikoo Li.",
     stay: "chengdu",
-    flags: [
-      "Vitor & Ricardo's room is confirmed from 6 Nov (new voucher). Ikho & Anastasia's room is booked from 7 Nov only. Confirm they arrive on the 7th, or add the 6 Nov night for their room.",
-    ],
+    notes: ["Vitor & Ricardo arrive today (room booked 6–8 Nov). Ikho & Anastasia join on 7 Nov (room booked 7–8 Nov)."],
   },
   {
     date: "2026-11-07", label: "Day 1", region: "sichuan",
@@ -366,6 +364,6 @@ const ELEV = {
 const CREW = [
   { name: "Vitor" },
   { name: "Ricardo" },
-  { name: "Ikho" },
-  { name: "Anastasia", until: "2026-11-16", leaves: "Leaves on 16 Nov, dropped at the airport on the way to Lijiang" },
+  { name: "Ikho", from: "2026-11-07" },
+  { name: "Anastasia", from: "2026-11-07", until: "2026-11-16", leaves: "Leaves on 16 Nov, dropped at the airport on the way to Lijiang" },
 ];

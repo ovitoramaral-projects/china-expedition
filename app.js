@@ -177,7 +177,7 @@
      TIMELINE — what's done, where you are, what's next
      ===================================================================== */
   function crewLine(date) {
-    const on = CREW.filter((c) => !c.until || c.until >= date), leaving = CREW.filter((c) => c.until === date);
+    const on = CREW.filter((c) => (!c.until || c.until >= date) && (!c.from || c.from <= date)), leaving = CREW.filter((c) => c.until === date);
     return `<p class="crew-line">${icon("footprints")}<span><b>Crew</b> ${esc(on.map((c) => c.name).join(", "))}${leaving.length ? ` · ${esc(leaving.map((c) => c.name).join(", "))} flies out today` : ""}</span></p>`;
   }
   function renderTimeline() {
@@ -224,7 +224,7 @@
       <h1 class="display">Guide</h1>
       <p class="lede">The crew, the story you're telling, and how to travel well on this route.</p>
       <h2 class="section-title">Crew</h2>
-      <ul class="plist">${CREW.map((c) => `<li>${icon("footprints")}<span><b>${esc(c.name)}</b>${esc(c.leaves || "The whole way, 6 – 20 November")}</span></li>`).join("")}</ul>
+      <ul class="plist">${CREW.map((c) => `<li>${icon("footprints")}<span><b>${esc(c.name)}</b>${esc([c.from ? "Joins on 7 November" : "", c.leaves || (c.from ? "" : "The whole way, 6 – 20 November")].filter(Boolean).join(". "))}</span></li>`).join("")}</ul>
       <h2 class="section-title">The documentary arc</h2>
       <ol class="arc">${ARC.map(([t, d], i) => `<li><span class="arc-n">${i + 1}</span><span><b>${esc(t)}</b>${esc(d)}</span></li>`).join("")}</ol>
       <h2 class="section-title">Practical</h2>
@@ -442,6 +442,27 @@
       </div>`;
   }
 
+  // Highlight the jump-bar link for the section being read.
+  function spyJump(det) {
+    const links = $$(".jump a", det);
+    if (!links.length) return;
+    const secs = links.map((l) => $(l.getAttribute("href"), det)).filter(Boolean);
+    const set = (id) => links.forEach((l) => l.classList.toggle("on", l.getAttribute("href") === "#" + id));
+    const update = () => {
+      const line = det.getBoundingClientRect().top + 120;
+      let cur = secs[0];
+      for (const sec of secs) if (sec.getBoundingClientRect().top <= line) cur = sec;
+      if (det.scrollTop + det.clientHeight >= det.scrollHeight - 4) cur = secs.at(-1);
+      set(cur.id);
+      const on = $(".jump a.on", det), bar = $(".jump", det);
+      if (on && bar) { const l = on.offsetLeft - bar.offsetLeft, r = l + on.offsetWidth;
+        if (l < bar.scrollLeft + 16) bar.scrollLeft = l - 16; else if (r > bar.scrollLeft + bar.clientWidth - 16) bar.scrollLeft = r - bar.clientWidth + 16; }
+    };
+    let raf = 0;
+    det.onscroll = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; update(); }); };
+    update();
+  }
+
   function voucherView(id) {
     const d = DEST[id], s = STAYS[d.stay];
     const pages = Array.from({ length: d.voucher }, (_, k) => `vouchers/${d.stay}-${k + 1}.jpg`);
@@ -485,6 +506,7 @@
         det.scrollTop = 0;
         document.body.classList.add("has-detail");
         if (focus) requestAnimationFrame(() => $(focus)?.scrollIntoView({ block: "start" }));
+        spyJump(det);
       } else {
         const wasDetail = !det.hidden;
         det.hidden = true; det.innerHTML = "";

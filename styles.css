@@ -496,3 +496,9 @@ body.has-detail { overflow: hidden; }
 .tl-back .i { width: 1rem; height: 1rem; }
 /* Timeline view: the itinerary tab stays highlighted */
 :root[data-view="timeline"] .tabbar a[data-view="itinerary"] { color: var(--ink); font-weight: 600; }
+
+/* Section bar: active section */
+.jump a { position: relative; padding: .25rem 0; transition: color .2s var(--ease); }
+.jump a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -.9rem; height: 2px; border-radius: 2px; background: var(--cinnabar, #c8352a); transform: scaleX(0); transition: transform .25s var(--ease); }
+.jump a.on { color: var(--ink); font-weight: 600; }
+.jump a.on::after { transform: scaleX(1); }
