@@ -335,7 +335,7 @@ const PLACES = {
       "Yujin Bridge and the lanes around town: how town, river crossing and routes connect.",
       "A village walk beyond the commercial lanes, with the guide's advice.",
     ],
-    photo: ["A quiet wide frame of the square before it fills up, if timing allows.", "Stay long enough to see the place change through the day."],
+    photo: ["A quiet wide frame of the square before it fills up, if timing allows.", "Use architectural details to explain how buildings were made and used.", "Photograph craft, food or shop activity only without blocking the work or making customers uncomfortable.", "Stay long enough to see the place change through the day."],
     food: "Shaxi local noodles, ersi/erkuai, seasonal vegetables and Bai home-style dishes. The Monday market won't match your Wednesday visit.",
     eat: [
       ["sunyata Shaxi 既下山·沙溪店", "115 Sideng Street. Polished sit-down, Yunnan/Bai-influenced; pricier.", "https://www.trip.com/restaurant/jianchuan-2025134/"],
@@ -348,7 +348,7 @@ const PLACES = {
     name: "Shibaoshan", zh: "石宝山", kind: "Temples & grottoes", status: "optional",
     map: amap("石宝山", C.jianchuan),
     about: "Forested sandstone hills with temples and Buddhist rock carvings; the Shizhongshan Grottoes hold Nanzhao-era carvings. From the older supplier route.",
-    care: ["Never touch, rub, wet or flash the carvings where prohibited.", "Ask whether a visit means the grottoes, a temple or just a viewpoint; they aren't interchangeable."],
+    care: ["Never touch, rub, wet or flash the carvings where prohibited.", "Read the official interpretation panels rather than guessing the story of an image.", "Ask whether a visit means the grottoes, a temple or just a viewpoint; they aren't interchangeable."],
     sources: [["Shibaoshan", "https://www.lonelyplanet.com/points-of-interest/shibaoshan/1621445"]],
   },
 
@@ -365,13 +365,15 @@ const PLACES = {
     map: amap("喜洲古镇", C.dali),
     about: "A Bai settlement in the Erhai basin with courtyard houses and a market. From the older supplier route.",
     food: "Xizhou baba, a baked flatbread with sweet or savoury filling, from a bakery or market stall. Three-course tea at a Bai courtyard if the guide can fit it in.",
+    look: ["How courtyard houses, streets and the market work together, rather than one facade as a symbol."],
+    photo: ["A wide frame of a building within its street or courtyard.", "Details of a doorway, roofline, painted surface or craft, where photography is allowed.", "Everyday activity from public space; ask before identifiable portraits."],
     care: ["Ask which courtyard is open; not every historic-looking house is a public attraction."],
   },
   zhoucheng: {
     name: "Zhoucheng", zh: "周城村", kind: "Tie-dye village", status: "optional",
     map: amap("周城村", C.dali),
     about: "A Bai village known for tie-dye. If a workshop is operating, ask for a demonstration of the resist-dye process. From the older supplier route.",
-    care: ["Ask before photographing artisans. Clarify what a workshop fee covers and whether dyes are natural."],
+    care: ["Ask before photographing artisans. Clarify what a workshop fee covers and whether dyes are natural.", "Buy directly from makers where you can; ask whether a piece is handmade locally and what the price includes.", "Don't block workspaces."],
   },
   daliOld: {
     name: "Dali Old Town", zh: "大理古城", kind: "Old town", status: "planned",

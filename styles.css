@@ -602,3 +602,21 @@ body.has-detail { overflow: hidden; }
   .blessing { top: calc(5.5rem + env(safe-area-inset-top)); }
 }
 @media (prefers-reduced-motion: reduce) { .fabs.on-hero #fabFilter { transform: none; } }
+
+/* Photography section */
+.board-slot { aspect-ratio: 4 / 3; display: flex; flex-direction: column; justify-content: center; gap: .5rem; padding: 1.5rem; border: 1px dashed var(--line); border-radius: var(--r); background: repeating-linear-gradient(135deg, transparent 0 12px, color-mix(in srgb, var(--line) 35%, transparent) 12px 13px); margin-top: .75rem; }
+.board-slot .meta { display: block; margin: 0; max-width: 24rem; }
+.board-slot code { font-size: .8125rem; }
+.boards { display: grid; gap: 1rem; margin-top: .75rem; }
+.board { margin: 0; }
+.board img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: contain; background: #f4f1ea; border-radius: var(--r); }
+.shots-title { margin-top: 2rem !important; }
+.shots { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 1px; background: var(--line); border-radius: var(--r); overflow: hidden; }
+.shots li { padding: 1rem 1.125rem; background: var(--surface); }
+.shots .label { margin: 0; }
+.detail .shot-action { margin: .35rem 0 0; font-size: .9375rem; }
+.shot-spec { display: grid; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); gap: .5rem 1rem; margin: .75rem 0 0; }
+.shot-spec dt { font: 600 .625rem/1.3 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.shot-spec dd { margin: .15rem 0 0; font-size: .8125rem; color: var(--ink-2); }
+.meta-inline { font-size: .8125rem; color: var(--muted); }
+.detail h3 + .meta { margin-top: .5rem; }

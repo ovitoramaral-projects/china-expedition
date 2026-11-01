@@ -1,6 +1,6 @@
 # China Expedition — project rules
 
-Static site (index.html + styles.css + app.js + data.js + places.js + destinations.js + photos.js + geo.js + food.js + icons.js; booking vouchers in vouchers/ are gitignored). No build step, no frameworks, **no external resources** (Google Fonts/CDNs are blocked or slow in mainland China). Mobile-first; it is used on a phone in the field.
+Static site (index.html + styles.css + app.js + data.js + places.js + destinations.js + photos.js + geo.js + food.js + storyboards.js + icons.js; booking vouchers in vouchers/ are gitignored). No build step, no frameworks, **no external resources** (Google Fonts/CDNs are blocked or slow in mainland China). Mobile-first; it is used on a phone in the field.
 
 ## Content rules (from the planning handoff, `knowledge/HANDOFF_README.md`)
 1. The current route is `knowledge/itinerary_working.txt`. The older supplier itinerary is historical reference only.

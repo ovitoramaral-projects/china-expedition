@@ -402,6 +402,45 @@
   const AMAP_CITY = { chengdu: "成都市", siguniang: "小金县 四川省", danba: "丹巴县 四川省", tagong: "康定市 四川省", yajiang: "雅江县 四川省",
     yading: "稻城县 四川省", meili: "德钦县 云南省", shangrila: "香格里拉市 云南省", lijiang: "丽江市 云南省", shaxi: "剑川县 云南省", dali: "大理市 云南省", kunming: "昆明市 云南省" };
 
+  /* Photography: draft shot list from the field guide's photo plans, in the
+     storyboard spec's annotation format, using only the confirmed camera kit. */
+  function shotFor(tip) {
+    const t = tip.toLowerCase();
+    const cam = /pov|action|cycling|osmo/.test(t) ? "DJI Osmo Action 6" : "Fujifilm X-T5";
+    const lens = cam !== "Fujifilm X-T5" ? "FOV Boost Lens" :
+      /portrait|isolat|craft|doorway|^detail/.test(t) ? "Sirui 55mm T1.2" :
+      /compress|layers|long end|tighter/.test(t) ? "Sigma 17–40mm at 40mm" : "Sigma 17–40mm at 17–24mm";
+    const size = /^layer|compress/.test(t) ? "Long lens, compressed" : /^detail|texture/.test(t) ? "Close-up" :
+      /foreground|wide|establishing|panorama|landscape|context|scale|relationship/.test(t) ? "Wide" :
+      /portrait|people|activity|craft|performer/.test(t) ? "Medium" : "Medium wide";
+    const move = /sequence|hold position/.test(t) ? "Tripod, short sequence" :
+      /tripod|silky|waterfall|\bnd\b/.test(t) ? "Tripod, locked off" : "Handheld";
+    const light = /sunrise/.test(t) ? "Sunrise" : /sunset|golden/.test(t) ? "Sunset" : /early or late|late afternoon/.test(t) ? "Early or late light" :
+      /early/.test(t) ? "Early light" : /night|evening/.test(t) ? "Evening" : /silky|waterfall/.test(t) ? "ND filter (1–5 stops)" : "As found";
+    return { cam, lens, size, move, light };
+  }
+  function photoBlock(d) {
+    const all = d.places.flatMap((p) => (PLACES[p].photo || []).map((tip) => ({ place: PLACES[p].name, tip })));
+    const isNote = (t) => /^(don't|do not|check|ask|record|avoid|follow|keep|plan|stay|secure|photograph .* only|stay long)/i.test(t);
+    const shots = all.filter((x) => !isNote(x.tip)), notes = all.filter((x) => isNote(x.tip));
+    const boards = STORYBOARDS[d.id] || [];
+    const kit = GEAR.flatMap(([, items]) => items);
+    return `
+      <h3>Storyboard</h3>
+      ${boards.length ? `<div class="boards">${boards.map((b) => `<figure class="board"><img src="${esc(b.src)}" alt="${esc(b.title || "Storyboard")}" loading="lazy"><figcaption class="meta">${esc(b.title || "")}</figcaption></figure>`).join("")}</div>`
+        : `<div class="board-slot"><span class="label">4:3 storyboard</span><p class="meta">No board for this stop yet. The planning files had no China storyboard images; add them to <code>storyboards.js</code> and they'll appear here.</p></div>`}
+      ${shots.length ? `<h3 class="shots-title">Draft shot list</h3>
+        <p class="meta">From the field guide's photo plans, in the storyboard spec's format. Camera notes use only your confirmed kit and are suggestions.</p>
+        <ol class="shots">${shots.map(({ place, tip }, i) => { const s = shotFor(tip); return `<li>
+          <p class="label">Shot ${i + 1} · ${esc(place)}</p>
+          <p class="shot-action">${esc(tip)}</p>
+          <dl class="shot-spec"><div><dt>Cam</dt><dd>${esc(s.cam)}</dd></div><div><dt>Lens</dt><dd>${esc(s.lens)}</dd></div><div><dt>Size</dt><dd>${esc(s.size)}</dd></div><div><dt>Move</dt><dd>${esc(s.move)}</dd></div><div><dt>Light</dt><dd>${esc(s.light)}</dd></div></dl>
+        </li>`; }).join("")}</ol>` : `<p class="meta">No photo plan for this stop in the field guide yet.</p>`}
+      ${notes.length ? `<h3 class="shots-title">Shooting notes</h3><ul class="bullets">${notes.map(({ place, tip }) => `<li>${esc(tip)} <span class="meta-inline">${esc(place)}</span></li>`).join("")}</ul>` : ""}
+      <h3 class="shots-title">On the ground</h3>
+      ${ul(FIELD[0][1])}`;
+  }
+
   function destDetail(id, openPlace) {
     const d = DEST[id], lead = d.lead && PLACES[d.lead], nights = destNights(d);
     const idx = DESTS.indexOf(d), prev = DESTS[idx - 1], next = DESTS[idx + 1];
@@ -430,7 +469,7 @@
         </header>
 
         <nav class="jump" aria-label="On this page">
-          <a href="#j-about">About</a><a href="#j-days">Days</a>${d.places.length ? `<a href="#j-places">Places</a>` : ""}<a href="#j-stay">Stay</a><a href="#j-food">Food</a>
+          <a href="#j-about">About</a><a href="#j-days">Days</a>${d.places.length ? `<a href="#j-places">Places</a>` : ""}<a href="#j-photo">Photo</a><a href="#j-stay">Stay</a><a href="#j-food">Food</a>
         </nav>
 
         ${section("j-about", "About", `
@@ -450,6 +489,8 @@
         ${d.places.length ? section("j-places", "Places to visit",
           `<ul class="places">${d.places.map((p) => placeItem(p, d, p === openPlace)).join("")}</ul>`,
           hasDistances ? "Distances are straight-line estimates from where you sleep. Open Amap for the real route." : "") : ""}
+
+        ${section("j-photo", "Photography", photoBlock(d))}
 
         ${section("j-stay", "Where you sleep", stayBlock(d))}
 
