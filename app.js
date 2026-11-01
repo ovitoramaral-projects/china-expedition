@@ -137,11 +137,12 @@
     const cur = currentDest();
     el.innerHTML = `
       <section class="home-hero" aria-label="China Expedition">
-        <span class="hero-media">${cover("dest-" + cur.id, cur.zh, cur.region)}</span>
+        <span class="seal" aria-hidden="true" lang="zh"><span>川</span><span>滇</span></span>
+        <p class="blessing" lang="zh" aria-label="Yílù píng'ān, a safe journey"><span>一</span><span>路</span><span>平</span><span>安</span></p>
         <div class="hero-text">
-          <p class="hero-kicker"><span lang="zh">川 · 滇</span> 6 – 20 November 2026</p>
+          <p class="hero-kicker">6 – 20 November 2026</p>
           <h1 class="hero-title">China<br>Expedition</h1>
-          <p class="hero-sub">Chengdu to Kunming, through Sichuan and Yunnan. Twelve stops.</p>
+          <p class="hero-sub"><span class="red">Yílù píng'ān</span> · a safe journey, from Chengdu to Kunming through Sichuan and Yunnan.</p>
         </div>
         <div class="hero-bottom">${progressCard()}<span class="scroll-cue">${icon("chevron-down")}Scroll through the stops</span></div>
       </section>

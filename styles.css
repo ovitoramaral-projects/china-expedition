@@ -455,3 +455,32 @@ body.has-detail { overflow: hidden; }
   :root[data-view="itinerary"] .tabbar a[aria-current] { color: #fff; }
   #v-itinerary .empty { color: rgb(255 255 255 / .7); border-color: rgb(255 255 255 / .2); }
 }
+
+/* Opening screen: black, with a cinnabar seal and blessing */
+:root { --cinnabar: #c8352a; --cinnabar-deep: #9e2a21; }
+@media (max-width: 51.99rem) {
+  .home-hero { background: #0a0a0a; color: #f3efe8; justify-content: flex-end; gap: 1.75rem; }
+  .seal {
+    position: absolute; top: calc(1.75rem + env(safe-area-inset-top)); left: var(--pad);
+    display: grid; grid-template-columns: 1fr; place-items: center; width: 3.4rem; height: 3.4rem;
+    background: var(--cinnabar); border-radius: 4px; color: #fbe9e4;
+    font: 400 1.15rem/1 var(--han); letter-spacing: 0; box-shadow: inset 0 0 0 2px rgb(255 255 255 / .12);
+  }
+  .seal span { display: block; line-height: 1.05; }
+  .blessing {
+    position: absolute; top: calc(1.5rem + env(safe-area-inset-top)); right: calc(var(--pad) - .25rem); margin: 0;
+    display: flex; flex-direction: column; align-items: center;
+    font: 400 clamp(2.9rem, 13vw, 4rem)/1 var(--han); color: var(--cinnabar);
+  }
+  .blessing span { display: block; height: 1.12em; }
+  .hero-kicker { color: rgb(243 239 232 / .6); }
+  .hero-title { text-shadow: none; color: #f3efe8; }
+  .hero-sub { max-width: 19rem; color: rgb(243 239 232 / .75); }
+  .hero-sub .red { color: var(--cinnabar); font-weight: 600; }
+  .hero-bottom .progress-card { background: #151515; color: #f3efe8; box-shadow: none; border: 1px solid #262626; }
+  .hero-bottom .progress-card .eyebrow, .hero-bottom .pc-top, .hero-bottom .pc-foot { color: rgb(243 239 232 / .55); }
+  .hero-bottom .bar { background: #2a2a2a; }
+  .hero-bottom .bar i { background: var(--cinnabar); }
+  .hero-bottom .fine, .hero-bottom .fine .i, .scroll-cue { color: rgb(243 239 232 / .5); }
+  .hero-media { display: none; }
+}
