@@ -25,6 +25,13 @@
   <!-- Expanded card: place, stay or day -->
   <article class="detail" id="detail" hidden></article>
 
+  <!-- Phone: floating Guide + Filters -->
+  <div class="fabs" id="fabs">
+    <a class="fab" href="#guide" aria-label="Guide" data-icon="book-open"></a>
+    <button class="fab" id="fabFilter" type="button" aria-label="Filter stops" aria-expanded="false" aria-controls="filterPanel" data-icon="sliders-horizontal"><span class="fab-dot" aria-hidden="true"></span></button>
+    <div class="filter-panel" id="filterPanel" role="radiogroup" aria-label="Filter stops"></div>
+  </div>
+
   <nav class="tabbar" aria-label="Sections">
     <a href="#itinerary" data-view="itinerary" data-icon="map"><span>Itinerary</span></a>
     <a href="#guide" data-view="guide" data-icon="book-open"><span>Guide</span></a>

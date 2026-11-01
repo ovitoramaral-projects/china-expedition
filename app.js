@@ -155,10 +155,29 @@
       const b = e.target.closest("[data-filter]"); if (!b) return;
       destFilter = b.dataset.filter; drawDests();
     });
+    // Phone: the same filters live in a panel behind the floating button.
+    const panel = $("#filterPanel"), fab = $("#fabFilter");
+    panel.innerHTML = `<p class="fp-title">Show stops with</p>` + chips.map(([k, l, ic], i) =>
+      `<button type="button" role="radio" aria-checked="${k === destFilter}" data-filter="${k}" style="--i:${i}">${icon(ic || "map")}<span>${esc(l)}</span>${icon("check", "fp-check")}</button>`).join("");
+    const setOpen = (open) => {
+      $("#fabs").classList.toggle("open", open);
+      fab.setAttribute("aria-expanded", open);
+      if (open) requestAnimationFrame(() => $("#filterPanel button[aria-checked=true]")?.focus({ preventScroll: true }));
+    };
+    fab.addEventListener("click", () => setOpen(!$("#fabs").classList.contains("open")));
+    panel.addEventListener("click", (e) => {
+      const b = e.target.closest("[data-filter]"); if (!b) return;
+      destFilter = b.dataset.filter; drawDests(); setOpen(false);
+      const first = $("#v-itinerary .card");
+      if (first) first.scrollIntoView({ behavior: reduceMotion ? "instant" : "smooth" });
+    });
+    document.addEventListener("click", (e) => { if ($("#fabs").classList.contains("open") && !e.target.closest("#fabs")) setOpen(false); });
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape" && $("#fabs").classList.contains("open")) { setOpen(false); fab.focus(); } });
     drawDests();
   }
   function drawDests() {
-    $$("#v-itinerary .chips button").forEach((b) => b.setAttribute("aria-checked", b.dataset.filter === destFilter));
+    $$("#v-itinerary .chips button, #filterPanel button").forEach((b) => b.setAttribute("aria-checked", b.dataset.filter === destFilter));
+    $("#fabFilter").classList.toggle("has-filter", destFilter !== "all");
     const f = destFilter;
     const match = (d) => f === "all" || d.places.some((p) => catOf(PLACES[p].kind) === f);
     const out = ["sichuan", "yunnan"].map((r) => {
@@ -216,6 +235,7 @@
     const total = GEAR.reduce((n, [, items]) => n + items.length, 0);
     const PICON = { "Weather & roads": "mountain", Altitude: "mountain-snow", Photography: "camera", "Amap links": "map", Timings: "clock" };
     el.innerHTML = `
+      <a class="tl-back" href="#itinerary">${icon("chevron-left")}Itinerary</a>
       <h1 class="display">Guide</h1>
       <p class="lede">The crew, the story you're telling, and how to travel well on this route.</p>
       <h2 class="section-title">Crew</h2>
