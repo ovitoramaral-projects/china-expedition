@@ -1,10 +1,8 @@
-// Photo slots. Put a JPG in assets/photos/<id>.jpg (about 1200 px wide, < 200 KB)
-// and register it here with its credit. Ids are place ids from places.js,
-// or "stay-<key>" for a hotel's area photo (keys from STAYS in data.js).
-// Until a photo exists, the card shows a generated landscape illustration.
-//
-// Example:
-//   pearl: { src: "assets/photos/pearl.jpg", credit: "Photo: Jane Doe, CC BY-SA 4.0, Wikimedia Commons" },
+// Photos from Wikimedia Commons, chosen by hand and checked by title to show
+// the right place. Keys: "dest-<id>" for a destination cover (destinations.js),
+// or a place id (places.js). Files live in assets/photos/ (<name>.jpg, 1200 px;
+// <name>-s.jpg, 480 px). Each entry carries its author and licence credit.
+// Without an entry, a quiet typographic cover with the Chinese name is shown.
 "use strict";
 const PHOTOS = {
   "dest-siguniang": { src: "assets/photos/siguniang-d.jpg", small: "assets/photos/siguniang-d-s.jpg", credit: "Photo: Johannes Böckh, CC BY-SA 3.0, via Wikimedia Commons", page: "https://commons.wikimedia.org/wiki/File:Mount_Siguniang_2.jpg", title: "Mount Siguniang 2.jpg" },
