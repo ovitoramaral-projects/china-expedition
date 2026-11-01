@@ -502,3 +502,18 @@ body.has-detail { overflow: hidden; }
 .jump a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -.9rem; height: 2px; border-radius: 2px; background: var(--cinnabar, #c8352a); transform: scaleX(0); transition: transform .25s var(--ease); }
 .jump a.on { color: var(--ink); font-weight: 600; }
 .jump a.on::after { transform: scaleX(1); }
+
+/* Cards: high-level only — region, name, dates · nights · altitude */
+.card-line { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem 0; padding: .875rem 1.2rem 1.15rem; font-size: .875rem; color: var(--ink-2); }
+.card-line span + span::before { content: ""; display: inline-block; width: 3px; height: 3px; border-radius: 50%; background: currentColor; opacity: .45; margin: 0 .65rem; vertical-align: middle; }
+.card-line .warn { color: var(--warn); }
+.card-line .warn::before { display: none !important; }
+.card-line .warn { margin-left: .75rem; }
+.card-line .warn .i { width: 1rem; height: 1rem; vertical-align: -2px; }
+.card .card-panel { min-height: 0; }
+@media (max-width: 51.99rem) {
+  #v-itinerary .card-line { padding: .9rem 0 0; color: rgb(255 255 255 / .85); font-size: .9375rem; }
+  #v-itinerary .card-line .warn { color: #f0c27a; }
+  #v-itinerary .card-title { font-size: 2.5rem; }
+  #v-itinerary .card-panel { padding-bottom: 2rem; }
+}

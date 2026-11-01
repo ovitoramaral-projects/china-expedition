@@ -93,24 +93,19 @@
     const nights = destNights(d), first = DAY[d.days[0]], cur = currentDest();
     const isNow = phase === "during" && cur === d;
     const isDone = phase === "after" || (phase === "during" && DESTS.indexOf(d) < DESTS.indexOf(cur));
-    const st = d.stay && STAYS[d.stay];
     const alt = ELEV[nights[0] || d.days[0]];
     return `<a class="card ${d.region} ${isDone ? "is-done" : ""} ${isNow ? "is-now" : ""}" href="#dest-${d.id}" data-key="dest-${d.id}">
       <span class="card-media">${cover("dest-" + d.id, d.zh, d.region)}</span>
       <span class="pills"><span class="pill">${DESTS.indexOf(d) === 0 ? "First stop" : DESTS.indexOf(d) === DESTS.length - 1 ? "Last stop" : `Stop ${DESTS.indexOf(d) + 1}`}</span>${isNow ? `<span class="pill now">${icon("locate-fixed")}You are here</span>` : ""}${isDone ? `<span class="pill done">${icon("circle-check")}Visited</span>` : ""}</span>
       <span class="card-panel">
-        <span class="eyebrow">${regionName(d.region)} · ${esc(dayRange(d))}</span>
+        <span class="eyebrow">${regionName(d.region)}</span>
         <span class="card-title">${esc(d.name)}</span>
         <span class="card-zh" lang="zh">${esc(d.zh)}</span>
-        <span class="card-desc">${esc(d.intro || (d.lead && PLACES[d.lead].about) || "")}</span>
-        <span class="meta">
-          <span>${icon("calendar-days")}${esc(dateRange(d.days))}${nights.length ? ` · ${nights.length} night${nights.length > 1 ? "s" : ""}` : ""}</span>
-          ${st ? `<span>${icon("bed-double")}${esc(st.name)}</span>` : `<span>${icon("bed-double")}No booking on file</span>`}
-        </span>
-        <span class="card-foot">
-          <span>${icon("map-pin")}${d.places.length ? `${d.places.length} place${d.places.length > 1 ? "s" : ""} to visit` : "Arrival and rest"}</span>
-          <span>${icon("mountain")}~${alt ? alt.m.toLocaleString() : "–"} m</span>
-          ${destHasFlags(d) ? `<span class="warn">${icon("triangle-alert")}To confirm</span>` : ""}
+        <span class="card-line">
+          <span>${esc(dateRange(d.days))}</span>
+          ${nights.length ? `<span>${nights.length} night${nights.length > 1 ? "s" : ""}</span>` : ""}
+          <span>~${alt ? alt.m.toLocaleString() : "–"} m</span>
+          ${destHasFlags(d) ? `<span class="warn">${icon("triangle-alert")}</span>` : ""}
         </span>
       </span>
     </a>`;
