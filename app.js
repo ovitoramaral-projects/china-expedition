@@ -413,44 +413,148 @@
   const AMAP_CITY = { chengdu: "成都市", siguniang: "小金县 四川省", danba: "丹巴县 四川省", tagong: "康定市 四川省", yajiang: "雅江县 四川省",
     yading: "稻城县 四川省", meili: "德钦县 云南省", shangrila: "香格里拉市 云南省", lijiang: "丽江市 云南省", shaxi: "剑川县 云南省", dali: "大理市 云南省", kunming: "昆明市 云南省" };
 
-  /* Photography: draft shot list from the field guide's photo plans, in the
-     storyboard spec's annotation format, using only the confirmed camera kit. */
+  /* =====================================================================
+     PHOTOGRAPHY (layout B: by place)
+     ===================================================================== */
+  // Sunrise/sunset and twilight times, NOAA-style approximation. Local China time (UTC+8).
+  function sunTimes(lat, lon, iso) {
+    const d = parse(iso), n = Math.round((d - Date.UTC(d.getUTCFullYear(), 0, 0)) / 864e5);
+    const R = Math.PI / 180;
+    const at = (rising, alt) => {
+      const lngHour = lon / 15, t = n + ((rising ? 6 : 18) - lngHour) / 24;
+      const M = 0.9856 * t - 3.289;
+      const L = (M + 1.916 * Math.sin(M * R) + 0.020 * Math.sin(2 * M * R) + 282.634 + 360) % 360;
+      let RA = (Math.atan(0.91764 * Math.tan(L * R)) / R + 360) % 360;
+      RA = (RA + (Math.floor(L / 90) * 90 - Math.floor(RA / 90) * 90)) / 15;
+      const sinDec = 0.39782 * Math.sin(L * R), cosDec = Math.cos(Math.asin(sinDec));
+      const cosH = (Math.sin(alt * R) - sinDec * Math.sin(lat * R)) / (cosDec * Math.cos(lat * R));
+      let H = Math.acos(Math.max(-1, Math.min(1, cosH))) / R; if (rising) H = 360 - H;
+      const UT = ((H / 15 + RA - 0.06571 * t - 6.622 - lngHour) % 24 + 24) % 24;
+      return (UT + 8) % 24;
+    };
+    return { blueAm: at(true, -6), rise: at(true, -0.833), goldAm: at(true, 6), goldPm: at(false, 6), set: at(false, -0.833), bluePm: at(false, -6) };
+  }
+  const hm = (h) => `${String(Math.floor(h)).padStart(2, "0")}:${String(Math.round((h % 1) * 60) % 60).padStart(2, "0")}`;
+  const GENERAL_COORDS = { kunming: [25.04, 102.71], yading: [28.45, 100.33] };
+  function destCoords(d) {
+    return (d.stay && GEO.stays[d.stay]) || GENERAL_COORDS[d.id] ||
+      d.places.map((p) => GEO.places[p]).find(Boolean) || null;
+  }
+  function lightBlock(d) {
+    const c = destCoords(d); if (!c) return "";
+    const day = d.days.filter((x) => DAY[x].stay === d.stay).at(-1) || d.days[0]; // the full day spent here
+    const s = sunTimes(c[0], c[1], day);
+    const pct = (h) => ((h - 5) / 16) * 100;
+    const seg = (a, b, cls) => `<i class="${cls}" style="left:${pct(a).toFixed(2)}%;width:${(pct(b) - pct(a)).toFixed(2)}%"></i>`;
+    return `<div class="light">
+      <div class="light-head"><span class="label">Light · ${dow(day)} ${dayNum(day)} Nov</span><span class="meta-inline">Calculated estimate</span></div>
+      <div class="lbar" role="img" aria-label="Blue hour from ${hm(s.blueAm)}, sunrise ${hm(s.rise)}, golden hour until ${hm(s.goldAm)}; golden hour from ${hm(s.goldPm)}, sunset ${hm(s.set)}, blue hour until ${hm(s.bluePm)}">
+        ${seg(s.rise, s.set, "day")}${seg(s.blueAm, s.rise, "blue")}${seg(s.rise, s.goldAm, "gold")}${seg(s.goldPm, s.set, "gold r")}${seg(s.set, s.bluePm, "blue")}
+      </div>
+      <div class="lticks"><span>05</span><span>09</span><span>13</span><span>17</span><span>21</span></div>
+      <dl class="ltimes">
+        <div class="b"><dt>Blue hour</dt><dd>${hm(s.blueAm)}</dd></div>
+        <div class="g"><dt>Sunrise · golden</dt><dd>${hm(s.rise)}–${hm(s.goldAm)}</dd></div>
+        <div class="g"><dt>Golden · sunset</dt><dd>${hm(s.goldPm)}–${hm(s.set)}</dd></div>
+      </dl>
+    </div>`;
+  }
+
   function shotFor(tip) {
     const t = tip.toLowerCase();
-    const cam = /pov|action|cycling|osmo/.test(t) ? "DJI Osmo Action 6" : "Fujifilm X-T5";
-    const lens = cam !== "Fujifilm X-T5" ? "FOV Boost Lens" :
-      /portrait|isolat|craft|doorway|^detail/.test(t) ? "Sirui 55mm T1.2" :
-      /compress|layers|long end|tighter/.test(t) ? "Sigma 17–40mm at 40mm" : "Sigma 17–40mm at 17–24mm";
-    const size = /^layer|compress/.test(t) ? "Long lens, compressed" : /^detail|texture/.test(t) ? "Close-up" :
+    const lens = /portrait|isolat|craft|doorway|^detail/.test(t) ? "Sirui 55mm T1.2" :
+      /compress|layers|long end|tighter|longer lens/.test(t) ? "Sigma 17–40 · 40mm" : "Sigma 17–40 · 17–24mm";
+    const size = /^layer|compress/.test(t) ? "Compressed" : /^detail|texture/.test(t) ? "Close-up" :
       /foreground|wide|establishing|panorama|landscape|context|scale|relationship/.test(t) ? "Wide" :
       /portrait|people|activity|craft|performer/.test(t) ? "Medium" : "Medium wide";
-    const move = /sequence|hold position/.test(t) ? "Tripod, short sequence" :
-      /tripod|silky|waterfall|\bnd\b/.test(t) ? "Tripod, locked off" : "Handheld";
-    const light = /sunrise/.test(t) ? "Sunrise" : /sunset|golden/.test(t) ? "Sunset" : /early or late|late afternoon/.test(t) ? "Early or late light" :
-      /early/.test(t) ? "Early light" : /night|evening/.test(t) ? "Evening" : /silky|waterfall/.test(t) ? "ND filter (1–5 stops)" : "As found";
-    return { cam, lens, size, move, light };
+    const move = /sequence|hold position/.test(t) ? "Tripod, sequence" : /tripod|silky|waterfall|\bnd\b/.test(t) ? "Tripod" : "Handheld";
+    const nd = /silky|waterfall|\bnd\b/.test(t);
+    const light = /sunrise/.test(t) ? "Sunrise" : /sunset/.test(t) ? "Sunset" : /early or late|late afternoon|golden/.test(t) ? "Golden hour" : /early/.test(t) ? "Early light" : /night|evening/.test(t) ? "Evening" : "";
+    return { lens, size, move, nd, light };
   }
+  const isNote = (t) => /^(don't|do not|check|ask|record|avoid|follow|keep|plan|stay|secure|photograph .* only|stay long)/i.test(t);
+
+  // Ticked shots, saved on this device only.
+  const SHOT_KEY = "ce-shots-v1";
+  let shotDone = {}; try { shotDone = JSON.parse(localStorage.getItem(SHOT_KEY)) || {}; } catch {}
+  document.addEventListener("change", (e) => {
+    const cb = e.target.closest("input[data-shotkey]"); if (!cb) return;
+    shotDone[cb.dataset.shotkey] = cb.checked; if (!cb.checked) delete shotDone[cb.dataset.shotkey];
+    try { localStorage.setItem(SHOT_KEY, JSON.stringify(shotDone)); } catch {}
+    $$(`[data-shotcount]`).forEach((el) => {
+      const keys = el.dataset.shotcount.split("|");
+      el.querySelector("b").textContent = keys.filter((k) => shotDone[k]).length;
+    });
+  });
+  const counter = (keys) => `<span class="shot-count" data-shotcount="${keys.join("|")}"><b>${keys.filter((k) => shotDone[k]).length}</b> of ${keys.length} ${keys.length === 1 ? "shot" : "shots"}</span>`;
+
+  function carousel(d) {
+    const boards = (STORYBOARDS[d.id] || []).map((b) => ({ img: b.src, cap: b.title || "", tag: "Storyboard", contain: true }));
+    const refs = d.places.filter((p) => PHOTOS[p] && (PLACES[p].photo || []).length).map((p) => ({ img: PHOTOS[p].small, cap: PLACES[p].name, tag: "Reference" }));
+    const cov = PHOTOS["dest-" + d.id];
+    const fallback = !boards.length && !refs.length && cov && d.places.length ? [{ img: cov.small, cap: d.name, tag: "Reference" }] : [];
+    const frames = [...boards, ...(boards.length ? [] : refs), ...fallback, { img: null, cap: "Add the real board to storyboards.js" }];
+    if (frames.length < 2) return "";
+    const id = "car-" + d.id;
+    return `<div class="car">
+      <div class="car-head"><span class="label">Storyboard</span><span class="meta-inline">${frames.length} frames · 4:3</span></div>
+      <div class="car-track" id="${id}" tabindex="0" aria-label="Storyboard frames, swipe sideways">
+        ${frames.map((f, i) => `<figure class="frame"><div class="pic">${f.img ? `<img src="${esc(f.img)}" alt="" loading="lazy"${f.contain ? ' class="contain"' : ""}><span class="ftag">${f.tag}</span>` : `<span class="fempty"><span>No board yet</span><span>4 : 3</span></span>`}<span class="fnum">${i + 1}</span></div><figcaption>${esc(f.cap)}</figcaption></figure>`).join("")}
+      </div>
+      <div class="dots" data-for="${id}">${frames.map((_, i) => `<span class="${i ? "" : "on"}"></span>`).join("")}</div>
+    </div>`;
+  }
+
   function photoBlock(d) {
-    const all = d.places.flatMap((p) => (PLACES[p].photo || []).map((tip) => ({ place: PLACES[p].name, tip })));
-    const isNote = (t) => /^(don't|do not|check|ask|record|avoid|follow|keep|plan|stay|secure|photograph .* only|stay long)/i.test(t);
-    const shots = all.filter((x) => !isNote(x.tip)), notes = all.filter((x) => isNote(x.tip));
-    const boards = STORYBOARDS[d.id] || [];
-    const kit = GEAR.flatMap(([, items]) => items);
+    const groups = d.places.map((p) => {
+      const P = PLACES[p], tips = P.photo || [];
+      const shots = tips.filter((t) => !isNote(t)), notes = tips.filter(isNote);
+      return { p, P, shots, notes };
+    }).filter((g) => g.shots.length || g.notes.length);
+    const allShots = groups.flatMap((g) => g.shots.map((t) => ({ t, s: shotFor(t) })));
+    const peak = PEAK[d.id]?.m || 0;
+    const kit = [["camera", "Fujifilm X-T5"], ["circle", "Sigma 17–40mm"]];
+    if (allShots.some((x) => /Sirui/.test(x.s.lens))) kit.push(["circle", "Sirui 55mm T1.2"]);
+    if (allShots.some((x) => x.s.nd)) kit.push(["square", "ND 1–5 stops"]);
+    if (allShots.some((x) => /Tripod/.test(x.s.move)) || groups.some((g) => g.notes.some((n) => /tripod/i.test(n)))) kit.push(["triangle", "Tripod"]);
+    if (peak >= 3000) kit.push(["battery", "Warm spare batteries"]);
+    const rules = [...new Set(d.places.flatMap((p) => (PLACES[p].care || []).filter((c) => /photograph|photo|film/i.test(c))))];
+    const sacred = d.places.some((p) => /monastery|temple/i.test(PLACES[p].kind));
+
+    const shotLi = (key, t) => {
+      const s = shotFor(t);
+      const chips = [s.lens, s.move, s.nd ? "ND filter" : "", s.light].filter(Boolean);
+      return `<li class="shot"><label><input type="checkbox" data-shotkey="${esc(key)}" ${shotDone[key] ? "checked" : ""}><span class="shot-txt"><span class="shot-what">${esc(t)}</span>
+        <span class="shot-chips">${chips.map((c) => `<span class="${c === "ND filter" ? "sc nd" : /hour|Sunrise|Sunset|light/.test(c) ? "sc gold" : "sc"}">${esc(c)}</span>`).join("")}</span></span></label></li>`;
+    };
     return `
-      <h3>Storyboard</h3>
-      ${boards.length ? `<div class="boards">${boards.map((b) => `<figure class="board"><img src="${esc(b.src)}" alt="${esc(b.title || "Storyboard")}" loading="lazy"><figcaption class="meta">${esc(b.title || "")}</figcaption></figure>`).join("")}</div>`
-        : `<div class="board-slot"><span class="label">4:3 storyboard</span><p class="meta">No board for this stop yet. The planning files had no China storyboard images; add them to <code>storyboards.js</code> and they'll appear here.</p></div>`}
-      ${shots.length ? `<h3 class="shots-title">Draft shot list</h3>
-        <p class="meta">From the field guide's photo plans, in the storyboard spec's format. Camera notes use only your confirmed kit and are suggestions.</p>
-        <ol class="shots">${shots.map(({ place, tip }, i) => { const s = shotFor(tip); return `<li>
-          <p class="label">Shot ${i + 1} · ${esc(place)}</p>
-          <p class="shot-action">${esc(tip)}</p>
-          <dl class="shot-spec"><div><dt>Cam</dt><dd>${esc(s.cam)}</dd></div><div><dt>Lens</dt><dd>${esc(s.lens)}</dd></div><div><dt>Size</dt><dd>${esc(s.size)}</dd></div><div><dt>Move</dt><dd>${esc(s.move)}</dd></div><div><dt>Light</dt><dd>${esc(s.light)}</dd></div></dl>
-        </li>`; }).join("")}</ol>` : `<p class="meta">No photo plan for this stop in the field guide yet.</p>`}
-      ${notes.length ? `<h3 class="shots-title">Shooting notes</h3><ul class="bullets">${notes.map(({ place, tip }) => `<li>${esc(tip)} <span class="meta-inline">${esc(place)}</span></li>`).join("")}</ul>` : ""}
-      <h3 class="shots-title">On the ground</h3>
-      ${ul(FIELD[0][1])}`;
+      ${lightBlock(d)}
+      ${carousel(d)}
+      ${groups.length ? groups.map((g, gi) => {
+        const keys = g.shots.map((_, i) => `${d.id}:${g.p}:${i}`);
+        return `<details class="pgroup" ${gi === 0 ? "open" : ""}>
+          <summary><span class="pg-thumb">${cover(g.p, g.P.zh || g.P.name, d.region, true)}</span><span class="pg-text"><span class="pg-name">${esc(g.P.name)}</span>${keys.length ? counter(keys) : `<span class="shot-count">Notes only</span>`}</span>${icon("chevron-down", "pg-chev")}</summary>
+          <div class="pg-body">
+            ${g.shots.length ? `<ul class="shots">${g.shots.map((t, i) => shotLi(keys[i], t)).join("")}</ul>` : ""}
+            ${g.notes.length ? `<ul class="bullets pg-notes">${g.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}
+            ${g.shots.length ? `<details class="tech"><summary><span>Shot details <span class="meta-inline">suggested, from your kit</span></span>${icon("chevron-down")}</summary><div class="tech-in">
+              ${g.shots.map((t) => { const s = shotFor(t); return `<p class="tech-shot">${esc(t)}</p><dl class="tech-dl"><dt>Lens</dt><dd>${esc(s.lens)}</dd><dt>Framing</dt><dd>${esc(s.size)}</dd><dt>Support</dt><dd>${esc(s.move)}${s.nd ? " · ND filter" : ""}</dd>${s.light ? `<dt>Light</dt><dd>${esc(s.light)}</dd>` : ""}</dl>`; }).join("")}
+            </div></details>` : ""}
+          </div>
+        </details>`;
+      }).join("") : `<p class="meta">No photo plan for this stop in the field guide yet.</p>`}
+      ${rules.length || sacred ? `<div class="prules">${icon("triangle-alert")}<div><b>Photo rules</b><ul>${(rules.length ? rules : ["Follow posted photography rules in monasteries and temples; ask before photographing monks or worshippers."]).map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div></div>` : ""}
+      <details class="tech"><summary><span>In the bag today <span class="meta-inline">${kit.length} items</span></span>${icon("chevron-down")}</summary><div class="tech-in"><div class="kit">${kit.map(([, k]) => `<span>${esc(k)}</span>`).join("")}</div></div></details>
+      <details class="tech"><summary><span>On the ground <span class="meta-inline">guide protocol</span></span>${icon("chevron-down")}</summary><div class="tech-in">${ul(FIELD[0][1])}</div></details>`;
   }
+  // Carousel dots follow the swipe.
+  document.addEventListener("scroll", (e) => {
+    const tr = e.target.closest?.(".car-track"); if (!tr) return;
+    const dots = $(`.dots[data-for="${tr.id}"]`); if (!dots) return;
+    const w = tr.firstElementChild.getBoundingClientRect().width + 10;
+    const k = Math.round(tr.scrollLeft / w);
+    [...dots.children].forEach((dd, j) => dd.classList.toggle("on", j === k));
+  }, { passive: true, capture: true });
 
   function destDetail(id, openPlace) {
     const d = DEST[id], lead = d.lead && PLACES[d.lead], nights = destNights(d);
