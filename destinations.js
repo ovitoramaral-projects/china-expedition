@@ -37,3 +37,21 @@ const DESTS = [
     days: ["2026-11-20"], stay: null, lead: null, places: [], voucher: 0,
     intro: "The end of the road: a morning transfer from Dali, arriving in the afternoon. No hotel or onward booking is in the files yet." },
 ];
+
+// Highest point you reach at each stop (overview only).
+// src "files" = from the itinerary / field guide; "general" = general geographic
+// reference, not from the planning files. Not verified on the ground.
+const PEAK = {
+  chengdu:   { m: 500,  where: "Chengdu",                       src: "general" },
+  siguniang: { m: 4480, where: "Balang Mountain pass, on the drive in", src: "general" },
+  danba:     { m: 2000, where: "Jiaju village",                 src: "general" },
+  tagong:    { m: 3700, where: "Tagong grassland",              src: "general" },
+  yajiang:   { m: 3800, where: "Muya grasslands, on the drive", src: "general" },
+  yading:    { m: 4700, where: "Milk Lake & Five-Color Lake",   src: "files" },
+  meili:     { m: 4290, where: "Baima Snow Mountain pass, on the drive", src: "general" },
+  shangrila: { m: 3300, where: "Shangri-La",                    src: "files" },
+  lijiang:   { m: 3000, where: "Blue Moon Valley",              src: "general" },
+  shaxi:     { m: 2100, where: "Shaxi",                         src: "general" },
+  dali:      { m: 2000, where: "Erhai Lake",                    src: "general" },
+  kunming:   { m: 1900, where: "Kunming",                       src: "general" },
+};

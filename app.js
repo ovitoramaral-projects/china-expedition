@@ -104,7 +104,7 @@
         <span class="card-line">
           <span>${esc(dateRange(d.days))}</span>
           ${nights.length ? `<span>${nights.length} night${nights.length > 1 ? "s" : ""}</span>` : ""}
-          <span>~${alt ? alt.m.toLocaleString() : "–"} m</span>
+          <span>up to ~${PEAK[d.id].m.toLocaleString()} m</span>
           ${destHasFlags(d) ? `<span class="warn">${icon("triangle-alert")}</span>` : ""}
         </span>
       </span>
@@ -463,9 +463,10 @@
           <dl class="facts">
             <div><dt>Dates</dt><dd>${esc(dateRange(d.days))}</dd></div>
             <div><dt>Nights</dt><dd>${nights.length || "–"}</dd></div>
-            <div><dt>Altitude</dt><dd>~${alt ? alt.m.toLocaleString() : "–"} m</dd></div>
+            <div><dt>Highest</dt><dd>~${PEAK[d.id].m.toLocaleString()} m</dd></div>
             <div><dt>Places</dt><dd>${d.places.length || "–"}</dd></div>
           </dl>
+          <p class="meta alt-note">${icon("mountain")}<span>Highest: ~${PEAK[d.id].m.toLocaleString()} m at ${esc(PEAK[d.id].where)}${alt ? `. You sleep at ~${alt.m.toLocaleString()} m` : ""}. ${PEAK[d.id].src === "files" ? "From your field guide." : "General reference, not from your files."}</span></p>
         </header>
 
         <nav class="jump" aria-label="On this page">

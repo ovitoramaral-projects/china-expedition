@@ -16,4 +16,4 @@ The repo must never contain the booking PDF, booking/confirmation numbers, PINs,
 
 ## Detail-page typography (keep it this way)
 Six roles only: page title (serif), section h2 (serif 1.5rem), item h3 (sans 1.0625rem/600), body (1rem/1.6), meta (.875rem muted), label (.6875rem caps). Links are `.tlink` (underlined text), not buttons; the only button on a stop page is the booking voucher.
-Distances in `geo.js` are straight-line estimates from approximate coordinates and must always be labelled as such.
+Cards show the HIGHEST point per stop (`PEAK` in destinations.js, each marked files/general). Distances in `geo.js` are straight-line estimates from approximate coordinates and must always be labelled as such.

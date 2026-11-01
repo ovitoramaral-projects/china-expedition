@@ -620,3 +620,5 @@ body.has-detail { overflow: hidden; }
 .shot-spec dd { margin: .15rem 0 0; font-size: .8125rem; color: var(--ink-2); }
 .meta-inline { font-size: .8125rem; color: var(--muted); }
 .detail h3 + .meta { margin-top: .5rem; }
+.detail .alt-note { order: 9; margin-top: 1rem; }
+.detail .alt-note { align-items: flex-start; } .detail .alt-note .i { align-self: flex-start; margin-top: .2rem; }
