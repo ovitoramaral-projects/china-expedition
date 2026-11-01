@@ -367,3 +367,5 @@ body.has-detail { overflow: hidden; }
 .credits b { color: var(--ink); font-weight: 600; }
 .credits a { color: var(--ink-2); word-break: break-word; }
 .kv dd > a.tlink:first-child { margin-left: 0; }
+
+.detail .v-label { margin: .75rem 0 -.25rem; font: 600 .6875rem/1.3 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: #b5b5b5; }

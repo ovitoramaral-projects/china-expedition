@@ -434,7 +434,7 @@
         <span><small>Booking voucher</small><b>${esc(s.name)}</b></span>
       </div>
       <p class="v-note">${icon("shield-alert")}<span>Contains booking numbers and PINs. Show it at check-in; don't share screenshots.</span></p>
-      <div class="v-pages">${pages.map((src, k) => `<img src="${src}" alt="Voucher page ${k + 1}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('p'),{className:'empty',textContent:'Voucher image not available in this copy. Vouchers are kept out of the repository for privacy.'}))">`).join("")}</div>`;
+      <div class="v-pages">${pages.map((src, k) => `${d.voucherLabels?.[k] ? `<p class="v-label">${esc(d.voucherLabels[k])}</p>` : ""}<img src="${src}" alt="Voucher page ${k + 1}" loading="lazy" onerror="this.replaceWith(Object.assign(document.createElement('p'),{className:'empty',textContent:'Voucher image not available in this copy. Vouchers are kept out of the repository for privacy.'}))">`).join("")}</div>`;
   }
 
   /* =====================================================================

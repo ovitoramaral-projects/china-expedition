@@ -28,6 +28,7 @@ const STAYS = {
     name: "Poshpacker Chengdu Flipflop Hostel",
     sub: "Taikoo Li / Chunxi Road Metro Station",
     address: "No. 98 Dongsheng Street, Jinjiang District, Chengdu",
+    dates: "two rooms: Vitor & Ricardo 6 → 8 Nov, Ikho & Anastasia 7 → 8 Nov",
     phone: "+86 028-62500185",
     checkin: "After 14:00", checkout: "Before 12:00",
     meals: "No breakfast",
@@ -37,7 +38,7 @@ const STAYS = {
       ["太古里 Taikoo Li", amap("成都远洋太古里", C.chengdu), "≈650 m (listing figure)"],
       ["IFS", amap("成都国际金融中心", C.chengdu), "≈630 m (listing figure)"],
     ],
-    note: "Airport pickup available for a fee — contact the hostel at least 72 h before arrival.",
+    note: "Two rooms on two vouchers: Vitor & Ricardo's room is booked 6–8 Nov; Ikho & Anastasia's room 7–8 Nov. Airport pickup available for a fee — contact the hostel at least 72 h before arrival.",
   },
   siguniang: {
     name: "Qianyu Cloud Lodge",
@@ -182,7 +183,7 @@ const DAYS = [
     focus: "Arrival, rest — and if energy permits, an evening walk around Chunxi Road or Taikoo Li.",
     stay: "chengdu",
     flags: [
-      "The Chengdu voucher in the booking PDF shows check-in 7 Nov → check-out 8 Nov (1 night). The itinerary says the stay starts 6 Nov. Confirm the 6 Nov night is actually booked.",
+      "Vitor & Ricardo's room is confirmed from 6 Nov (new voucher). Ikho & Anastasia's room is booked from 7 Nov only. Confirm they arrive on the 7th, or add the 6 Nov night for their room.",
     ],
   },
   {
