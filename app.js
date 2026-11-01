@@ -460,7 +460,10 @@
           <span class="g"><b>${hm(s.goldPm)}–${hm(s.set)}</b><small>Golden hour, sunset</small></span>
           <span class="b"><b>${hm(s.set)}–${hm(s.bluePm)}</b><small>Blue hour</small></span></div>
       </div>
-      ${typeof LIGHT3D !== "undefined" && LIGHT3D[d.id] ? `<div class="l3d" data-l3d="${d.id}"></div>` : ""}
+      ${typeof LIGHT3D !== "undefined" && LIGHT3D[d.id] ? `<details class="tech l3d-wrap">
+        <summary><span>Light on the mountain <span class="meta-inline">3D model</span></span>${icon("chevron-down")}</summary>
+        <div class="l3d" data-l3d="${d.id}"></div>
+      </details>` : ""}
     </div>`;
   }
 

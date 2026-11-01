@@ -427,7 +427,6 @@ void main(){
   function shell(views, i) {
     const v = views[i], d = v.date;
     return `<div class="l3d-head">
-        <span class="label">Light on the mountain · 3D model</span>
         <h3>${v.title}</h3>
         <p class="l3d-meta">${v.dir[0].toUpperCase() + v.dir.slice(1)} · ${v.when} · modelled terrain, clear sky</p>
         ${views.length > 1 ? `<p class="l3d-views">${views.map((x, k) => `<button type="button" class="tlink" data-l3dview="${k}" aria-pressed="${k === i}">${x.tab}</button>`).join("")}</p>` : ""}
@@ -452,7 +451,7 @@ void main(){
   }
 
   /* ---------- mounting ---------- */
-  let views = null, viewIdx = 0, busy = false, playing = false, lastTick = 0, pending = 0, io = null;
+  let views = null, viewIdx = 0, busy = false, playing = false, lastTick = 0, pending = 0;
   const range = () => root.querySelector(".l3d-range");
   const request = () => { if (pending || busy) return; pending = requestAnimationFrame(() => { pending = 0; draw(+range().value); }); };
   function stopPlay() { playing = false; const b = root && root.querySelector(".l3d-play"); if (b) b.textContent = "Play the day"; }
@@ -508,19 +507,18 @@ void main(){
   });
   window.addEventListener("resize", () => { if (root && root.isConnected && !busy && V) request(); });
 
-  // Called after a stop page renders: builds the view once it scrolls near.
+  // Called after a stop page renders. The view sits in a collapsed row and is
+  // only built (terrain, shading, the day's verdict) the first time it's opened.
   function attach(scope) {
-    if (io) io.disconnect();
     const el = scope.querySelector("[data-l3d]");
     if (!el) return;
     const list = LIGHT3D[el.dataset.l3d];
     if (!list) return;
-    el.innerHTML = shell(list, 0);
-    if (!("IntersectionObserver" in window)) return void open(el, list, 0);
-    io = new IntersectionObserver((ents) => {
-      if (ents.some((x) => x.isIntersecting)) { io.disconnect(); io = null; open(el, list, 0); }
-    }, { rootMargin: "300px 0px" });
-    io.observe(el);
+    const wrap = el.closest("details");
+    const go = () => { if (!el.dataset.built) { el.dataset.built = "1"; open(el, list, 0); } };
+    if (!wrap) return go();
+    wrap.addEventListener("toggle", () => { if (wrap.open) { go(); if (root === el && !busy && V) request(); } else if (root === el) stopPlay(); });
+    if (wrap.open) go();
   }
   return { attach };
 })();

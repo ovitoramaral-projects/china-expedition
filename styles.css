@@ -654,7 +654,9 @@ body.has-detail { overflow: hidden; }
 @media (prefers-color-scheme: dark) { .lrow .g b { color: #e3b46b; } .lrow .b b { color: #8fb0dc; } }
 
 /* Light on the mountain: 3D terrain view (light3d.js) */
-.l3d { display: grid; gap: .75rem; margin-top: .5rem; padding-top: .9rem; border-top: 1px solid var(--line); }
+.l3d { display: grid; gap: .75rem; padding-bottom: .4rem; }
+.light details.l3d-wrap { margin-top: .35rem; }
+.light details.l3d-wrap > summary { padding-bottom: .1rem; }
 .l3d-head h3 { margin: .2rem 0 0; font: 600 1.0625rem/1.35 var(--sans); }
 .l3d-meta, .detail .l3d-meta { font-size: .875rem; line-height: 1.5; color: var(--muted); }
 .detail .l3d-head .l3d-meta { margin: .1rem 0 0; }
