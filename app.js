@@ -92,11 +92,12 @@
   function destCard(d, opts = {}) {
     const nights = destNights(d), first = DAY[d.days[0]], cur = currentDest();
     const isNow = phase === "during" && cur === d;
+    const isDone = phase === "after" || (phase === "during" && DESTS.indexOf(d) < DESTS.indexOf(cur));
     const st = d.stay && STAYS[d.stay];
     const alt = ELEV[nights[0] || d.days[0]];
-    return `<a class="card ${d.region}" href="#dest-${d.id}" data-key="dest-${d.id}">
+    return `<a class="card ${d.region} ${isDone ? "is-done" : ""} ${isNow ? "is-now" : ""}" href="#dest-${d.id}" data-key="dest-${d.id}">
       <span class="card-media">${cover("dest-" + d.id, d.zh, d.region)}</span>
-      <span class="pills"><span class="pill">${DESTS.indexOf(d) === 0 ? "First stop" : DESTS.indexOf(d) === DESTS.length - 1 ? "Last stop" : `Stop ${DESTS.indexOf(d) + 1}`}</span>${isNow ? `<span class="pill now">${icon("locate-fixed")}You are here</span>` : ""}</span>
+      <span class="pills"><span class="pill">${DESTS.indexOf(d) === 0 ? "First stop" : DESTS.indexOf(d) === DESTS.length - 1 ? "Last stop" : `Stop ${DESTS.indexOf(d) + 1}`}</span>${isNow ? `<span class="pill now">${icon("locate-fixed")}You are here</span>` : ""}${isDone ? `<span class="pill done">${icon("circle-check")}Visited</span>` : ""}</span>
       <span class="card-panel">
         <span class="eyebrow">${regionName(d.region)} · ${esc(dayRange(d))}</span>
         <span class="card-title">${esc(d.name)}</span>
@@ -123,7 +124,7 @@
     const prog = tripProgress(), where = whereNow(), cur = currentDest();
     const head = phase === "during" ? `${today.label} · ${short(today.date)}` : phase === "before" ? `Starts ${dowLong(FIRST)} 6 November` : "6 – 20 November 2026";
     const big = where ? where.label : phase === "before" ? `${Math.round((parse(FIRST) - parse(now.date)) / 864e5)} days to go` : "Journey complete";
-    return `<a class="progress-card" href="#dest-${cur.id}">
+    return `<a class="progress-card" href="#timeline">
       <span class="pc-top"><span class="eyebrow">${esc(head)}</span>${icon("chevron-right")}</span>
       <span class="pc-where">${esc(big)}</span>
       <span class="bar"><i style="width:${(prog * 100).toFixed(1)}%"></i></span>
@@ -184,6 +185,7 @@
     const ci = DESTS.indexOf(cur);
     const state = (i) => phase === "after" || (phase === "during" && i < ci) ? "done" : phase === "during" && i === ci ? "now" : "next";
     el.innerHTML = `
+      <a class="tl-back" href="#itinerary">${icon("chevron-left")}Itinerary</a>
       <h1 class="display">Timeline</h1>
       <p class="lede">${phase === "during" ? `${esc(today.label)}, ${dowLong(today.date)} ${dayNum(today.date)} November. ${where ? esc(where.label) + "." : ""}` : phase === "before" ? "Nothing travelled yet. The journey starts on Friday 6 November in Chengdu." : "The whole route, travelled."}</p>
       ${progressCard()}
@@ -490,6 +492,10 @@
         const v = VIEWS.includes(h) ? h : view, changed = v !== view;
         setView(v);
         window.scrollTo(0, changed ? 0 : wasDetail ? scrollMemo[v] || 0 : window.scrollY);
+        if (v === "timeline" && changed) {
+          const target = $(".tl-stop.now") || $(".tl-stop.next") || $$(".tl-stop.done").at(-1);
+          if (target) requestAnimationFrame(() => target.scrollIntoView({ block: "center", behavior: reduceMotion ? "instant" : "smooth" }));
+        }
         const back = lastCard && $(`#v-${v} a.card[data-key="${lastCard}"] .card-media`);
         if (back) back.classList.add("vt");
       }
