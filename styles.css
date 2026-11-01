@@ -369,3 +369,89 @@ body.has-detail { overflow: hidden; }
 .kv dd > a.tlink:first-child { margin-left: 0; }
 
 .detail .v-label { margin: .75rem 0 -.25rem; font: 600 .6875rem/1.3 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: #b5b5b5; }
+
+/* =====================================================================
+   HOME — desktop keeps the grid; phones get a full-screen story feed
+   ===================================================================== */
+.home-hero { display: none; }
+@media (max-width: 51.99rem) {
+  .topbar { display: none; }
+  :root[data-view="itinerary"] { scroll-snap-type: y mandatory; scroll-padding-top: 3.1rem; }
+  .desk-intro, #v-itinerary .group-title { display: none; }
+  #v-itinerary .content { padding-top: 0; }
+
+  .home-hero {
+    position: relative; display: flex; flex-direction: column; justify-content: space-between;
+    height: calc(100svh - var(--tab-h)); margin: 0 calc(var(--pad) * -1);
+    padding: calc(2.5rem + env(safe-area-inset-top)) var(--pad) 1.25rem;
+    color: #fff; overflow: hidden; isolation: isolate; scroll-snap-align: start; scroll-margin-top: 0;
+  }
+  .hero-media { position: absolute; inset: 0; z-index: -1; background: var(--cover-s2); }
+  .hero-media img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .hero-media .cover-zh { display: none; }
+  .hero-media::after { content: ""; position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgb(10 10 10 / .55) 0%, rgb(10 10 10 / .15) 38%, rgb(10 10 10 / .1) 55%, rgb(10 10 10 / .55) 100%); }
+  .hero-kicker { margin: 0; display: flex; gap: .75rem; font: 600 .6875rem/1.3 var(--sans); letter-spacing: .12em; text-transform: uppercase; color: rgb(255 255 255 / .85); }
+  .hero-kicker span { font: 400 .875rem/1 var(--han); letter-spacing: .1em; }
+  .hero-title { margin: .75rem 0 0; font: 400 clamp(3.4rem, 17vw, 5rem)/.95 var(--serif); letter-spacing: -.03em; text-shadow: 0 2px 24px rgb(0 0 0 / .25); }
+  .hero-sub { margin: 1rem 0 0; max-width: 18rem; font-size: 1rem; line-height: 1.5; color: rgb(255 255 255 / .9); }
+  .hero-bottom { display: grid; gap: .75rem; }
+  .hero-bottom .progress-card { color: var(--ink); }
+  .hero-bottom .fine { margin: 0; color: rgb(255 255 255 / .85); }
+  .hero-bottom .fine .i { color: rgb(255 255 255 / .85); }
+  .scroll-cue { display: flex; align-items: center; justify-content: center; gap: .35rem; font-size: .75rem; letter-spacing: .04em; color: rgb(255 255 255 / .8); }
+  .scroll-cue .i { width: .9rem; height: .9rem; }
+  @media (prefers-reduced-motion: no-preference) { .scroll-cue .i { animation: cue 1.8s var(--ease) infinite; } }
+
+  /* Filters: a slim sticky bar once you scroll past the hero */
+  #v-itinerary .chips { margin: 0 calc(var(--pad) * -1); padding: .5rem var(--pad); gap: .375rem; height: 3.1rem;
+    background: color-mix(in srgb, var(--bg) 90%, transparent); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--line); }
+  #v-itinerary .chips button { min-height: 2.1rem; padding: 0 .8rem; font-size: .8125rem; }
+  #v-itinerary .chips button .i { width: .85rem; height: .85rem; }
+
+  /* Each stop is a whole page */
+  #v-itinerary .cards.grid { display: block; margin: 0 calc(var(--pad) * -1); }
+  #v-itinerary .card {
+    height: calc(100svh - var(--tab-h) - 3.1rem); min-height: 0; border-radius: 0; box-shadow: none;
+    scroll-snap-align: start; scroll-snap-stop: always; transform: none;
+  }
+  #v-itinerary .card:active { transform: none; }
+  #v-itinerary .card-media::after { background: linear-gradient(180deg, rgb(0 0 0 / .28), transparent 22%, transparent 55%, rgb(0 0 0 / .35)); }
+  #v-itinerary .pills { top: 1.25rem; left: 1.25rem; }
+  #v-itinerary .card-panel { left: 1rem; right: 1rem; bottom: 1rem; }
+  #v-itinerary .card-title { font-size: 2rem; }
+  #v-itinerary .empty { margin: 2rem var(--pad); }
+}
+@keyframes cue { 50% { transform: translateY(3px); } }
+@media (min-width: 52rem) { .desk-intro { display: block; } }
+
+/* Phone story pages: text straight on the photo (visual reference: full-bleed, white type, dark fade) */
+.card-desc { display: none; }
+@media (max-width: 51.99rem) {
+  :root[data-view="itinerary"] body { background: #0d0d0c; }
+  #v-itinerary .card { background: #0d0d0c; color: #fff; }
+  #v-itinerary .card-media::after { background: linear-gradient(180deg, rgb(0 0 0 / .35) 0%, transparent 18%, transparent 38%, rgb(0 0 0 / .55) 62%, rgb(0 0 0 / .88) 100%); }
+  #v-itinerary .card-panel { left: 0; right: 0; bottom: 0; padding: 0 1.5rem 1.75rem; background: none; border-radius: 0; overflow: visible; }
+  #v-itinerary .card-panel > .eyebrow { padding: 0; color: rgb(255 255 255 / .75); }
+  #v-itinerary .card-title { padding: .5rem 0 0; font: 700 2.25rem/1.05 var(--sans); letter-spacing: -.025em; color: #fff; }
+  #v-itinerary .card-zh { padding: .3rem 0 0; color: rgb(255 255 255 / .7); font-size: 1rem; }
+  #v-itinerary .card-desc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    margin-top: .75rem; font-size: .9375rem; line-height: 1.45; color: rgb(255 255 255 / .88); }
+  #v-itinerary .meta { padding: .9rem 0 0; gap: .4rem; color: rgb(255 255 255 / .9); font-size: .875rem; }
+  #v-itinerary .meta .i { color: rgb(255 255 255 / .7); }
+  #v-itinerary .card-foot { padding: 1rem 0 0; margin-top: 1rem; background: none; border-top: 1px solid rgb(255 255 255 / .18); color: rgb(255 255 255 / .75); }
+  #v-itinerary .card-foot .warn { color: #f0c27a; }
+  #v-itinerary .pill { background: rgb(255 255 255 / .16); color: #fff; border: 1px solid rgb(255 255 255 / .25); }
+  #v-itinerary .pill.now { background: #fff; color: #111; border-color: #fff; }
+
+  /* Dark chrome while browsing stops */
+  :root[data-view="itinerary"] #v-itinerary .chips { background: rgb(13 13 12 / .82); border-bottom-color: rgb(255 255 255 / .08); }
+  :root[data-view="itinerary"] #v-itinerary .chips button { background: rgb(255 255 255 / .08); border-color: rgb(255 255 255 / .14); color: rgb(255 255 255 / .85); }
+  :root[data-view="itinerary"] #v-itinerary .chips button .i { color: rgb(255 255 255 / .6); }
+  :root[data-view="itinerary"] #v-itinerary .chips button[aria-checked="true"] { background: #fff; color: #111; border-color: #fff; }
+  :root[data-view="itinerary"] #v-itinerary .chips button[aria-checked="true"] .i { color: #111; }
+  :root[data-view="itinerary"] .tabbar { background: rgb(13 13 12 / .92); border-top-color: rgb(255 255 255 / .08); }
+  :root[data-view="itinerary"] .tabbar a { color: rgb(255 255 255 / .45); }
+  :root[data-view="itinerary"] .tabbar a[aria-current] { color: #fff; }
+  #v-itinerary .empty { color: rgb(255 255 255 / .7); border-color: rgb(255 255 255 / .2); }
+}

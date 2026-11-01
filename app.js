@@ -98,9 +98,10 @@
       <span class="card-media">${cover("dest-" + d.id, d.zh, d.region)}</span>
       <span class="pills"><span class="pill">${DESTS.indexOf(d) === 0 ? "First stop" : DESTS.indexOf(d) === DESTS.length - 1 ? "Last stop" : `Stop ${DESTS.indexOf(d) + 1}`}</span>${isNow ? `<span class="pill now">${icon("locate-fixed")}You are here</span>` : ""}</span>
       <span class="card-panel">
-        <span class="eyebrow">${esc(dayRange(d))}</span>
+        <span class="eyebrow">${regionName(d.region)} · ${esc(dayRange(d))}</span>
         <span class="card-title">${esc(d.name)}</span>
         <span class="card-zh" lang="zh">${esc(d.zh)}</span>
+        <span class="card-desc">${esc(d.intro || (d.lead && PLACES[d.lead].about) || "")}</span>
         <span class="meta">
           <span>${icon("calendar-days")}${esc(dateRange(d.days))}${nights.length ? ` · ${nights.length} night${nights.length > 1 ? "s" : ""}` : ""}</span>
           ${st ? `<span>${icon("bed-double")}${esc(st.name)}</span>` : `<span>${icon("bed-double")}No booking on file</span>`}
@@ -133,10 +134,22 @@
   function renderItinerary() {
     const el = $("#v-itinerary .content");
     const chips = [["all", "All", null], ...Object.entries(CATS).filter(([k]) => k !== "stops").map(([k, c]) => [k, c.label, c.icon])];
+    const cur = currentDest();
     el.innerHTML = `
-      <h1 class="display">Itinerary</h1>
-      <p class="lede">Twelve stops from Chengdu to Kunming, through Sichuan and then Yunnan. Open a stop for its story, the days you spend there, the places to visit and where you sleep.</p>
-      ${progressCard()}
+      <section class="home-hero" aria-label="China Expedition">
+        <span class="hero-media">${cover("dest-" + cur.id, cur.zh, cur.region)}</span>
+        <div class="hero-text">
+          <p class="hero-kicker"><span lang="zh">川 · 滇</span> 6 – 20 November 2026</p>
+          <h1 class="hero-title">China<br>Expedition</h1>
+          <p class="hero-sub">Chengdu to Kunming, through Sichuan and Yunnan. Twelve stops.</p>
+        </div>
+        <div class="hero-bottom">${progressCard()}<span class="scroll-cue">${icon("chevron-down")}Scroll through the stops</span></div>
+      </section>
+      <div class="desk-intro">
+        <h1 class="display">Itinerary</h1>
+        <p class="lede">Twelve stops from Chengdu to Kunming, through Sichuan and then Yunnan. Open a stop for its story, the days you spend there, the places to visit and where you sleep.</p>
+        ${progressCard()}
+      </div>
       <div class="chips" role="radiogroup" aria-label="Filter destinations">
         ${chips.map(([k, l, ic]) => `<button role="radio" aria-checked="${k === "all"}" data-filter="${k}">${ic ? icon(ic) : ""}${esc(l)}</button>`).join("")}
       </div>
@@ -449,6 +462,7 @@
     view = v;
     VIEWS.forEach((n) => $(`#v-${n}`).classList.toggle("on", n === v));
     $$(".tabbar a").forEach((a) => a.toggleAttribute("aria-current", a.dataset.view === v));
+    document.documentElement.dataset.view = v;
   }
 
   function route() {
