@@ -238,152 +238,190 @@
 
   /* =====================================================================
      DESTINATION DETAIL
+     Type roles (see styles.css "Detail typography"):
+       d-title  page title · h2 section · h3 item · body · meta · label
      ===================================================================== */
-  const sec = (title, ic, body, cls = "") => body ? `<section class="dsec ${cls}"><h3>${icon(ic)}${title}</h3>${body}</section>` : "";
   const ul = (a) => a && a.length ? `<ul class="bullets">${a.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "";
   const para = (t) => t ? `<p>${esc(t)}</p>` : "";
+  const section = (id, title, body, note = "") => body ? `<section class="dsec" id="${id}"><h2>${title}</h2>${note ? `<p class="meta">${note}</p>` : ""}${body}</section>` : "";
+  const extLink = (href, label, ic = "arrow-up-right") => `<a class="tlink" href="${esc(href)}" target="_blank" rel="noopener">${esc(label)}${icon(ic)}</a>`;
+  const amapSearch = (q, city) => "https://uri.amap.com/search?keyword=" + encodeURIComponent(q) + "&view=map&src=chinaexpedition&callnative=1" + (city ? "&city=" + encodeURIComponent(city) : "");
+
+  // Straight-line distance (km) between two [lat, lon] points.
+  function km(a, b) {
+    const R = 6371, r = Math.PI / 180, dLat = (b[0] - a[0]) * r, dLon = (b[1] - a[1]) * r;
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dLon / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  }
+  function distanceLabel(placeId, d) {
+    if (GEO.enRoute.includes(placeId)) return { short: "On the way here", long: "Passed on the drive in", mode: "route" };
+    const s = d.stay && GEO.stays[d.stay], p = GEO.places[placeId];
+    if (!s || !p) return null;
+    const k = km(s, p);
+    if (k < 0.25) return { short: "At your stay", long: "Right by where you sleep", mode: "here" };
+    if (k < 2.5) {
+      const mins = Math.max(5, Math.round((k * 1.3 * 1000) / 75 / 5) * 5); // ~1.3× straight line, 75 m/min
+      return { short: `${k < 1 ? Math.round(k * 10) * 100 + " m" : k.toFixed(1) + " km"} · ~${mins} min walk`, long: "", mode: "walk" };
+    }
+    return { short: `≈ ${k < 10 ? k.toFixed(1) : Math.round(k)} km · by car`, long: "", mode: "car" };
+  }
 
   function dayBlock(d, opts = {}) {
-    const where = today && today.date === d.date ? whereNow() : null;
-    const stops = d.route.map(clean);
-    return `<article class="dayblock ${today && today.date === d.date ? "is-today" : ""}" id="dayblock-${d.date}">
-      <header>
-        <span class="db-date"><b>${dayNum(d.date)}</b><small>${dow(d.date)}</small></span>
-        <span><span class="eyebrow">${esc(d.label)}${today && today.date === d.date ? " · Today" : ""}${opts.role ? ` · ${opts.role}` : ""}</span>
-        <span class="db-title">${esc(d.title)}</span></span>
-      </header>
-      <ol class="stepper">${stops.map((s, k) => {
-        const done = where && k <= Math.floor(where.segment);
-        return `<li class="${done ? "done" : ""} ${d.route[k].endsWith("?") ? "uncertain" : ""}"><span>${esc(s)}</span></li>`; }).join("")}</ol>
-      ${where ? `<p class="db-live">${icon("locate-fixed")}${esc(where.label)}</p>` : ""}
-      ${d.flags ? `<div class="notice">${icon("triangle-alert")}<span><b>Needs confirmation.</b> ${d.flags.map(esc).join(" ")}</span></div>` : ""}
-      <p class="db-summary">${esc(d.summary)}</p>
-      <p class="db-focus"><b>Focus</b> ${esc(d.focus)}</p>
-      ${d.altitude ? `<p class="db-meta">${icon("mountain")}${esc(d.altitude)}</p>` : ""}
-      ${d.options ? `<ul class="opts">${d.options.map(([k, v]) => `<li><b>${esc(k)}</b><span>${esc(v)}</span></li>`).join("")}</ul>` : ""}
+    const isToday = today && today.date === d.date, where = isToday ? whereNow() : null;
+    return `<article class="day ${isToday ? "is-today" : ""}" id="dayblock-${d.date}">
+      <p class="label">${esc(d.label)} · ${dowLong(d.date)} ${dayNum(d.date)} Nov${isToday ? " · Today" : ""}${opts.role ? ` · ${opts.role}` : ""}</p>
+      <h3>${esc(d.title)}</h3>
+      <ol class="stepper">${d.route.map((s, k) => `<li class="${where && k <= Math.floor(where.segment) ? "done" : ""} ${s.endsWith("?") ? "uncertain" : ""}"><span>${esc(clean(s))}</span></li>`).join("")}</ol>
+      ${where ? `<p class="live">${icon("locate-fixed")}${esc(where.label)}</p>` : ""}
+      ${d.flags ? `<div class="notice">${icon("triangle-alert")}<p><b>Needs confirmation.</b> ${d.flags.map(esc).join(" ")}</p></div>` : ""}
+      <p>${esc(d.summary)}</p>
+      <p class="meta"><b>Focus</b> ${esc(d.focus)}</p>
+      ${d.altitude ? `<p class="meta">${icon("mountain")}${esc(d.altitude)}</p>` : ""}
+      ${d.options ? `<dl class="opts">${d.options.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>` : ""}
       ${d.notes ? ul(d.notes) : ""}
     </article>`;
   }
 
-  function placeItem(id, open) {
-    const P = PLACES[id];
-    const body = [
-      P.history ? `<h4>History & context</h4><p>${esc(P.history)}</p>` : "",
-      P.look ? `<h4>What to look for</h4>${ul(P.look)}` : "",
-      P.todo ? `<h4>What to do</h4>${ul(P.todo)}` : "",
-      P.photo ? `<h4>Photography</h4>${ul(P.photo)}` : "",
-      P.care ? `<h4>Care</h4>${ul(P.care)}` : "",
-      P.sources ? `<h4>Sources</h4><ul class="links">${P.sources.map(([n, u]) => `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)} ${icon("external-link")}</a></li>`).join("")}</ul>` : "",
-    ].join("");
+  function placeItem(id, d, open) {
+    const P = PLACES[id], dist = distanceLabel(id, d);
+    const sub = [P.zh ? `<span lang="zh">${esc(clean(P.zh))}</span>` : "", esc(P.kind)].filter(Boolean).join(" · ");
+    const parts = [
+      P.history && `<h4>History & context</h4>${para(P.history)}`,
+      P.look && `<h4>What to look for</h4>${ul(P.look)}`,
+      P.todo && `<h4>What to do</h4>${ul(P.todo)}`,
+      P.photo && `<h4>Photography</h4>${ul(P.photo)}`,
+      P.care && `<h4>Care</h4>${ul(P.care)}`,
+      P.sources && `<h4>Sources</h4><p class="links">${P.sources.map(([n, u]) => extLink(u, n)).join("")}</p>`,
+    ].filter(Boolean).join("");
     return `<li class="place st-${P.status}" id="pl-${id}">
       <details ${open ? "open" : ""}>
         <summary>
-          <span class="pl-thumb">${cover(id, P.zh || P.name, destOfPlace(id).region, true)}</span>
-          <span class="pl-text"><span class="pl-name">${esc(P.name)}</span>
-            <span class="pl-sub">${P.zh ? `<span lang="zh">${esc(clean(P.zh))}</span> · ` : ""}${esc(P.kind)}${P.status !== "planned" ? ` · <em>${esc(PLACE_STATUS[P.status])}</em>` : ""}</span></span>
+          <span class="pl-thumb">${cover(id, P.zh || P.name, d.region, true)}</span>
+          <span class="pl-text">
+            <span class="pl-name">${esc(P.name)}</span>
+            <span class="pl-sub">${sub}</span>
+            <span class="pl-dist ${dist ? dist.mode : ""}">${dist ? `${icon(dist.mode === "walk" ? "footprints" : dist.mode === "car" ? "navigation" : dist.mode === "route" ? "route" : "map-pin")}${esc(dist.short)}` : ""}${P.status !== "planned" ? `<em>${esc(PLACE_STATUS[P.status])}</em>` : ""}</span>
+          </span>
           ${icon("chevron-down", "pl-chev")}
         </summary>
         <div class="pl-body">
-          ${PHOTOS[id] ? `<figure class="pl-photo"><img src="${esc(PHOTOS[id].src)}" alt="${esc(P.name)}" loading="lazy" decoding="async"><figcaption><a href="${esc(PHOTOS[id].page)}" target="_blank" rel="noopener">${esc(PHOTOS[id].credit)}</a></figcaption></figure>` : ""}
+          ${PHOTOS[id] ? `<figure class="pl-photo"><img src="${esc(PHOTOS[id].src)}" alt="${esc(P.name)}" loading="lazy" decoding="async"><figcaption>${extLink(PHOTOS[id].page, PHOTOS[id].credit, "external-link")}</figcaption></figure>` : ""}
           <p>${esc(P.about)}</p>
-          <div class="d-actions">
-            ${P.map ? `<a class="btn primary" href="${esc(P.map)}" target="_blank" rel="noopener">${icon("navigation")}Open in Amap</a>` : ""}
-            ${P.zh ? `<button class="btn" type="button" data-copy="${esc(clean(P.zh).split(" · ")[0])}" data-copy-label="Chinese name copied">${icon("copy")}Copy 中文</button>` : ""}
-          </div>
-          ${body}
+          <p class="links">
+            ${P.map ? extLink(P.map, "Open in Amap", "navigation") : ""}
+            ${P.zh ? `<button class="tlink" type="button" data-copy="${esc(clean(P.zh).split(" · ")[0])}" data-copy-label="Chinese name copied">Copy 中文 name${icon("copy")}</button>` : ""}
+          </p>
+          ${parts}
         </div>
       </details>
     </li>`;
   }
 
   function stayBlock(d) {
-    if (!d.stay) return `<p class="empty">${icon("bed-double")}No booking on file for the last night. Add the onward plan once it's confirmed.</p>`;
+    if (!d.stay) return `<p class="empty">${icon("bed-double")}No booking on file for this night. Add the onward plan once it's confirmed.</p>`;
     const s = STAYS[d.stay], nights = destNights(d);
-    const facts = [["Check-in", s.checkin], ["Check-out", s.checkout], ["Meals", s.meals]].filter((f) => f[1]);
+    const rows = [
+      ["map-pin", "Address", `${esc(s.address)} <button class="tlink inline" type="button" data-copy="${esc(s.address)}" data-copy-label="Address copied">Copy${icon("copy")}</button>`],
+      s.checkin && ["clock", "Check-in", esc(s.checkin)],
+      s.checkout && ["clock", "Check-out", esc(s.checkout)],
+      s.meals && ["utensils", "Meals", esc(s.meals)],
+      s.phone && ["phone", "Phone", `<a class="tlink inline" href="tel:${esc(s.phone.replace(/[^\d+]/g, ""))}">${esc(s.phone)}</a>`],
+    ].filter(Boolean);
     return `<div class="stay">
-      <div class="stay-head">
-        <span class="eyebrow">${nights.length} night${nights.length > 1 ? "s" : ""} · ${esc(dateRange(nights))}</span>
-        <h3 class="stay-name">${esc(s.name)}</h3>
-        ${s.sub ? `<p class="stay-sub">${esc(s.sub)}</p>` : ""}
+      <p class="label">${nights.length} night${nights.length > 1 ? "s" : ""} · ${esc(dateRange(nights))}</p>
+      <h3>${esc(s.name)}</h3>
+      ${s.sub ? `<p class="meta">${esc(s.sub)}</p>` : ""}
+      <dl class="kv">${rows.map(([ic, k, v]) => `<div>${icon(ic)}<dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
+      ${s.note ? `<p class="meta note">${icon("info")}${esc(s.note)}</p>` : ""}
+      <div class="stay-actions">
+        ${d.voucher ? `<a class="btn" href="#voucher-${d.id}">${icon("list-checks")}Booking voucher</a>` : ""}
+        ${extLink(s.map, "Open in Amap", "navigation")}
       </div>
-      <ul class="kv">
-        <li>${icon("map-pin")}<span>${esc(s.address)}</span><button class="mini" type="button" data-copy="${esc(s.address)}" data-copy-label="Address copied" aria-label="Copy address">${icon("copy")}</button></li>
-        ${facts.length ? `<li>${icon("clock")}<span>${facts.map(([k, v]) => `<b>${k}</b> ${esc(v)}`).join("<br>")}</span></li>` : ""}
-        ${s.phone ? `<li>${icon("phone")}<a href="tel:${esc(s.phone.replace(/[^\d+]/g, ""))}">${esc(s.phone)}</a></li>` : ""}
-        ${s.note ? `<li>${icon("info")}<span>${esc(s.note)}</span></li>` : ""}
-      </ul>
-      <div class="d-actions">
-        ${d.voucher ? `<a class="btn primary" href="#voucher-${d.id}">${icon("list-checks")}View booking voucher</a>` : ""}
-        <a class="btn" href="${esc(s.map)}" target="_blank" rel="noopener">${icon("navigation")}Find in Amap</a>
-      </div>
-      ${s.nearby ? `<p class="eyebrow nb-title">Around the stay · Amap searches</p><ul class="nearby">${s.nearby.map(([n, u, dist]) => `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}${dist ? ` <small>${esc(dist)}</small>` : ""}</a></li>`).join("")}</ul>` : ""}
+      ${s.nearby ? `<h4>Around the stay</h4><p class="links">${s.nearby.map(([n, u, dist]) => extLink(u, n + (dist ? ` · ${dist}` : ""), "navigation")).join("")}</p>` : ""}
     </div>`;
   }
+
+  function foodBlock(d, lead) {
+    const picks = FOOD[d.id] || [];
+    const leads = d.places.flatMap((p) => PLACES[p].eat || []);
+    const city = AMAP_CITY[d.id];
+    const row = (r, kind) => {
+      const q = r.zh || r.name;
+      return `<li>
+        <h3>${esc(r.name)}${r.zh && r.zh !== r.name ? ` <span class="zh" lang="zh">${esc(r.zh)}</span>` : ""}</h3>
+        ${r.note ? `<p>${esc(r.note)}</p>` : ""}
+        <p class="links">${r.link ? extLink(r.link, kind === "lead" ? "Listing" : "Link") : ""}${extLink(r.map || amapSearch(q, city), "Find in Amap", "navigation")}</p>
+      </li>`;
+    };
+    return `${lead?.food ? `<p>${esc(lead.food)}</p>` : ""}
+      <h4>Our picks</h4>
+      ${picks.length ? `<ul class="eats">${picks.map((r) => row(r, "pick")).join("")}</ul>` : `<p class="meta">None yet. Restaurants you choose will appear here first.</p>`}
+      ${leads.length ? `<h4>Leads from the field guide</h4><p class="meta">Not reservations. Check it's open on the day.</p>
+        <ul class="eats">${leads.map(([n, t, u]) => { const zh = (n.match(/[一-鿿·]+/g) || []).join(""); return row({ name: n.replace(/\s*[一-鿿·]+.*$/, "").trim() || n, zh, note: t, link: u }, "lead"); }).join("")}</ul>` : ""}`;
+  }
+  const AMAP_CITY = { chengdu: "成都市", siguniang: "小金县 四川省", danba: "丹巴县 四川省", tagong: "康定市 四川省", yajiang: "雅江县 四川省",
+    yading: "稻城县 四川省", meili: "德钦县 云南省", shangrila: "香格里拉市 云南省", lijiang: "丽江市 云南省", shaxi: "剑川县 云南省", dali: "大理市 云南省", kunming: "昆明市 云南省" };
 
   function destDetail(id, openPlace) {
     const d = DEST[id], lead = d.lead && PLACES[d.lead], nights = destNights(d);
     const idx = DESTS.indexOf(d), prev = DESTS[idx - 1], next = DESTS[idx + 1];
     const arrival = DAY[d.days.find((x) => DAY[x].stay === d.stay) || d.days[0]];
     const alt = ELEV[nights[0] || d.days[0]];
-    const eats = d.places.flatMap((p) => PLACES[p].eat || []);
     const sources = [...new Map(d.places.flatMap((p) => PLACES[p].sources || []).map((s) => [s[1], s])).values()];
-    const role = (x) => DAY[x].stay !== d.stay && d.stay ? "Leaving" : x === arrival.date && prev ? "Arriving" : "";
+    const role = (x) => d.stay && DAY[x].stay !== d.stay ? "Leaving" : x === arrival.date && prev ? "Arriving" : "";
     const plateau = ["tagong", "yajiang", "yading", "meili", "shangrila", "siguniang"].includes(d.id);
+    const ph = PHOTOS["dest-" + d.id];
+    const hasDistances = d.places.some((p) => distanceLabel(p, d)?.mode === "walk" || distanceLabel(p, d)?.mode === "car");
     return `<div class="d-hero">${cover("dest-" + d.id, d.zh, d.region)}
         <a class="d-back" href="${lastView()}" aria-label="Back">${icon("chevron-left")}</a>
-        ${PHOTOS["dest-" + d.id] ? `<a class="d-credit" href="${esc(PHOTOS["dest-" + d.id].page)}" target="_blank" rel="noopener">${esc(PHOTOS["dest-" + d.id].credit)}</a>` : ""}
+        ${ph ? `<a class="d-credit" href="${esc(ph.page)}" target="_blank" rel="noopener">${esc(ph.credit)}</a>` : ""}
       </div>
       <div class="d-sheet">
-        <p class="eyebrow">${regionName(d.region)} · ${idx === 0 ? "First stop" : idx === DESTS.length - 1 ? "Last stop" : `Stop ${idx + 1}`} · ${esc(dayRange(d))}</p>
-        <h1 class="d-title">${esc(d.name)}</h1>
-        <p class="d-zh" lang="zh">${esc(d.zh)}</p>
-
-        <dl class="facts">
-          <div><dt>${icon("calendar-days")}Dates</dt><dd>${esc(dateRange(d.days))}</dd></div>
-          <div><dt>${icon("moon")}Nights</dt><dd>${nights.length || "–"}</dd></div>
-          <div><dt>${icon("mountain")}Altitude</dt><dd>~${alt ? alt.m.toLocaleString() : "–"} m</dd></div>
-          <div><dt>${icon("map-pin")}Places</dt><dd>${d.places.length || "–"}</dd></div>
-        </dl>
+        <header class="d-head">
+          <p class="label">${regionName(d.region)} · ${idx === 0 ? "First stop" : idx === DESTS.length - 1 ? "Last stop" : `Stop ${idx + 1}`}</p>
+          <h1 class="d-title">${esc(d.name)}</h1>
+          <p class="d-zh" lang="zh">${esc(d.zh)}</p>
+          <dl class="facts">
+            <div><dt>Dates</dt><dd>${esc(dateRange(d.days))}</dd></div>
+            <div><dt>Nights</dt><dd>${nights.length || "–"}</dd></div>
+            <div><dt>Altitude</dt><dd>~${alt ? alt.m.toLocaleString() : "–"} m</dd></div>
+            <div><dt>Places</dt><dd>${d.places.length || "–"}</dd></div>
+          </dl>
+        </header>
 
         <nav class="jump" aria-label="On this page">
-          <a href="#j-about">About</a><a href="#j-days">Days</a>${d.places.length ? `<a href="#j-places">Places</a>` : ""}<a href="#j-stay">Stay</a>${lead && (lead.food || eats.length) ? `<a href="#j-food">Food</a>` : ""}
+          <a href="#j-about">About</a><a href="#j-days">Days</a>${d.places.length ? `<a href="#j-places">Places</a>` : ""}<a href="#j-stay">Stay</a><a href="#j-food">Food</a>
         </nav>
 
-        <section class="dsec" id="j-about"><h3>${icon("book-open")}About</h3>
-          <p class="d-about">${esc(d.intro || lead?.about || "")}</p>
-          ${lead && d.intro && lead.about !== d.intro ? `<p>${esc(lead.about)}</p>` : ""}
-          ${lead?.history ? `<h4>History & context</h4><p>${esc(lead.history)}</p>` : ""}
-          ${lead?.todo ? `<h4>What to do</h4>${ul(lead.todo)}` : ""}
-        </section>
+        ${section("j-about", "About", `
+          <p class="lead">${esc(d.intro || lead?.about || "")}</p>
+          ${lead && d.intro && lead.about !== d.intro ? para(lead.about) : ""}
+          ${lead?.history ? `<h4>History & context</h4>${para(lead.history)}` : ""}
+          ${lead?.todo ? `<h4>What to do</h4>${ul(lead.todo)}` : ""}`)}
 
-        ${sec("Getting here", "route", `
-          <p class="muted-p">${prev ? `From ${esc(prev.name)} on ${dowLong(arrival.date)} ${dayNum(arrival.date)} November.` : "Arrival in China."}</p>
+        ${section("j-getting", "Getting here", `
+          <p>${prev ? `From ${esc(prev.name)}, ${dowLong(arrival.date)} ${dayNum(arrival.date)} November.` : "Arrival in China."}</p>
           <ol class="stepper">${arrival.route.map((s) => `<li class="${s.endsWith("?") ? "uncertain" : ""}"><span>${esc(clean(s))}</span></li>`).join("")}</ol>
-          ${plateau ? `<p class="d-note">${icon("mountain")}<span>${esc(PRACTICAL[0][1])}</span></p>` : ""}
-          <p class="d-note">${icon("clock")}<span>Departure times, stop durations and detours aren't in the itinerary. Confirm them with the driver or guide.</span></p>`)}
+          ${plateau ? `<p class="meta note">${icon("mountain")}${esc(PRACTICAL[0][1])}</p>` : ""}
+          <p class="meta note">${icon("clock")}Departure times, stops and detours aren't in the itinerary. Confirm them with the driver or guide.</p>`)}
 
-        <section class="dsec" id="j-days"><h3>${icon("calendar-days")}The days here</h3>
-          ${d.days.map((x) => dayBlock(DAY[x], { role: role(x) })).join("")}
-        </section>
+        ${section("j-days", "The days here", d.days.map((x) => dayBlock(DAY[x], { role: role(x) })).join(""))}
 
-        ${d.places.length ? `<section class="dsec" id="j-places"><h3>${icon("map-pin")}Places to visit · ${d.places.length}</h3>
-          <ul class="places">${d.places.map((p) => placeItem(p, p === openPlace)).join("")}</ul></section>` : ""}
+        ${d.places.length ? section("j-places", "Places to visit",
+          `<ul class="places">${d.places.map((p) => placeItem(p, d, p === openPlace)).join("")}</ul>`,
+          hasDistances ? "Distances are straight-line estimates from where you sleep. Open Amap for the real route." : "") : ""}
 
-        <section class="dsec" id="j-stay"><h3>${icon("bed-double")}Where you sleep</h3>${stayBlock(d)}</section>
+        ${section("j-stay", "Where you sleep", stayBlock(d))}
 
-        ${lead && (lead.food || eats.length) ? `<section class="dsec" id="j-food"><h3>${icon("utensils")}Food</h3>
-          ${para(lead.food)}
-          ${eats.length ? `<h4>Restaurant leads</h4><p class="fine">Leads, not reservations. Check the Chinese name and that it's open on the day.</p><ul class="leads">${eats.map(([n, t, u]) =>
-            `<li><b>${esc(n)}</b><span>${esc(t)}</span>${u ? `<a href="${esc(u)}" target="_blank" rel="noopener">Listing ${icon("external-link")}</a>` : ""}</li>`).join("")}</ul>` : ""}
-        </section>` : ""}
+        ${section("j-food", "Food", foodBlock(d, lead))}
 
-        ${sec("Care & cautions", "shield-alert", ul(lead?.care))}
-        ${sec("Sources", "book-open", sources.length ? `<ul class="links">${sources.map(([n, u]) => `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(n)} ${icon("external-link")}</a></li>`).join("")}</ul>` : "")}
-        <p class="fine">Place notes from the location field guide v1.4; dates and hotels from the itinerary and booking vouchers.</p>
+        ${section("j-care", "Care & cautions", ul(lead?.care))}
+        ${section("j-sources", "Sources", sources.length ? `<p class="links">${sources.map(([n, u]) => extLink(u, n)).join("")}</p>` : "")}
+        <p class="meta foot-note">Place notes from the location field guide v1.4. Dates and hotels from the itinerary and booking vouchers.</p>
 
-        <nav class="d-pager" aria-label="Other destinations">
-          ${prev ? `<a href="#dest-${prev.id}">${icon("chevron-left")}<span><small>Previous</small>${esc(prev.name)}</span></a>` : "<span></span>"}
-          ${next ? `<a class="nx" href="#dest-${next.id}"><span><small>Next</small>${esc(next.name)}</span>${icon("chevron-right")}</a>` : ""}
+        <nav class="d-pager" aria-label="Other stops">
+          ${prev ? `<a href="#dest-${prev.id}">${icon("chevron-left")}<span><span class="label">Previous</span>${esc(prev.name)}</span></a>` : "<span></span>"}
+          ${next ? `<a class="nx" href="#dest-${next.id}"><span><span class="label">Next</span>${esc(next.name)}</span>${icon("chevron-right")}</a>` : ""}
         </nav>
       </div>`;
   }

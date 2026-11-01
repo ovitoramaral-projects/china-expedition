@@ -1,6 +1,6 @@
 # China Expedition — project rules
 
-Static site (index.html + styles.css + app.js + data.js + places.js + destinations.js + photos.js + icons.js; booking vouchers in vouchers/ are gitignored). No build step, no frameworks, **no external resources** (Google Fonts/CDNs are blocked or slow in mainland China). Mobile-first; it is used on a phone in the field.
+Static site (index.html + styles.css + app.js + data.js + places.js + destinations.js + photos.js + geo.js + food.js + icons.js; booking vouchers in vouchers/ are gitignored). No build step, no frameworks, **no external resources** (Google Fonts/CDNs are blocked or slow in mainland China). Mobile-first; it is used on a phone in the field.
 
 ## Content rules (from the planning handoff, `knowledge/HANDOFF_README.md`)
 1. The current route is `knowledge/itinerary_working.txt`. The older supplier itinerary is historical reference only.
@@ -13,3 +13,7 @@ Static site (index.html + styles.css + app.js + data.js + places.js + destinatio
 
 ## Privacy
 The repo must never contain the booking PDF, booking/confirmation numbers, PINs, or travellers' surnames, emails or phone numbers. The crew's first names (Vitor, Ricardo, Ikho, Anastasia), given by the user, are fine and live in `CREW` in data.js. Hotel public contact numbers are fine.
+
+## Detail-page typography (keep it this way)
+Six roles only: page title (serif), section h2 (serif 1.5rem), item h3 (sans 1.0625rem/600), body (1rem/1.6), meta (.875rem muted), label (.6875rem caps). Links are `.tlink` (underlined text), not buttons; the only button on a stop page is the booking voucher.
+Distances in `geo.js` are straight-line estimates from approximate coordinates and must always be labelled as such.

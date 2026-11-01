@@ -12,8 +12,9 @@ Open `index.html` in a browser. Add `?date=2026-11-12` to the URL to preview how
 |---|---|
 | `data.js` | Days, stays, elevations, practical notes, gear, crew |
 | `places.js` | Place guide for every stop (from `knowledge/location_field_guide_v1.4.md`) |
+| `food.js` | **Your restaurant picks** per stop (name, Chinese name, note, link). They show first under Food |
+| `geo.js` | Approximate coordinates for rough walking/driving distances from each stay |
 | `photos.js` | Photo slots: drop a JPG in `assets/photos/` and register it with its credit |
-| `art.js` | Generated landscape illustrations, used until a real photo exists |
 | `icons.js` | Lucide icons (ISC), inlined |
 | `app.js` | Views, cards, detail pages, time-based progress |
 | `styles.css` | Look and feel (light + dark) |
