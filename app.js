@@ -452,11 +452,14 @@
         ${seg(s.rise, s.set, "day")}${seg(s.blueAm, s.rise, "blue")}${seg(s.rise, s.goldAm, "gold")}${seg(s.goldPm, s.set, "gold r")}${seg(s.set, s.bluePm, "blue")}
       </div>
       <div class="lticks"><span>05</span><span>09</span><span>13</span><span>17</span><span>21</span></div>
-      <dl class="ltimes">
-        <div class="b"><dt>Blue hour</dt><dd>${hm(s.blueAm)}</dd></div>
-        <div class="g"><dt>Sunrise · golden</dt><dd>${hm(s.rise)}–${hm(s.goldAm)}</dd></div>
-        <div class="g"><dt>Golden · sunset</dt><dd>${hm(s.goldPm)}–${hm(s.set)}</dd></div>
-      </dl>
+      <div class="ltimes">
+        <div class="lrow"><span class="lwhen">Morning</span>
+          <span class="b"><b>${hm(s.blueAm)}–${hm(s.rise)}</b><small>Blue hour</small></span>
+          <span class="g"><b>${hm(s.rise)}–${hm(s.goldAm)}</b><small>Sunrise, golden hour</small></span></div>
+        <div class="lrow"><span class="lwhen">Evening</span>
+          <span class="g"><b>${hm(s.goldPm)}–${hm(s.set)}</b><small>Golden hour, sunset</small></span>
+          <span class="b"><b>${hm(s.set)}–${hm(s.bluePm)}</b><small>Blue hour</small></span></div>
+      </div>
     </div>`;
   }
 
