@@ -308,17 +308,28 @@
 
   function dayBlock(d, opts = {}) {
     const isToday = today && today.date === d.date, where = isToday ? whereNow() : null;
-    return `<article class="day ${isToday ? "is-today" : ""}" id="dayblock-${d.date}">
-      <p class="label">${esc(d.label)} · ${dowLong(d.date)} ${dayNum(d.date)} Nov${isToday ? " · Today" : ""}${opts.role ? ` · ${opts.role}` : ""}</p>
-      <h3>${esc(d.title)}</h3>
-      <ol class="stepper">${d.route.map((s, k) => `<li class="${where && k <= Math.floor(where.segment) ? "done" : ""} ${s.endsWith("?") ? "uncertain" : ""}"><span>${esc(clean(s))}</span></li>`).join("")}</ol>
-      ${where ? `<p class="live">${icon("locate-fixed")}${esc(where.label)}</p>` : ""}
-      ${d.flags ? `<div class="notice">${icon("triangle-alert")}<p><b>Needs confirmation.</b> ${d.flags.map(esc).join(" ")}</p></div>` : ""}
-      <p>${esc(d.summary)}</p>
-      <p class="meta"><b>Focus</b> ${esc(d.focus)}</p>
-      ${d.altitude ? `<p class="meta">${icon("mountain")}${esc(d.altitude)}</p>` : ""}
-      ${d.options ? `<dl class="opts">${d.options.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>` : ""}
-      ${d.notes ? ul(d.notes) : ""}
+    const past = phase === "after" || (today && d.date < today.date);
+    const n = d.route.length;
+    const role = opts.role === "Arriving" ? `<span class="chip arrive">${icon("log-in")}Arriving</span>` :
+      opts.role === "Leaving" ? `<span class="chip leave">${icon("log-out")}Leaving</span>` : "";
+    return `<article class="day ${isToday ? "is-today" : ""} ${past ? "is-past" : ""}" id="dayblock-${d.date}">
+      <header class="day-top">
+        <span class="day-date"><b>${dayNum(d.date)}</b><small>${dow(d.date)}</small></span>
+        <span class="day-head">
+          <span class="day-meta">${esc(d.label)}${role}${isToday ? `<span class="chip today">Today</span>` : ""}</span>
+          <h3>${esc(d.title)}</h3>
+        </span>
+      </header>
+      <div class="day-body">
+        <ol class="route-v">${d.route.map((s, k) => `<li class="${k === n - 1 ? "end" : ""} ${where && k <= Math.floor(where.segment) ? "done" : ""} ${s.endsWith("?") ? "uncertain" : ""}">${esc(clean(s))}</li>`).join("")}</ol>
+        ${where ? `<p class="live">${icon("locate-fixed")}${esc(where.label)}</p>` : ""}
+        ${d.flags ? `<div class="notice">${icon("triangle-alert")}<p><b>Needs confirmation.</b> ${d.flags.map(esc).join(" ")}</p></div>` : ""}
+        <p class="day-summary">${esc(d.summary)}</p>
+        <div class="day-focus"><span class="label">Focus</span><p>${esc(d.focus)}</p></div>
+        ${d.altitude ? `<p class="meta">${icon("mountain")}${esc(d.altitude)}</p>` : ""}
+        ${d.options ? `<dl class="opts">${d.options.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>` : ""}
+        ${(d.notes || []).map((t) => `<div class="day-note">${icon(/airport|fly|flight/i.test(t) ? "plane" : "info")}<p>${esc(t)}</p></div>`).join("")}
+      </div>
     </article>`;
   }
 
