@@ -173,6 +173,15 @@
     });
     document.addEventListener("click", (e) => { if ($("#fabs").classList.contains("open") && !e.target.closest("#fabs")) setOpen(false); });
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && $("#fabs").classList.contains("open")) { setOpen(false); fab.focus(); } });
+    // Filters appear only once you've scrolled past the opening screen.
+    const hero = $(".home-hero", el);
+    if (hero && "IntersectionObserver" in window) {
+      new IntersectionObserver(([en]) => {
+        const onHero = en.isIntersecting;
+        $("#fabs").classList.toggle("on-hero", onHero);
+        if (onHero) setOpen(false);
+      }, { threshold: 0.35 }).observe(hero);
+    }
     drawDests();
   }
   function drawDests() {
