@@ -460,6 +460,7 @@
           <span class="g"><b>${hm(s.goldPm)}–${hm(s.set)}</b><small>Golden hour, sunset</small></span>
           <span class="b"><b>${hm(s.set)}–${hm(s.bluePm)}</b><small>Blue hour</small></span></div>
       </div>
+      ${typeof LIGHT3D !== "undefined" && LIGHT3D[d.id] ? `<div class="l3d" data-l3d="${d.id}"></div>` : ""}
     </div>`;
   }
 
@@ -691,6 +692,7 @@
         document.body.classList.add("has-detail");
         if (focus) requestAnimationFrame(() => $(focus)?.scrollIntoView({ block: "start" }));
         spyJump(det);
+        if (typeof Light3D !== "undefined") Light3D.attach(det);
       } else {
         const wasDetail = !det.hidden;
         det.hidden = true; det.innerHTML = "";
