@@ -85,7 +85,10 @@
 
   function cover(key, zh, region, small = false) {
     const ph = PHOTOS[key];
-    if (ph) return `<img src="${esc(small ? ph.small : ph.src)}" alt="" loading="lazy" decoding="async"${ph.pos ? ` style="object-position:${esc(ph.pos)}"` : ""}>`;
+    const pos = ph?.pos ? ` style="object-position:${esc(ph.pos)}"` : "";
+    // Large covers: the small version paints first (blurred), the full photo fades in over it.
+    if (ph && !small && ph.small) return `<img class="img-lo" src="${esc(ph.small)}" alt="" decoding="async"${pos}><img class="img-hi" src="${esc(ph.src)}" alt="" loading="lazy" decoding="async"${pos}>`;
+    if (ph) return `<img src="${esc(small ? ph.small : ph.src)}" alt="" loading="lazy" decoding="async"${pos}>`;
     return `<span class="cover ${region}" aria-hidden="true"><span class="cover-zh" lang="zh">${esc(clean(zh || "").replace(/\s*·\s*/g, " "))}</span></span>`;
   }
 
@@ -317,6 +320,7 @@
       return list.length ? `<h2 class="group-title"><span>${regionName(r)}</span><small>${r === "sichuan" ? "6 – 13 Nov" : "14 – 20 Nov"}</small></h2><div class="cards grid">${list.map((d) => destCard(d)).join("")}</div>` : "";
     }).join("");
     $("#destList").innerHTML = out || `<p class="empty">${icon("search")}Nothing matches this filter.</p>`;
+    markLoaded($("#destList"));
     if (feedBound) requestAnimationFrame(() => dispatchEvent(new Event("scroll")));
   }
 
@@ -732,6 +736,10 @@
     const t = document.getElementById(b.getAttribute("aria-controls")); if (!t) return;
     t.hidden = !t.hidden; b.setAttribute("aria-expanded", String(!t.hidden));
   });
+  // Mark full-size photos as loaded so they fade in over their blurred preview.
+  document.addEventListener("load", (e) => { if (e.target.classList?.contains("img-hi")) e.target.classList.add("ok"); }, true);
+  const markLoaded = (scope) => $$(".img-hi", scope).forEach((im) => { if (im.complete && im.naturalWidth) im.classList.add("ok"); });
+
   function stageDetail(det) {
     const hi = $(".d-hi", det);
     if (hi) { const ok = () => hi.classList.add("ok"); if (hi.complete && hi.naturalWidth) ok(); else hi.addEventListener("load", ok, { once: true }); }

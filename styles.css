@@ -1183,3 +1183,11 @@ details.tech[open] summary .i { transform: rotate(180deg); }
   .home-hero { padding-top: calc(env(safe-area-inset-top) + 1.5rem); padding-bottom: calc(var(--dock-h) + 4.75rem + env(safe-area-inset-bottom)); }
   .hh-center { margin-top: 0; }
 }
+
+/* Blur-up covers: small preview first, full photo fades in once loaded */
+.card-media .img-lo, .card-media .img-hi { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.card-media .img-lo { filter: blur(14px); transform: scale(1.08); }
+.card-media .img-hi { opacity: 0; transition: opacity 500ms ease; }
+.card-media .img-hi.ok { opacity: 1; }
+#v-itinerary .card.is-done .card-media .img-lo { filter: blur(14px) saturate(.45) brightness(.82); }
+@media (prefers-reduced-motion: reduce) { .card-media .img-hi { transition: none; } }
