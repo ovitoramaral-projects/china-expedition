@@ -130,6 +130,18 @@
     </a>${where ? `<p class="fine">${icon("info")}Estimated from the date and time in China, not GPS.</p>` : ""}`;
   }
 
+  // Opening screen line: a countdown before the trip, today's position during it.
+  function heroCountdown() {
+    if (phase === "before") {
+      const hours = Math.max(0, Math.round((parse(FIRST) - parse(now.date)) / 36e5 - now.hour));
+      const d = Math.floor(hours / 24), h = hours % 24;
+      const parts = [d ? `${d} day${d > 1 ? "s" : ""}` : "", h ? `${h} hour${h > 1 ? "s" : ""}` : ""].filter(Boolean);
+      return parts.length ? `${parts.join(", ")} to go` : "Starting today";
+    }
+    if (phase === "during") { const w = whereNow(); return `${today.label} of the trip${w ? ` · ${w.label}` : ""}`; }
+    return "Journey complete";
+  }
+
   function renderItinerary() {
     const el = $("#v-itinerary .content");
     const chips = [["all", "All", null], ...Object.entries(CATS).filter(([k]) => k !== "stops").map(([k, c]) => [k, c.label, c.icon])];
@@ -141,6 +153,8 @@
           <h1 class="hh-title">China Expedition</h1>
           <p class="hh-sub">6–20 Nov 2026 · ${DESTS.length} stops</p>
           <p class="hh-bless" lang="zh" aria-label="Yílù píng'ān, a safe journey">一路平安</p>
+          <p class="hh-count">${esc(heroCountdown())}</p>
+          <a class="hh-link" href="#timeline">Open the timeline${icon("chevron-right")}</a>
         </div>
         <span class="hh-cue">Scroll to travel</span>
       </section>
@@ -207,15 +221,26 @@
     return pts;
   }
   const dayHigh = (date) => Math.max(ELEV[date]?.m || 0, ELEV[date]?.high || 0);
+  // Drawn on a canvas (not SVG): iOS Safari did not paint the stretched SVG polyline.
   function altProfile() {
-    const all = altPoints(), xy = (p) => `${apX(p[0]).toFixed(1)},${apY(p[1]).toFixed(1)}`;
+    return `<span class="ad-lab" id="adLab"></span><span class="ad-dot" id="adDot"></span><canvas class="ad-cv" id="adCv" aria-hidden="true"></canvas>`;
+  }
+  function drawAlt() {
+    const cv = $("#adCv"); if (!cv) return;
+    const w = cv.clientWidth, h = cv.clientHeight; if (!w || !h) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 3);
+    if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+    const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, w, h);
+    const X = (t) => (apX(t) / AP.W) * w, Y = (m) => (apY(m) / AP.H) * h;
+    const all = altPoints();
     const ti = today ? DAYS.findIndex((x) => x.date === today.date) : phase === "after" ? DAYS.length - 1 : -1;
-    const past = all.filter((p) => p[0] <= ti);
-    return `<span class="ad-lab" id="adLab"></span><span class="ad-dot" id="adDot"></span>
-      <svg viewBox="0 0 ${AP.W} ${AP.H}" preserveAspectRatio="none" aria-hidden="true">
-        <polyline points="${all.map(xy).join(" ")}" class="ad-line"/>
-        ${past.length > 1 ? `<polyline points="${past.map(xy).join(" ")}" class="ad-past"/>` : ""}
-      </svg>`;
+    const stroke = (pts, color, width) => {
+      if (pts.length < 2) return;
+      g.beginPath(); pts.forEach((p, k) => (k ? g.lineTo(X(p[0]), Y(p[1])) : g.moveTo(X(p[0]), Y(p[1]))));
+      g.strokeStyle = color; g.lineWidth = width; g.lineJoin = "round"; g.lineCap = "round"; g.stroke();
+    };
+    stroke(all, "rgba(255,255,255,0.6)", 1.3);
+    stroke(all.filter((p) => p[0] <= ti), "#e0564a", 1.8);
   }
   let feedBound = false;
   function trackFeed() {
@@ -260,9 +285,10 @@
       feedBound = true;
       let raf = 0;
       addEventListener("scroll", () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; update(); }); }, { passive: true });
-      addEventListener("resize", update);
+      addEventListener("resize", () => { drawAlt(); update(); });
     }
     update();
+    requestAnimationFrame(drawAlt);
   }
   function drawDests() {
     $$("#v-itinerary .chips button, #filterPanel button").forEach((b) => b.setAttribute("aria-checked", b.dataset.filter === destFilter));

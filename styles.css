@@ -1140,3 +1140,17 @@ details.tech[open] summary .i { transform: rotate(180deg); }
 @media (prefers-reduced-motion: no-preference) {
   .detail.entering .d-sheet, .detail.entering .d-head > *, .detail.entering .jump { animation: none; }
 }
+
+/* Hairline drawn on canvas; more room between the stop caption and the altitude label */
+@media (max-width: 51.99rem) {
+  .alt-dock .ad-cv { position: absolute; left: 0; right: 0; bottom: 0; display: block; width: 100%; height: 2.1rem; }
+  #v-itinerary .card-panel { bottom: calc(var(--dock-h) + 2.75rem + env(safe-area-inset-bottom)); }
+}
+
+/* Opening screen: countdown and a quiet link to the timeline */
+@media (max-width: 51.99rem) {
+  .hh-count { margin: 1.75rem 0 0; font: 500 1.125rem/1.3 var(--sans); color: #f3efe8; font-variant-numeric: tabular-nums; }
+  .hh-link { display: inline-flex; align-items: center; gap: .2rem; margin-top: .5rem; font-size: .9375rem; color: #c9c4bc; text-decoration: underline; text-decoration-color: rgb(255 255 255 / .3); text-underline-offset: .25em; }
+  .hh-link .i { width: .95rem; height: .95rem; }
+  .hh-link:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: 4px; }
+}
