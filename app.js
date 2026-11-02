@@ -191,17 +191,30 @@
 
   /* Phone feed: the altitude strip follows the stop on screen. Sleeping altitude
      per day from ELEV (general references), with the day's high point as a spike. */
-  const AP = { W: 360, H: 30, pad: 2, max: 4200 };
-  const apX = (i) => AP.pad + i * ((AP.W - 2 * AP.pad) / (DAYS.length - 1));
+  // Altitude through the trip: each day rises to its highest point (a pass, a lake, a
+  // grassland: ELEV[date].high) and comes back down to where you sleep (ELEV[date].m).
+  // General references, as in ELEV. x = trip time: night i sits at i, day i's high at i - 0.5.
+  const AP = { W: 360, H: 34, pad: 2, max: 5000 };
+  const apX = (t) => AP.pad + (t + 0.5) * ((AP.W - 2 * AP.pad) / DAYS.length);
   const apY = (m) => AP.H - AP.pad - (Math.min(m, AP.max) / AP.max) * (AP.H - 2 * AP.pad);
-  // Hairline: one thin line of sleeping altitude per day; the days already travelled in red.
+  function altPoints() {
+    const pts = [[-0.5, ELEV[DAYS[0].date]?.m || 0]];
+    DAYS.forEach((x, i) => {
+      const e = ELEV[x.date] || {}, prev = i ? ELEV[DAYS[i - 1].date]?.m || 0 : e.m || 0;
+      if (e.high && e.high > Math.max(prev, e.m || 0)) pts.push([i - 0.5, e.high]);
+      pts.push([i, e.m || 0]);
+    });
+    return pts;
+  }
+  const dayHigh = (date) => Math.max(ELEV[date]?.m || 0, ELEV[date]?.high || 0);
   function altProfile() {
-    const pts = DAYS.map((x, i) => `${apX(i).toFixed(1)},${apY(ELEV[x.date]?.m || 0).toFixed(1)}`);
+    const all = altPoints(), xy = (p) => `${apX(p[0]).toFixed(1)},${apY(p[1]).toFixed(1)}`;
     const ti = today ? DAYS.findIndex((x) => x.date === today.date) : phase === "after" ? DAYS.length - 1 : -1;
+    const past = all.filter((p) => p[0] <= ti);
     return `<span class="ad-lab" id="adLab"></span><span class="ad-dot" id="adDot"></span>
       <svg viewBox="0 0 ${AP.W} ${AP.H}" preserveAspectRatio="none" aria-hidden="true">
-        <polyline points="${pts.join(" ")}" class="ad-line"/>
-        ${ti > 0 ? `<polyline points="${pts.slice(0, ti + 1).join(" ")}" class="ad-past"/>` : ""}
+        <polyline points="${all.map(xy).join(" ")}" class="ad-line"/>
+        ${past.length > 1 ? `<polyline points="${past.map(xy).join(" ")}" class="ad-past"/>` : ""}
       </svg>`;
   }
   let feedBound = false;
@@ -231,14 +244,15 @@
       const d = DEST[cards[i].dataset.key.slice(5)];
       const a = DAYS.findIndex((x) => x.date === d.days[0]);
       const mid = a, m = ELEV[DAYS[a].date]?.m || 0; // the stop's first night (later days may already be the next stop's)
-      // The line fills the bottom 1.75rem of the strip; place the dot on it and the label just above.
+      // The line fills the bottom 2.1rem of the strip; place the dot on it and the label just above.
       const left = `${(apX(mid) / AP.W * 100).toFixed(2)}%`, f = (apY(m) / AP.H).toFixed(3);
       const dot = $("#adDot"), lab = $("#adLab");
       dot.style.left = left;
       lab.style.left = `clamp(1.5rem, ${left}, calc(100% - 1.5rem))`; // keep the label on screen at either end
-      dot.style.top = `calc(100% - 1.75rem + ${f} * 1.75rem)`;
-      lab.style.top = `calc(100% - 1.75rem + ${f} * 1.75rem - 1rem)`;
-      const txt = `${m.toLocaleString()} m`;
+      dot.style.top = `calc(100% - 2.1rem + ${f} * 2.1rem)`;
+      lab.style.top = `calc(100% - 2.1rem + ${f} * 2.1rem - 1rem)`;
+      const top = Math.max(...d.days.map(dayHigh));
+      const txt = top > m + 150 ? `${m.toLocaleString()} m · up to ${top.toLocaleString()}` : `${m.toLocaleString()} m`;
       if (lab.textContent !== txt) lab.textContent = txt;
     };
     if (!feedBound) {

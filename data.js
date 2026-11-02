@@ -340,21 +340,22 @@ const GEAR = [
 ];
 
 // Approximate elevation (m) of each night's sleeping place, from general
-// geographic references — NOT from the trip files. `high` = day's highest
-// point where the itinerary itself states one.
+// geographic references — NOT from the trip files. `high` = the day's highest
+// point: Litang and the Yading lakes are named in the itinerary; the passes,
+// Muya and Blue Moon Valley follow PEAK in destinations.js (general references).
 const ELEV = {
   "2026-11-06": { town: "Chengdu", m: 500 },
   "2026-11-07": { town: "Chengdu", m: 500 },
-  "2026-11-08": { town: "Shuangqiao", m: 3100 },
+  "2026-11-08": { town: "Shuangqiao", m: 3100, high: 4480, highLabel: "Balang pass" },
   "2026-11-09": { town: "Jiaju", m: 2000 },
   "2026-11-10": { town: "Tagong", m: 3700 },
-  "2026-11-11": { town: "Yajiang", m: 2600 },
+  "2026-11-11": { town: "Yajiang", m: 2600, high: 3800, highLabel: "Muya grasslands" },
   "2026-11-12": { town: "Daocheng?", m: 3750, high: 3950, highLabel: "Litang" },
   "2026-11-13": { town: "Daocheng?", m: 3750, high: 4700, highLabel: "Yading lakes" },
-  "2026-11-14": { town: "Feilai Temple", m: 3400 },
-  "2026-11-15": { town: "Shangri-La", m: 3200 },
+  "2026-11-14": { town: "Feilai Temple", m: 3400, high: 4290, highLabel: "Baima pass" },
+  "2026-11-15": { town: "Shangri-La", m: 3200, high: 4290, highLabel: "Baima pass" },
   "2026-11-16": { town: "Lijiang", m: 2400 },
-  "2026-11-17": { town: "Lijiang", m: 2400 },
+  "2026-11-17": { town: "Lijiang", m: 2400, high: 3000, highLabel: "Blue Moon Valley" },
   "2026-11-18": { town: "Shaxi", m: 2100 },
   "2026-11-19": { town: "Dali", m: 2000 },
   "2026-11-20": { town: "Kunming", m: 1900 },

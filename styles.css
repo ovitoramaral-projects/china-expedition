@@ -971,3 +971,10 @@ details.tech[open] summary .i { transform: rotate(180deg); }
   #v-itinerary .card-media img { transform: none; }
   .ad-dot, .ad-lab { transition: opacity 200ms ease; }
 }
+
+/* Hairline v2: taller, so passes and lakes read as peaks above the nightly line */
+@media (max-width: 51.99rem) {
+  :root { --dock-h: 3rem; }
+  .alt-dock { height: 3rem; }
+  .alt-dock svg { height: 2.1rem; }
+}
