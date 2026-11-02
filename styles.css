@@ -1191,3 +1191,13 @@ details.tech[open] summary .i { transform: rotate(180deg); }
 .card-media .img-hi.ok { opacity: 1; }
 #v-itinerary .card.is-done .card-media .img-lo { filter: blur(14px) saturate(.45) brightness(.82); }
 @media (prefers-reduced-motion: reduce) { .card-media .img-hi { transition: none; } }
+
+/* Section numbers sit at the top of the title, not on its baseline */
+.detail .sec-h { align-items: flex-start; }
+.detail .sec-h .sec-n { line-height: 1; margin-top: .15rem; }
+.detail .sec-h .sec-m { align-self: center; }
+
+/* Stop page footer note and pager: same side spacing as the sheets */
+.detail .foot-note { margin: 1rem .5rem 0; padding: 0 1.125rem; }
+.detail .d-pager { margin: 1rem .5rem 0; }
+@media (min-width: 52rem) { .detail .foot-note { margin: 1.25rem 0 0; padding: 0 1.5rem; } .detail .d-pager { margin: 1rem 0 0; } }
