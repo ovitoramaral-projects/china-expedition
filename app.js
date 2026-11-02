@@ -364,6 +364,10 @@
      ===================================================================== */
   const ul = (a) => a && a.length ? `<ul class="bullets">${a.map((x) => `<li>${esc(x)}</li>`).join("")}</ul>` : "";
   const para = (t) => t ? `<p>${esc(t)}</p>` : "";
+  // Stop page building blocks (Sheets system): every section is a sheet with a numbered
+  // header; secondary detail folds into a "more" row so each block stays short.
+  const sheet = (id, n, title, body, meta = "") => body ? `<section class="dsec" id="${id}"><header class="sec-h"><span class="sec-n">${String(n).padStart(2, "0")}</span><h2>${title}</h2>${meta ? `<span class="sec-m">${meta}</span>` : ""}</header>${body}</section>` : "";
+  const more = (label, body, meta = "", cls = "") => body ? `<details class="more ${cls}"><summary><span>${label}${meta ? ` <span class="meta-inline">${meta}</span>` : ""}</span>${icon("chevron-down")}</summary><div class="more-in">${body}</div></details>` : "";
   const section = (id, title, body, note = "") => body ? `<section class="dsec" id="${id}"><h2>${title}</h2>${note ? `<p class="meta">${note}</p>` : ""}${body}</section>` : "";
   const extLink = (href, label, ic = "arrow-up-right") => `<a class="tlink" href="${esc(href)}" target="_blank" rel="noopener">${esc(label)}${icon(ic)}</a>`;
   const amapSearch = (q, city) => "https://uri.amap.com/search?keyword=" + encodeURIComponent(q) + "&view=map&src=chinaexpedition&callnative=1" + (city ? "&city=" + encodeURIComponent(city) : "");
@@ -390,52 +394,38 @@
   function dayBlock(d, opts = {}) {
     const isToday = today && today.date === d.date, where = isToday ? whereNow() : null;
     const past = phase === "after" || (today && d.date < today.date);
-    const n = d.route.length;
-    const role = opts.role === "Arriving" ? `<span class="chip arrive">${icon("log-in")}Arriving</span>` :
-      opts.role === "Leaving" ? `<span class="chip leave">${icon("log-out")}Leaving</span>` : "";
+    const route = d.route.length > 1 ? d.route.map((r) => esc(clean(r))).join(" → ") : esc(d.focus);
+    const line = [opts.role, route].filter(Boolean).join(" · ");
+    const details = `<p>${esc(d.summary)}</p>
+      <p class="meta"><b>Focus.</b> ${esc(d.focus)}</p>
+      ${d.altitude ? `<p class="meta">${icon("mountain")}${esc(d.altitude)}</p>` : ""}
+      ${d.options ? `<dl class="opts">${d.options.map(([k, v]) => `<div><dt><span class="chip ${/hard/i.test(k) ? "hard" : /easier|chosen/i.test(k) ? "go" : ""}">${esc(k)}</span></dt><dd>${esc(v)}</dd></div>`).join("")}</dl>` : ""}
+      ${(d.flags || []).map((f) => `<p class="warn-t">${esc(f)}</p>`).join("")}
+      ${(d.notes || []).map((t) => `<p class="meta">${icon(/airport|fly|flight/i.test(t) ? "plane" : "info")}${esc(t)}</p>`).join("")}`;
     return `<article class="day ${isToday ? "is-today" : ""} ${past ? "is-past" : ""}" id="dayblock-${d.date}">
       <header class="day-top">
         <span class="day-date"><b>${dayNum(d.date)}</b><small>${dow(d.date)}</small></span>
         <span class="day-head">
-          <span class="day-meta">${esc(d.label)}${role}${isToday ? `<span class="chip today">Today</span>` : ""}</span>
-          <h3>${esc(d.title)}</h3>
+          <h3>${esc(d.title)}${isToday ? ` <span class="chip today">Today</span>` : ""}</h3>
+          <span class="day-line">${line}</span>
         </span>
       </header>
-      <div class="day-body">
-        <ol class="route-v">${d.route.map((s, k) => `<li class="${k === n - 1 ? "end" : ""} ${where && k <= Math.floor(where.segment) ? "done" : ""} ${s.endsWith("?") ? "uncertain" : ""}">${esc(clean(s))}</li>`).join("")}</ol>
-        ${where ? `<p class="live">${icon("locate-fixed")}${esc(where.label)}</p>` : ""}
-        ${d.flags ? `<div class="notice">${icon("triangle-alert")}<p><b>Needs confirmation.</b> ${d.flags.map(esc).join(" ")}</p></div>` : ""}
-        <p class="day-summary">${esc(d.summary)}</p>
-        <div class="day-focus"><span class="label">Focus</span><p>${esc(d.focus)}</p></div>
-        ${d.altitude ? `<p class="meta">${icon("mountain")}${esc(d.altitude)}</p>` : ""}
-        ${d.options ? `<dl class="opts">${d.options.map(([k, v]) => `<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}</dl>` : ""}
-        ${(d.notes || []).map((t) => `<div class="day-note">${icon(/airport|fly|flight/i.test(t) ? "plane" : "info")}<p>${esc(t)}</p></div>`).join("")}
-      </div>
+      ${where ? `<p class="live">${icon("locate-fixed")}${esc(where.label)}</p>` : ""}
+      ${d.flags ? `<p class="flag">${icon("triangle-alert")}${d.flags.length} thing${d.flags.length > 1 ? "s" : ""} to confirm</p>` : ""}
+      ${more("Details", details)}
     </article>`;
   }
 
   function placeItem(id, d, open) {
-    const P = PLACES[id], dist = distanceLabel(id, d);
-    const sy = sayOf("place", id);
-    const sub = [P.zh ? `<span lang="zh">${esc(clean(P.zh))}</span>` : "", sy?.py ? `<span class="py">${esc(sy.py)}</span>` : "", esc(P.kind)].filter(Boolean).join(" · ");
-    const parts = [
-      sy && `<p class="pl-say">Say it: <b>${esc(sy.say)}</b>${sy.py ? ` <span class="py">(${esc(sy.py)})</span>` : ""}</p>`,
-      P.history && `<h4>History & context</h4>${para(P.history)}`,
-      P.look && `<h4>What to look for</h4>${ul(P.look)}`,
-      P.todo && `<h4>What to do</h4>${ul(P.todo)}`,
-      P.photo && `<h4>Photography</h4>${ul(P.photo)}`,
-      P.care && `<h4>Care</h4>${ul(P.care)}`,
-      P.sources && `<h4>Sources</h4><p class="links">${P.sources.map(([n, u]) => extLink(u, n)).join("")}</p>`,
-    ].filter(Boolean).join("");
+    const P = PLACES[id], dist = distanceLabel(id, d), sy = sayOf("place", id);
+    const line = [esc(P.kind), dist ? esc(dist.short) : "", P.status !== "planned" ? `<em>${esc(PLACE_STATUS[P.status])}</em>` : ""].filter(Boolean).join(" · ");
+    const story = [P.history && `<p>${esc(P.history)}</p>`, P.look && `<h4>What to look for</h4>${ul(P.look)}`, P.todo && `<h4>What to do</h4>${ul(P.todo)}`].filter(Boolean).join("");
+    const names = P.zh || sy ? `<p><span lang="zh">${esc(clean(P.zh || ""))}</span>${sy?.py ? ` · <span class="py">${esc(sy.py)}</span>` : ""}</p>${sy ? `<p class="meta">Say “${esc(sy.say)}”</p>` : ""}` : "";
     return `<li class="place st-${P.status}" id="pl-${id}">
       <details ${open ? "open" : ""}>
         <summary>
           <span class="pl-thumb">${cover(id, P.zh || P.name, d.region, true)}</span>
-          <span class="pl-text">
-            <span class="pl-name">${esc(P.name)}</span>
-            <span class="pl-sub">${sub}</span>
-            <span class="pl-dist ${dist ? dist.mode : ""}">${dist ? `${icon(dist.mode === "walk" ? "footprints" : dist.mode === "car" ? "navigation" : dist.mode === "route" ? "route" : "map-pin")}${esc(dist.short)}` : ""}${P.status !== "planned" ? `<em>${esc(PLACE_STATUS[P.status])}</em>` : ""}</span>
-          </span>
+          <span class="pl-text"><span class="pl-name">${esc(P.name)}</span><span class="pl-sub">${line}</span></span>
           ${icon("chevron-down", "pl-chev")}
         </summary>
         <div class="pl-body">
@@ -445,33 +435,35 @@
             ${P.map ? extLink(P.map, "Open in Amap", "navigation") : ""}
             ${P.zh ? `<button class="tlink" type="button" data-copy="${esc(clean(P.zh).split(" · ")[0])}" data-copy-label="Chinese name copied">Copy 中文 name${icon("copy")}</button>` : ""}
           </p>
-          ${parts}
+          ${more("History & what to do", story)}
+          ${more("Photo tips", ul(P.photo))}
+          ${more("Care", ul(P.care))}
+          ${more("Name & pronunciation", names)}
+          ${P.sources ? `<p class="meta src">Sources: ${P.sources.map(([n, u]) => extLink(u, n)).join(" ")}</p>` : ""}
         </div>
       </details>
     </li>`;
   }
 
   function stayBlock(d) {
-    if (!d.stay) return `<p class="empty">${icon("bed-double")}No booking on file for this night. Add the onward plan once it's confirmed.</p>`;
+    if (!d.stay) return `<div class="blk"><p class="meta">${icon("bed-double")}No booking on file for this night. Add the onward plan once it's confirmed.</p></div>`;
     const s = STAYS[d.stay], nights = destNights(d);
     const rows = [
-      ["map-pin", "Address", `${esc(s.address)} <button class="tlink inline" type="button" data-copy="${esc(s.address)}" data-copy-label="Address copied">Copy${icon("copy")}</button>`],
-      s.checkin && ["clock", "Check-in", esc(s.checkin)],
-      s.checkout && ["clock", "Check-out", esc(s.checkout)],
-      s.meals && ["utensils", "Meals", esc(s.meals)],
-      s.phone && ["phone", "Phone", `<a class="tlink inline" href="tel:${esc(s.phone.replace(/[^\d+]/g, ""))}">${esc(s.phone)}</a>`],
+      s.checkin && ["Check-in", esc(s.checkin)],
+      s.checkout && ["Check-out", esc(s.checkout)],
+      s.meals && ["Meals", esc(s.meals)],
+      s.phone && ["Phone", `<a class="tlink inline" href="tel:${esc(s.phone.replace(/[^\d+]/g, ""))}">${esc(s.phone)}</a>`],
     ].filter(Boolean);
-    return `<div class="stay">
-      <p class="label">${nights.length} night${nights.length > 1 ? "s" : ""} · ${esc(dateRange(nights))}</p>
+    const extra = `${rows.length ? `<dl class="kv">${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>` : ""}
+      ${s.note ? `<p class="meta">${esc(s.note)}</p>` : ""}
+      ${s.nearby ? `<h4>Around the stay</h4><p class="links">${s.nearby.map(([n, u, dist]) => extLink(u, n + (dist ? ` · ${dist}` : ""), "navigation")).join("")}</p>` : ""}`;
+    return `<div class="blk stay">
       <h3>${esc(s.name)}</h3>
-      ${s.sub ? `<p class="meta">${esc(s.sub)}</p>` : ""}
-      <dl class="kv">${rows.map(([ic, k, v]) => `<div>${icon(ic)}<dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>
-      ${s.note ? `<p class="meta note">${icon("info")}${esc(s.note)}</p>` : ""}
-      <div class="stay-actions">
-        ${d.voucher ? `<a class="btn" href="#voucher-${d.id}">${icon("list-checks")}Booking voucher</a>` : ""}
-        ${extLink(s.map, "Open in Amap", "navigation")}
-      </div>
-      ${s.nearby ? `<h4>Around the stay</h4><p class="links">${s.nearby.map(([n, u, dist]) => extLink(u, n + (dist ? ` · ${dist}` : ""), "navigation")).join("")}</p>` : ""}
+      <p class="meta">${nights.length} night${nights.length > 1 ? "s" : ""} · ${esc(dateRange(nights))}${s.sub ? ` · ${esc(s.sub)}` : ""}</p>
+      <p class="stay-addr">${esc(s.address)}</p>
+      <p class="links">${extLink(s.map, "Open in Amap", "navigation")}<button class="tlink" type="button" data-copy="${esc(s.address)}" data-copy-label="Address copied">Copy address${icon("copy")}</button></p>
+      ${d.voucher ? `<a class="btn" href="#voucher-${d.id}">${icon("list-checks")}Booking voucher</a>` : ""}
+      ${more("Details", extra)}
     </div>`;
   }
 
@@ -488,10 +480,9 @@
       </li>`;
     };
     return `${lead?.food ? `<p>${esc(lead.food)}</p>` : ""}
-      <h4>Our picks</h4>
-      ${picks.length ? `<ul class="eats">${picks.map((r) => row(r, "pick")).join("")}</ul>` : `<p class="meta">None yet. Restaurants you choose will appear here first.</p>`}
-      ${leads.length ? `<h4>Leads from the field guide</h4><p class="meta">Not reservations. Check it's open on the day.</p>
-        <ul class="eats">${leads.map(([n, t, u]) => { const zh = (n.match(/[一-鿿·]+/g) || []).join(""); return row({ name: n.replace(/\s*[一-鿿·]+.*$/, "").trim() || n, zh, note: t, link: u }, "lead"); }).join("")}</ul>` : ""}`;
+      ${picks.length ? `<ul class="eats">${picks.map((r) => row(r, "pick")).join("")}</ul>` : `<p class="meta">No restaurant picks yet. The ones you choose will appear here.</p>`}
+      ${leads.length ? more("Leads from the field guide", `<p class="meta">Not reservations. Check it's open on the day.</p>
+        <ul class="eats">${leads.map(([n, t, u]) => { const zh = (n.match(/[一-鿿·]+/g) || []).join(""); return row({ name: n.replace(/\s*[一-鿿·]+.*$/, "").trim() || n, zh, note: t, link: u }, "lead"); }).join("")}</ul>`, String(leads.length)) : ""}`;
   }
   const AMAP_CITY = { chengdu: "成都市", siguniang: "小金县 四川省", danba: "丹巴县 四川省", tagong: "康定市 四川省", yajiang: "雅江县 四川省",
     yading: "稻城县 四川省", meili: "德钦县 云南省", shangrila: "香格里拉市 云南省", lijiang: "丽江市 云南省", shaxi: "剑川县 云南省", dali: "大理市 云南省", kunming: "昆明市 云南省" };
@@ -529,27 +520,18 @@
     const s = sunTimes(c[0], c[1], day);
     const pct = (h) => ((h - 5) / 16) * 100;
     const seg = (a, b, cls) => `<i class="${cls}" style="left:${pct(a).toFixed(2)}%;width:${(pct(b) - pct(a)).toFixed(2)}%"></i>`;
-    return `<div class="light">
-      <div class="light-head"><span class="label">Light · ${dow(day)} ${dayNum(day)} Nov</span><span class="meta-inline">Calculated estimate</span></div>
+    return `<div class="blk light">
       <div class="lbar" role="img" aria-label="Blue hour from ${hm(s.blueAm)}, sunrise ${hm(s.rise)}, golden hour until ${hm(s.goldAm)}; golden hour from ${hm(s.goldPm)}, sunset ${hm(s.set)}, blue hour until ${hm(s.bluePm)}">
         ${seg(s.rise, s.set, "day")}${seg(s.blueAm, s.rise, "blue")}${seg(s.rise, s.goldAm, "gold")}${seg(s.goldPm, s.set, "gold r")}${seg(s.set, s.bluePm, "blue")}
       </div>
-      <div class="lticks"><span>05</span><span>09</span><span>13</span><span>17</span><span>21</span></div>
-      <div class="ltimes">
-        <div class="lrow"><span class="lwhen">Morning</span>
-          <span class="b"><b>${hm(s.blueAm)}–${hm(s.rise)}</b><small>Blue hour</small></span>
-          <span class="g"><b>${hm(s.rise)}–${hm(s.goldAm)}</b><small>Sunrise, golden hour</small></span></div>
-        <div class="lrow"><span class="lwhen">Evening</span>
-          <span class="g"><b>${hm(s.goldPm)}–${hm(s.set)}</b><small>Golden hour, sunset</small></span>
-          <span class="b"><b>${hm(s.set)}–${hm(s.bluePm)}</b><small>Blue hour</small></span></div>
+      <div class="lgold">
+        <div><span class="meta">Morning light</span><b>${hm(s.rise)}–${hm(s.goldAm)}</b></div>
+        <div><span class="meta">Evening light</span><b>${hm(s.goldPm)}–${hm(s.set)}</b></div>
       </div>
-      ${typeof LIGHT3D !== "undefined" && LIGHT3D[d.id] ? `<details class="tech l3d-wrap">
-        <summary><span>Light on the mountain <span class="meta-inline">3D model</span></span>${icon("chevron-down")}</summary>
-        <div class="l3d" data-l3d="${d.id}"></div>
-      </details>` : ""}
+      <p class="meta">${dow(day)} ${dayNum(day)} Nov · calculated · blue hour ${hm(s.blueAm)}–${hm(s.rise)} and ${hm(s.set)}–${hm(s.bluePm)}</p>
+      ${typeof LIGHT3D !== "undefined" && LIGHT3D[d.id] ? more("Light on the mountain", `<div class="l3d" data-l3d="${d.id}"></div>`, "3D model", "l3d-wrap") : ""}
     </div>`;
   }
-
   function shotFor(tip) {
     const t = tip.toLowerCase();
     const lens = /portrait|isolat|craft|doorway|^detail/.test(t) ? "Sirui 55mm T1.2" :
@@ -622,20 +604,18 @@
       ${carousel(d)}
       ${groups.length ? groups.map((g, gi) => {
         const keys = g.shots.map((_, i) => `${d.id}:${g.p}:${i}`);
-        return `<details class="pgroup" ${gi === 0 ? "open" : ""}>
+        return `<details class="pgroup">
           <summary><span class="pg-thumb">${cover(g.p, g.P.zh || g.P.name, d.region, true)}</span><span class="pg-text"><span class="pg-name">${esc(g.P.name)}</span>${keys.length ? counter(keys) : `<span class="shot-count">Notes only</span>`}</span>${icon("chevron-down", "pg-chev")}</summary>
           <div class="pg-body">
             ${g.shots.length ? `<ul class="shots">${g.shots.map((t, i) => shotLi(keys[i], t)).join("")}</ul>` : ""}
             ${g.notes.length ? `<ul class="bullets pg-notes">${g.notes.map((n) => `<li>${esc(n)}</li>`).join("")}</ul>` : ""}
-            ${g.shots.length ? `<details class="tech"><summary><span>Shot details <span class="meta-inline">suggested, from your kit</span></span>${icon("chevron-down")}</summary><div class="tech-in">
-              ${g.shots.map((t) => { const s = shotFor(t); return `<p class="tech-shot">${esc(t)}</p><dl class="tech-dl"><dt>Lens</dt><dd>${esc(s.lens)}</dd><dt>Framing</dt><dd>${esc(s.size)}</dd><dt>Support</dt><dd>${esc(s.move)}${s.nd ? " · ND filter" : ""}</dd>${s.light ? `<dt>Light</dt><dd>${esc(s.light)}</dd>` : ""}</dl>`; }).join("")}
-            </div></details>` : ""}
+            ${g.shots.length ? more("Shot details", g.shots.map((t) => { const s = shotFor(t); return `<p class="tech-shot">${esc(t)}</p><dl class="tech-dl"><dt>Lens</dt><dd>${esc(s.lens)}</dd><dt>Framing</dt><dd>${esc(s.size)}</dd><dt>Support</dt><dd>${esc(s.move)}${s.nd ? " · ND filter" : ""}</dd>${s.light ? `<dt>Light</dt><dd>${esc(s.light)}</dd>` : ""}</dl>`; }).join(""), "suggested, from your kit") : ""}
           </div>
         </details>`;
       }).join("") : `<p class="meta">No photo plan for this stop in the field guide yet.</p>`}
-      ${rules.length || sacred ? `<div class="prules">${icon("triangle-alert")}<div><b>Photo rules</b><ul>${(rules.length ? rules : ["Follow posted photography rules in monasteries and temples; ask before photographing monks or worshippers."]).map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div></div>` : ""}
-      <details class="tech"><summary><span>In the bag today <span class="meta-inline">${kit.length} items</span></span>${icon("chevron-down")}</summary><div class="tech-in"><div class="kit">${kit.map(([, k]) => `<span>${esc(k)}</span>`).join("")}</div></div></details>
-      <details class="tech"><summary><span>On the ground <span class="meta-inline">guide protocol</span></span>${icon("chevron-down")}</summary><div class="tech-in">${ul(FIELD[0][1])}</div></details>`;
+      ${rules.length || sacred ? `<div class="callout warn">${icon("triangle-alert")}<div><b>Photo rules</b><ul>${(rules.length ? rules : ["Follow posted photography rules in monasteries and temples; ask before photographing monks or worshippers."]).map((r) => `<li>${esc(r)}</li>`).join("")}</ul></div></div>` : ""}
+      ${more("In the bag today", `<div class="kit">${kit.map(([, k]) => `<span>${esc(k)}</span>`).join("")}</div>`, `${kit.length} items`)}
+      ${more("On the ground", ul(FIELD[0][1]), "guide protocol")}`;
   }
   // Carousel dots follow the swipe.
   document.addEventListener("scroll", (e) => {
@@ -666,47 +646,33 @@
         <header class="d-head">
           <p class="label">${regionName(d.region)} · ${idx === 0 ? "First stop" : idx === DESTS.length - 1 ? "Last stop" : `Stop ${idx + 1}`}</p>
           <h1 class="d-title">${esc(d.name)}</h1>
-          <p class="d-zh" lang="zh">${esc(d.zh)}</p>
-          ${sayOf("stop", d.id) ? `<p class="d-say">${sayOf("stop", d.id).py ? `<span class="py">${esc(sayOf("stop", d.id).py)}</span>` : ""}<span>Say “${esc(sayOf("stop", d.id).say)}”</span></p>` : ""}
-          <dl class="facts">
-            <div><dt>Dates</dt><dd>${esc(dateRange(d.days))}</dd></div>
-            <div><dt>Nights</dt><dd>${nights.length || "–"}</dd></div>
-            <div><dt>Highest</dt><dd>~${PEAK[d.id].m.toLocaleString()} m</dd></div>
-            <div><dt>Places</dt><dd>${d.places.length || "–"}</dd></div>
-          </dl>
-          <p class="meta alt-note">${icon("mountain")}<span>Highest: ~${PEAK[d.id].m.toLocaleString()} m at ${esc(PEAK[d.id].where)}${alt ? `. You sleep at ~${alt.m.toLocaleString()} m` : ""}. ${PEAK[d.id].src === "files" ? "From your field guide." : "General reference, not from your files."}</span></p>
+          <p class="d-zh"><span lang="zh">${esc(d.zh)}</span>${sayOf("stop", d.id) ? `<button class="tlink say-toggle" type="button" aria-expanded="false" aria-controls="say-${d.id}">How to say it</button>` : ""}</p>
+          ${sayOf("stop", d.id) ? `<p class="d-say" id="say-${d.id}" hidden>${sayOf("stop", d.id).py ? `<span class="py">${esc(sayOf("stop", d.id).py)}</span> · ` : ""}Say “${esc(sayOf("stop", d.id).say)}”</p>` : ""}
+          <p class="d-line">${esc(dateRange(d.days))} · ${nights.length ? `${nights.length} night${nights.length > 1 ? "s" : ""}` : "no night here"} · up to ~${PEAK[d.id].m.toLocaleString()} m</p>
         </header>
-
         <nav class="jump" aria-label="On this page">
           <a href="#j-about">About</a><a href="#j-days">Days</a>${d.places.length ? `<a href="#j-places">Places</a>` : ""}<a href="#j-photo">Photo</a><a href="#j-stay">Stay</a><a href="#j-food">Food</a>
         </nav>
-
-        ${section("j-about", "About", `
+        ${sheet("j-about", 1, "About", `
           <p class="lead">${esc(d.intro || lead?.about || "")}</p>
           ${lead && d.intro && lead.about !== d.intro ? para(lead.about) : ""}
-          ${lead?.history ? `<h4>History & context</h4>${para(lead.history)}` : ""}
-          ${lead?.todo ? `<h4>What to do</h4>${ul(lead.todo)}` : ""}`)}
-
-        ${section("j-getting", "Getting here", `
-          <p>${prev ? `From ${esc(prev.name)}, ${dowLong(arrival.date)} ${dayNum(arrival.date)} November.` : "Arrival in China."}</p>
-          <ol class="stepper">${arrival.route.map((s) => `<li class="${s.endsWith("?") ? "uncertain" : ""}"><span>${esc(clean(s))}</span></li>`).join("")}</ol>
-          ${plateau ? `<p class="meta note">${icon("mountain")}${esc(PRACTICAL[0][1])}</p>` : ""}
-          <p class="meta note">${icon("clock")}Departure times, stops and detours aren't in the itinerary. Confirm them with the driver or guide.</p>`)}
-
-        ${section("j-days", "The days here", d.days.map((x) => dayBlock(DAY[x], { role: role(x) })).join(""))}
-
-        ${d.places.length ? section("j-places", "Places to visit",
-          `<ul class="places">${d.places.map((p) => placeItem(p, d, p === openPlace)).join("")}</ul>`,
-          hasDistances ? "Distances are straight-line estimates from where you sleep. Open Amap for the real route." : "") : ""}
-
-        ${section("j-photo", "Photography", photoBlock(d))}
-
-        ${section("j-stay", "Where you sleep", stayBlock(d))}
-
-        ${section("j-food", "Food", foodBlock(d, lead))}
-
-        ${section("j-care", "Care & cautions", ul(lead?.care))}
-        ${section("j-sources", "Sources", sources.length ? `<p class="links">${sources.map(([n, u]) => extLink(u, n)).join("")}</p>` : "")}
+          ${lead?.history ? para(lead.history) : ""}
+          <p class="meta">${icon("mountain")}Highest ~${PEAK[d.id].m.toLocaleString()} m at ${esc(PEAK[d.id].where)}${alt ? `; you sleep at ~${alt.m.toLocaleString()} m` : ""}. ${PEAK[d.id].src === "files" ? "From your field guide." : "General reference, not from your files."}</p>
+          ${more("What to do", ul(lead?.todo))}
+          ${more("Care & cautions", ul(lead?.care))}
+          ${more("Sources", sources.length ? `<p class="links">${sources.map(([n, u]) => extLink(u, n)).join("")}</p>` : "")}`)}
+        ${sheet("j-days", 2, "Days", `
+          ${more(`Getting here${prev ? ` from ${esc(prev.name)}` : ""}`, `
+            <ol class="stepper">${arrival.route.map((s) => `<li class="${s.endsWith("?") ? "uncertain" : ""}"><span>${esc(clean(s))}</span></li>`).join("")}</ol>
+            ${plateau ? `<p class="meta">${esc(PRACTICAL[0][1])}</p>` : ""}
+            <p class="meta">Departure times, stops and detours aren't in the itinerary. Confirm them with the driver or guide.</p>`, `${dow(arrival.date)} ${dayNum(arrival.date)} Nov`, "getting")}
+          <div class="stack">${d.days.map((x) => dayBlock(DAY[x], { role: role(x) })).join("")}</div>`, esc(dateRange(d.days)))}
+        ${d.places.length ? sheet("j-places", 3, "Places",
+          `<ul class="places">${d.places.map((p) => placeItem(p, d, p === openPlace)).join("")}</ul>
+          ${hasDistances ? `<p class="meta">Distances are straight-line estimates from where you sleep. Open Amap for the real route.</p>` : ""}`, String(d.places.length)) : ""}
+        ${sheet("j-photo", 4, "Photo", photoBlock(d))}
+        ${sheet("j-stay", 5, "Stay", stayBlock(d))}
+        ${sheet("j-food", 6, "Food", foodBlock(d, lead))}
         <p class="meta foot-note">Place notes from the location field guide v1.4. Dates and hotels from the itinerary and booking vouchers.</p>
 
         <nav class="d-pager" aria-label="Other stops">
@@ -718,6 +684,11 @@
 
   // Highlight the jump-bar link for the section being read.
   // Opening a stop: the header builds in, then content rises into place as you scroll.
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest(".say-toggle"); if (!b) return;
+    const t = document.getElementById(b.getAttribute("aria-controls")); if (!t) return;
+    t.hidden = !t.hidden; b.setAttribute("aria-expanded", String(!t.hidden));
+  });
   function stageDetail(det) {
     const hi = $(".d-hi", det);
     if (hi) { const ok = () => hi.classList.add("ok"); if (hi.complete && hi.naturalWidth) ok(); else hi.addEventListener("load", ok, { once: true }); }
