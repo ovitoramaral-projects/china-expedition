@@ -285,17 +285,18 @@
       const d = DEST[cards[i].dataset.key.slice(5)];
       const a = DAYS.findIndex((x) => x.date === d.days[0]);
       const mid = a, m = ELEV[DAYS[a].date]?.m || 0; // the stop's first night (later days may already be the next stop's)
-      // The line fills the bottom 2.1rem of the strip; place the dot on it and the label just above.
-      const left = `${(apX(mid) / AP.W * 100).toFixed(2)}%`, f = (apY(m) / AP.H).toFixed(3);
-      const dot = $("#adDot"), lab = $("#adLab");
-      dot.style.left = left;
-      lab.style.left = `clamp(1.5rem, ${left}, calc(100% - 1.5rem))`; // keep the label on screen at either end
-      dot.style.top = `calc(100% - 2.1rem + ${f} * 2.1rem)`;
-      lab.style.top = `calc(100% - 2.1rem + ${f} * 2.1rem - 1rem)`;
+      // Place the dot on the line and the label above it with transforms (compositor-only),
+      // so moving between stops can glide smoothly without touching layout.
       const own = d.days.filter((x) => DAY[x].stay === d.stay); // days you sleep at this stop
       const top = Math.max(...(own.length ? own : d.days).map(dayHigh));
-      const txt = top > m + 150 ? `${m.toLocaleString()} m · up to ${top.toLocaleString()}` : `${m.toLocaleString()} m`;
+      const txt = top > m + 150 ? `${m.toLocaleString()} m – ${top.toLocaleString()} m` : `${m.toLocaleString()} m`;
+      const dot = $("#adDot"), lab = $("#adLab"), cv = $("#adCv");
       if (lab.textContent !== txt) lab.textContent = txt;
+      const W = dock.clientWidth, cvTop = cv.offsetTop, cvH = cv.clientHeight;
+      const cx = (apX(mid) / AP.W) * W, cy = cvTop + (apY(m) / AP.H) * cvH;
+      const lw = lab.offsetWidth, lx = Math.max(0, Math.min(W - lw, cx - lw / 2));
+      dot.style.transform = `translate3d(${cx.toFixed(1)}px, ${cy.toFixed(1)}px, 0)`;
+      lab.style.transform = `translate3d(${lx.toFixed(1)}px, ${(cy - 22).toFixed(1)}px, 0)`;
     };
     if (!feedBound) {
       feedBound = true;
