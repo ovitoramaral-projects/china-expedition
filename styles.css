@@ -1284,3 +1284,34 @@ details.tech[open] summary .i { transform: rotate(180deg); }
 .detail .frame figcaption { display: grid; gap: .2rem; margin-top: .5rem; font: 600 .9375rem/1.35 var(--sans); color: var(--ink); }
 .detail .frame .f-about { font: 400 .875rem/1.45 var(--sans); color: var(--ink-2); }
 .detail .frame .f-shot { font: 400 .8125rem/1.45 var(--sans); color: var(--muted); }
+
+/* Stop page close button: top right, fixed; pops in, hides on scroll down, bounces on press */
+.d-close { position: fixed; z-index: 35; left: auto; right: calc(.9rem + env(safe-area-inset-right, 0px)); top: calc(.9rem + env(safe-area-inset-top));
+  width: 2.75rem; height: 2.75rem; color: var(--ink); background: color-mix(in srgb, var(--surface) 88%, transparent);
+  transition: transform 260ms cubic-bezier(.34, 1.56, .64, 1), opacity 200ms ease; will-change: transform; }
+.d-close .i { width: 1.2rem; height: 1.2rem; stroke-width: 2; }
+.d-close.gone { opacity: 0; transform: scale(.6) translateY(-8px); pointer-events: none; transition: transform 200ms ease-in, opacity 160ms ease-in; }
+.d-close.leaving { opacity: 0; transform: scale(.5) rotate(90deg); transition: transform 170ms ease-in, opacity 170ms ease-in; }
+.d-close:active { transform: scale(.86); transition: transform 90ms ease-out; }
+.d-close:focus-visible { outline: 2px solid var(--cinnabar); outline-offset: 3px; }
+@media (prefers-reduced-motion: no-preference) {
+  .detail.entering .d-close { animation: d-close-in 420ms cubic-bezier(.34, 1.56, .64, 1) 120ms both; }
+}
+@keyframes d-close-in { from { opacity: 0; transform: scale(.5) rotate(-90deg); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .d-close, .d-close.gone, .d-close.leaving { transition: opacity 120ms ease; transform: none; } }
+
+/* Timeline: close button (top right) and cards revealing on scroll */
+.tlx-top { position: sticky; }
+.tlx-close { position: absolute; top: calc(.75rem + env(safe-area-inset-top)); right: var(--pad); display: grid; place-items: center;
+  width: 2.75rem; height: 2.75rem; border-radius: 50%; color: #f1ede6; background: rgb(255 255 255 / .1); border: 1px solid rgb(255 255 255 / .12);
+  transition: transform 260ms cubic-bezier(.34, 1.56, .64, 1), opacity 200ms ease; }
+.tlx-close .i { width: 1.2rem; height: 1.2rem; stroke-width: 2; }
+.tlx-close:active { transform: scale(.86); transition: transform 90ms ease-out; }
+.tlx-close.leaving { opacity: 0; transform: scale(.5) rotate(90deg); transition: transform 170ms ease-in, opacity 170ms ease-in; }
+.tlx-close:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.tlx-count { margin-top: 0; padding-right: 3.5rem; }
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-view="timeline"] .tlx-close { animation: d-close-in 420ms cubic-bezier(.34, 1.56, .64, 1) 100ms both; }
+  .tlx-item.rv-tl { opacity: 0; transform: translateY(26px) scale(.98); transition: opacity 520ms cubic-bezier(.23, 1, .32, 1), transform 620ms cubic-bezier(.23, 1, .32, 1); }
+  .tlx-item.rv-tl.in { opacity: 1; transform: none; }
+}

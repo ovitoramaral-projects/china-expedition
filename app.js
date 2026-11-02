@@ -407,7 +407,7 @@
     } else { big = "Done"; small = `${DAYS.length} days`; line = "Chengdu to Kunming, <b>6–20 November</b>"; }
     el.innerHTML = `
       <header class="tlx-top">
-        <a class="tlx-back" href="#itinerary">${icon("chevron-left")}Itinerary</a>
+        <a class="tlx-close" href="#itinerary" aria-label="Close timeline">${icon("x")}</a>
         <p class="tlx-count">${big}${small ? `<small>${small}</small>` : ""}</p>
         <p class="tlx-where">${line}</p>
         <canvas class="tlx-alt" id="tlxAlt" aria-hidden="true"></canvas>
@@ -430,6 +430,29 @@
         </li>`;
       }).join("")}</ol>`;
     requestAnimationFrame(drawTimelineAlt);
+    revealTimeline(el);
+  }
+  // Timeline cards rise and fade in as they scroll into view; the close button pops in,
+  // bounces on press and plays a quick exit before going back to the itinerary.
+  let tlxIO = null;
+  function revealTimeline(el) {
+    const close = $(".tlx-close", el);
+    if (close) close.addEventListener("click", (e) => {
+      if (reduceMotion) return;
+      e.preventDefault(); close.classList.add("leaving");
+      setTimeout(() => { location.hash = "#itinerary"; }, 170);
+    });
+    if (reduceMotion || !("IntersectionObserver" in window)) return;
+    tlxIO?.disconnect();
+    tlxIO = new IntersectionObserver((ents) => {
+      let k = 0;
+      for (const en of ents) {
+        if (!en.isIntersecting) continue;
+        en.target.style.transitionDelay = `${Math.min(k++, 3) * 70}ms`;
+        en.target.classList.add("in"); tlxIO.unobserve(en.target);
+      }
+    }, { rootMargin: "0px 0px -8% 0px" });
+    $$(".tlx-item", el).forEach((it) => { it.classList.add("rv-tl"); tlxIO.observe(it); });
   }
   function drawTimelineAlt() {
     const cv = $("#tlxAlt"); if (!cv || !cv.clientWidth) return;
@@ -772,7 +795,7 @@
     // Hero: the small photo paints at once (blurred), the sharp one fades in over it.
     const hero = ph ? `<img class="d-lo" src="${esc(ph.small)}" alt="" decoding="sync"${ph.pos ? ` style="object-position:${esc(ph.pos)}"` : ""}><img class="d-hi" src="${esc(ph.src)}" alt="" fetchpriority="high" decoding="async"${ph.pos ? ` style="object-position:${esc(ph.pos)}"` : ""}>` : cover("dest-" + d.id, d.zh, d.region);
     return `<div class="d-hero">${hero}
-        <a class="d-back" href="${lastView()}" aria-label="Back">${icon("chevron-left")}</a>
+        <a class="d-back d-close" href="${lastView()}" aria-label="Close">${icon("x")}</a>
         ${ph ? (ph.page ? `<a class="d-credit" href="${esc(ph.page)}" target="_blank" rel="noopener">${esc(ph.credit)}</a>` : `<span class="d-credit">${esc(ph.credit)}</span>`) : ""}
       </div>
       <div class="d-sheet">
@@ -826,6 +849,24 @@
   // Mark full-size photos as loaded so they fade in over their blurred preview.
   document.addEventListener("load", (e) => { if (e.target.classList?.contains("img-hi")) e.target.classList.add("ok"); }, true);
   const markLoaded = (scope) => $$(".img-hi", scope).forEach((im) => { if (im.complete && im.naturalWidth) im.classList.add("ok"); });
+
+  // Close button: pops in when a stop opens, hides while you scroll down the page and comes
+  // back when you scroll up; a press gives a small bounce, and closing plays a quick exit.
+  function bindClose(det) {
+    const btn = $(".d-close", det); if (!btn) return;
+    btn.classList.remove("gone", "leaving");
+    let lastY = det.scrollTop;
+    det.onscroll = () => {
+      const y = det.scrollTop, dy = y - lastY;
+      if (Math.abs(dy) > 6) { btn.classList.toggle("gone", dy > 0 && y > 140); lastY = y; }
+    };
+    btn.addEventListener("click", (e) => {
+      if (reduceMotion || e.metaKey || e.ctrlKey) return;
+      e.preventDefault();
+      btn.classList.add("leaving");
+      setTimeout(() => { location.hash = btn.getAttribute("href"); }, 170);
+    });
+  }
 
   function stageDetail(det) {
     const hi = $(".d-hi", det);
@@ -916,6 +957,7 @@
         if (focus) requestAnimationFrame(() => $(focus)?.scrollIntoView({ block: "start" }));
         spyJump(det);
         stageDetail(det);
+        bindClose(det);
         if (typeof Light3D !== "undefined") Light3D.attach(det);
       } else {
         const wasDetail = !det.hidden;
