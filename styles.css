@@ -1279,3 +1279,8 @@ details.tech[open] summary .i { transform: rotate(180deg); }
 .tlx-item.done .tlx-card { opacity: .55; background: #141416; border-color: #222225; transition: opacity 200ms ease; }
 .tlx-item.done .tlx-ph img { filter: grayscale(.85) brightness(.7); }
 .tlx-item.done .tlx-card:hover, .tlx-item.done .tlx-card:focus-within { opacity: .85; }
+
+/* Storyboard frames: title, what it shows, and the shot notes */
+.detail .frame figcaption { display: grid; gap: .2rem; margin-top: .5rem; font: 600 .9375rem/1.35 var(--sans); color: var(--ink); }
+.detail .frame .f-about { font: 400 .875rem/1.45 var(--sans); color: var(--ink-2); }
+.detail .frame .f-shot { font: 400 .8125rem/1.45 var(--sans); color: var(--muted); }

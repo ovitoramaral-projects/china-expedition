@@ -694,17 +694,17 @@
   const counter = (keys) => `<span class="shot-count" data-shotcount="${keys.join("|")}"><b>${keys.filter((k) => shotDone[k]).length}</b> of ${keys.length} ${keys.length === 1 ? "shot" : "shots"}</span>`;
 
   function carousel(d) {
-    const boards = (STORYBOARDS[d.id] || []).map((b) => ({ img: b.src, cap: b.title || "", tag: "Storyboard", contain: true }));
+    const boards = (STORYBOARDS[d.id] || []).map((b) => ({ img: b.src, cap: b.title || "", about: b.about, shot: b.shot, tag: "Storyboard" }));
     const refs = d.places.filter((p) => PHOTOS[p] && (PLACES[p].photo || []).length).map((p) => ({ img: PHOTOS[p].small, cap: PLACES[p].name, tag: "Reference" }));
     const cov = PHOTOS["dest-" + d.id];
     const fallback = !boards.length && !refs.length && cov && d.places.length ? [{ img: cov.small, cap: d.name, tag: "Reference" }] : [];
-    const frames = [...boards, ...(boards.length ? [] : refs), ...fallback, { img: null, cap: "Add the real board to storyboards.js" }];
+    const frames = [...boards, ...(boards.length ? [] : refs), ...fallback, ...(boards.length ? [] : [{ img: null, cap: "Add the real board to storyboards.js" }])];
     if (frames.length < 2) return "";
     const id = "car-" + d.id;
     return `<div class="car">
-      <div class="car-head"><span class="label">Storyboard</span><span class="meta-inline">${frames.length} frames · 4:3</span></div>
+      <div class="car-head"><span class="label">${boards.length ? "Storyboard" : "Storyboard · reference photos"}</span><span class="meta-inline">${frames.length} frames · 4:3</span></div>
       <div class="car-track" id="${id}" tabindex="0" aria-label="Storyboard frames, swipe sideways">
-        ${frames.map((f, i) => `<figure class="frame"><div class="pic">${f.img ? `<img src="${esc(f.img)}" alt="" loading="lazy"${f.contain ? ' class="contain"' : ""}><span class="ftag">${f.tag}</span>` : `<span class="fempty"><span>No board yet</span><span>4 : 3</span></span>`}<span class="fnum">${i + 1}</span></div><figcaption>${esc(f.cap)}</figcaption></figure>`).join("")}
+        ${frames.map((f, i) => `<figure class="frame"><div class="pic">${f.img ? `<img src="${esc(f.img)}" alt="" loading="lazy"${f.contain ? ' class="contain"' : ""}><span class="ftag">${f.tag}</span>` : `<span class="fempty"><span>No board yet</span><span>4 : 3</span></span>`}<span class="fnum">${i + 1}</span></div><figcaption>${esc(f.cap)}${f.about ? `<span class="f-about">${esc(f.about)}</span>` : ""}${f.shot ? `<span class="f-shot">${esc(f.shot)}</span>` : ""}</figcaption></figure>`).join("")}
       </div>
       <div class="dots" data-for="${id}">${frames.map((_, i) => `<span class="${i ? "" : "on"}"></span>`).join("")}</div>
     </div>`;
