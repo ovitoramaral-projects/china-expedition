@@ -896,3 +896,14 @@ details.tech[open] summary .i { transform: rotate(180deg); }
   #v-itinerary .card-line .cl-peak, #v-itinerary .card-line .cl-peak + .warn::before { display: none; }
   #v-itinerary .card-line span + span::before { margin: 0 .5rem; }
 }
+
+/* Phone feed, v3: separate cards in normal scroll. The card in the middle fills the screen;
+   cards moving away shrink back to inset, rounded cards (--g: 0 → 1, set on scroll). */
+@media (max-width: 51.99rem) {
+  :root[data-view="itinerary"] { scroll-snap-type: y proximity; }
+  #v-itinerary .card {
+    position: relative; top: auto; height: 100svh; scroll-snap-align: center;
+    clip-path: inset(calc((1 - var(--g)) * 8svh) calc((1 - var(--g)) * 1.1rem) round calc((1 - var(--g)) * 28px));
+  }
+  #v-itinerary .card-media img { transform: scale(calc(1.04 + (1 - var(--g)) * .06)); transform-origin: 50% 50%; }
+}

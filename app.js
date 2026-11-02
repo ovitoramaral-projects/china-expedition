@@ -206,26 +206,30 @@
     const update = () => {
       const list = $("#destList"), cards = $$("#v-itinerary .card"), dock = $("#altDock");
       if (!list || !dock || !cards.length || !cards[0].offsetHeight) return;
-      // Each stop enters as an inset, rounded card and grows to fill the screen as it rises.
+      // Separate cards: the one in the middle of the screen fills it; the others shrink back
+      // into inset, rounded cards as they move away (one coming in, one going out).
       const vh = innerHeight;
-      for (const c of cards) {
-        const t = c.getBoundingClientRect().top;
-        let g = reduceMotion || t <= 0 ? 1 : t >= vh ? 0 : 1 - t / vh;
-        g = 1 - (1 - g) * (1 - g); // ease out: grows quickly at first, settles gently
+      let i = 0, best = Infinity;
+      cards.forEach((c, k) => {
+        const rc = c.getBoundingClientRect(), off = (rc.top + rc.height / 2 - vh / 2) / vh;
+        if (Math.abs(off) < best) { best = Math.abs(off); i = k; }
+        const x = Math.max(0, Math.min(1, 1 - Math.abs(off) * 1.5));
+        const g = reduceMotion ? 1 : 1 - (1 - x) * (1 - x);
         const v = g.toFixed(3);
         if (c.style.getPropertyValue("--g") !== v) c.style.setProperty("--g", v);
-      }
-      const r = list.getBoundingClientRect(), h = cards[0].offsetHeight, pos = -r.top + vh * 0.5;
-      dock.classList.toggle("at-hero", pos < 0);
-      if (pos < 0) return; // still on the opening screen: just the line
-      const i = Math.max(0, Math.min(cards.length - 1, Math.floor(pos / h)));
+      });
+      const r = list.getBoundingClientRect();
+      const onHero = r.top > vh * 0.5;
+      dock.classList.toggle("at-hero", onHero);
+      if (onHero) return; // still on the opening screen: just the line
       const d = DEST[cards[i].dataset.key.slice(5)];
       const a = DAYS.findIndex((x) => x.date === d.days[0]);
       const mid = a, m = ELEV[DAYS[a].date]?.m || 0; // the stop's first night (later days may already be the next stop's)
       // The line fills the bottom 1.75rem of the strip; place the dot on it and the label just above.
       const left = `${(apX(mid) / AP.W * 100).toFixed(2)}%`, f = (apY(m) / AP.H).toFixed(3);
       const dot = $("#adDot"), lab = $("#adLab");
-      dot.style.left = lab.style.left = left;
+      dot.style.left = left;
+      lab.style.left = `clamp(1.5rem, ${left}, calc(100% - 1.5rem))`; // keep the label on screen at either end
       dot.style.top = `calc(100% - 1.75rem + ${f} * 1.75rem)`;
       lab.style.top = `calc(100% - 1.75rem + ${f} * 1.75rem - 1rem)`;
       const txt = `${m.toLocaleString()} m`;
