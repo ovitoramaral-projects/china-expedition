@@ -870,3 +870,29 @@ details.tech[open] summary .i { transform: rotate(180deg); }
   #v-itinerary .card-media img { transform: scale(calc(1.04 + (1 - var(--g)) * .08)); transform-origin: 50% 30%; }
   #v-itinerary .card-panel { opacity: calc(.35 + var(--g) * .65); }
 }
+
+/* Phone feed, v2: hairline altitude (no box) and a compact stop card without altitude */
+@media (max-width: 51.99rem) {
+  :root { --dock-h: 2.6rem; }
+  .alt-dock {
+    left: 1.125rem; right: 1.125rem; bottom: calc(.9rem + env(safe-area-inset-bottom)); height: 2.6rem;
+    padding: 0; border: 0; border-radius: 0; background: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+  .alt-dock svg { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 1.75rem; overflow: visible; }
+  .alt-dock .ad-line { fill: none; stroke: #fff; stroke-opacity: .5; stroke-width: 1.2; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+  .alt-dock .ad-past { fill: none; stroke: #e0564a; stroke-width: 1.6; vector-effect: non-scaling-stroke; stroke-linejoin: round; }
+  .ad-dot { position: absolute; z-index: 1; width: 7px; height: 7px; margin: -3.5px 0 0 -3.5px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 3px rgb(0 0 0 / .25); }
+  .ad-lab { position: absolute; transform: translateX(-50%); font: 600 .625rem/1 var(--sans); letter-spacing: .08em; color: #fff; white-space: nowrap; text-shadow: 0 1px 4px rgb(0 0 0 / .6); font-variant-numeric: tabular-nums; }
+  .ad-dot, .ad-lab { transition: left 450ms cubic-bezier(.23, 1, .32, 1), top 450ms cubic-bezier(.23, 1, .32, 1), opacity 200ms ease; }
+  .alt-dock.at-hero .ad-dot, .alt-dock.at-hero .ad-lab { opacity: 0; }
+  .alt-dock:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: 6px; }
+
+  /* Compact card: name, then Chinese name with dates and nights on one line */
+  #v-itinerary .card-panel { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; column-gap: .75rem; padding: .95rem 1rem .9rem; }
+  #v-itinerary .card-panel > .eyebrow, #v-itinerary .card-title { grid-column: 1 / -1; }
+  #v-itinerary .card-title { padding: .55rem 0 .15rem; }
+  #v-itinerary .card-zh { padding: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #v-itinerary .card-line { margin: 0; padding: 0; border: 0; justify-content: flex-end; white-space: nowrap; font-size: .8125rem; }
+  #v-itinerary .card-line .cl-peak, #v-itinerary .card-line .cl-peak + .warn::before { display: none; }
+  #v-itinerary .card-line span + span::before { margin: 0 .5rem; }
+}

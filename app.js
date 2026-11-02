@@ -104,7 +104,7 @@
         <span class="card-line">
           <span>${esc(dateRange(d.days))}</span>
           ${nights.length ? `<span>${nights.length} night${nights.length > 1 ? "s" : ""}</span>` : ""}
-          <span>up to ~${PEAK[d.id].m.toLocaleString()} m</span>
+          <span class="cl-peak">up to ~${PEAK[d.id].m.toLocaleString()} m</span>
           ${destHasFlags(d) ? `<span class="warn">${icon("triangle-alert")}</span>` : ""}
         </span>
       </span>
@@ -150,10 +150,7 @@
         ${chips.map(([k, l, ic]) => `<button role="radio" aria-checked="${k === "all"}" data-filter="${k}">${ic ? icon(ic) : ""}${esc(l)}</button>`).join("")}
       </div>
       <div id="destList"></div>
-      <a class="alt-dock" id="altDock" href="#timeline" aria-label="Altitude across the trip. Open the timeline">
-        <span class="ad-head"><span class="ad-name" id="adName"><b>China Expedition</b></span><span>Altitude</span></span>
-        ${altProfile()}
-      </a>`;
+      <a class="alt-dock at-hero" id="altDock" href="#timeline" aria-label="Sleeping altitude across the trip. Open the timeline">${altProfile()}</a>`;
     $(".chips", el).addEventListener("click", (e) => {
       const b = e.target.closest("[data-filter]"); if (!b) return;
       destFilter = b.dataset.filter; drawDests();
@@ -191,29 +188,24 @@
 
   /* Phone feed: the altitude strip follows the stop on screen. Sleeping altitude
      per day from ELEV (general references), with the day's high point as a spike. */
-  const AP = { W: 360, H: 64, top: 6, bot: 52, max: 5000 };
-  const apX = (i) => 4 + i * ((AP.W - 8) / (DAYS.length - 1));
-  const apY = (m) => AP.bot - (Math.min(m, AP.max) / AP.max) * (AP.bot - AP.top);
+  const AP = { W: 360, H: 30, pad: 2, max: 4200 };
+  const apX = (i) => AP.pad + i * ((AP.W - 2 * AP.pad) / (DAYS.length - 1));
+  const apY = (m) => AP.H - AP.pad - (Math.min(m, AP.max) / AP.max) * (AP.H - 2 * AP.pad);
+  // Hairline: one thin line of sleeping altitude per day; the days already travelled in red.
   function altProfile() {
     const pts = DAYS.map((x, i) => `${apX(i).toFixed(1)},${apY(ELEV[x.date]?.m || 0).toFixed(1)}`);
-    const area = `M${apX(0)},${AP.bot} L${pts.join(" L")} L${apX(DAYS.length - 1)},${AP.bot} Z`;
     const ti = today ? DAYS.findIndex((x) => x.date === today.date) : phase === "after" ? DAYS.length - 1 : -1;
-    const spikes = DAYS.map((x, i) => { const e = ELEV[x.date]; return e?.high ? `<line x1="${apX(i)}" x2="${apX(i)}" y1="${apY(e.m)}" y2="${apY(e.high)}" class="ad-high"/><circle cx="${apX(i)}" cy="${apY(e.high)}" r="2" class="ad-high-dot"/>` : ""; }).join("");
-    const grid = [1000, 3000, 5000].map((m) => `<line x1="0" x2="${AP.W}" y1="${apY(m)}" y2="${apY(m)}" class="ad-grid"/><text x="${AP.W}" y="${apY(m) - 2}" class="ad-gl" text-anchor="end">${m / 1000}k m</text>`).join("");
-    const ticks = [0, 4, 9, DAYS.length - 1].map((i) => `<text x="${apX(i)}" y="${AP.H}" class="ad-tick" text-anchor="${i === 0 ? "start" : i === DAYS.length - 1 ? "end" : "middle"}">${+DAYS[i].date.slice(8)} Nov</text>`).join("");
-    return `<svg viewBox="0 0 ${AP.W} ${AP.H}" preserveAspectRatio="none" aria-hidden="true">
-      ${grid}<path d="${area}" class="ad-area"/>
-      ${ti >= 0 ? `<clipPath id="adPast"><rect x="0" y="0" width="${apX(ti)}" height="${AP.H}"/></clipPath><path d="${area}" class="ad-past" clip-path="url(#adPast)"/>` : ""}
-      <polyline points="${pts.join(" ")}" class="ad-line"/>${spikes}
-      <line id="adCur" x1="${apX(0)}" x2="${apX(0)}" y1="${AP.top - 4}" y2="${AP.bot}" class="ad-cur"/>
-      ${ti >= 0 ? `<circle cx="${apX(ti)}" cy="${apY(ELEV[DAYS[ti].date]?.m || 0)}" r="3.5" class="ad-today"/>` : ""}
-      ${ticks}</svg>`;
+    return `<span class="ad-lab" id="adLab"></span><span class="ad-dot" id="adDot"></span>
+      <svg viewBox="0 0 ${AP.W} ${AP.H}" preserveAspectRatio="none" aria-hidden="true">
+        <polyline points="${pts.join(" ")}" class="ad-line"/>
+        ${ti > 0 ? `<polyline points="${pts.slice(0, ti + 1).join(" ")}" class="ad-past"/>` : ""}
+      </svg>`;
   }
   let feedBound = false;
   function trackFeed() {
     const update = () => {
-      const list = $("#destList"), cards = $$("#v-itinerary .card"), cur = $("#adCur"), name = $("#adName");
-      if (!list || !cur || !cards.length || !cards[0].offsetHeight) return;
+      const list = $("#destList"), cards = $$("#v-itinerary .card"), dock = $("#altDock");
+      if (!list || !dock || !cards.length || !cards[0].offsetHeight) return;
       // Each stop enters as an inset, rounded card and grows to fill the screen as it rises.
       const vh = innerHeight;
       for (const c of cards) {
@@ -223,19 +215,21 @@
         const v = g.toFixed(3);
         if (c.style.getPropertyValue("--g") !== v) c.style.setProperty("--g", v);
       }
-      const r = list.getBoundingClientRect(), h = cards[0].offsetHeight, pos = -r.top + innerHeight * 0.5;
-      if (pos < 0) { // still on the opening screen
-        cur.setAttribute("x1", apX(0)); cur.setAttribute("x2", apX(0));
-        if (name.textContent !== "China Expedition") name.innerHTML = "<b>China Expedition</b>";
-        return;
-      }
+      const r = list.getBoundingClientRect(), h = cards[0].offsetHeight, pos = -r.top + vh * 0.5;
+      dock.classList.toggle("at-hero", pos < 0);
+      if (pos < 0) return; // still on the opening screen: just the line
       const i = Math.max(0, Math.min(cards.length - 1, Math.floor(pos / h)));
       const d = DEST[cards[i].dataset.key.slice(5)];
-      const a = DAYS.findIndex((x) => x.date === d.days[0]), b = DAYS.findIndex((x) => x.date === d.days.at(-1));
-      const x = ((apX(a) + apX(b)) / 2).toFixed(1);
-      cur.setAttribute("x1", x); cur.setAttribute("x2", x);
-      const label = `<b>${esc(d.name)}</b> · ${esc(dateRange(d.days))}`;
-      if (name.innerHTML !== label) name.innerHTML = label;
+      const a = DAYS.findIndex((x) => x.date === d.days[0]);
+      const mid = a, m = ELEV[DAYS[a].date]?.m || 0; // the stop's first night (later days may already be the next stop's)
+      // The line fills the bottom 1.75rem of the strip; place the dot on it and the label just above.
+      const left = `${(apX(mid) / AP.W * 100).toFixed(2)}%`, f = (apY(m) / AP.H).toFixed(3);
+      const dot = $("#adDot"), lab = $("#adLab");
+      dot.style.left = lab.style.left = left;
+      dot.style.top = `calc(100% - 1.75rem + ${f} * 1.75rem)`;
+      lab.style.top = `calc(100% - 1.75rem + ${f} * 1.75rem - 1rem)`;
+      const txt = `${m.toLocaleString()} m`;
+      if (lab.textContent !== txt) lab.textContent = txt;
     };
     if (!feedBound) {
       feedBound = true;
