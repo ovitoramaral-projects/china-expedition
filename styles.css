@@ -1135,3 +1135,8 @@ details.tech[open] summary .i { transform: rotate(180deg); }
   .detail.entering .d-sheet { animation: d-sheet-in 360ms cubic-bezier(.23, 1, .32, 1) both; }
 }
 @keyframes d-sheet-in { from { opacity: .001; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+/* Stop page entrance, final: the sheet appears with the photo, no fade or slide of its own */
+@media (prefers-reduced-motion: no-preference) {
+  .detail.entering .d-sheet, .detail.entering .d-head > *, .detail.entering .jump { animation: none; }
+}
