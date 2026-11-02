@@ -387,36 +387,64 @@
     const on = CREW.filter((c) => (!c.until || c.until >= date) && (!c.from || c.from <= date)), leaving = CREW.filter((c) => c.until === date);
     return `<p class="crew-line">${icon("footprints")}<span><b>Crew</b> ${esc(on.map((c) => c.name).join(", "))}${leaving.length ? ` · ${esc(leaving.map((c) => c.name).join(", "))} flies out today` : ""}</span></p>`;
   }
+  // Timeline ("Route line"): dark, like the home feed. Header: day counter, where you are,
+  // and the altitude line with the travelled part in red; then one photo card per stop
+  // hanging off a route line, with that stop's days.
   function renderTimeline() {
     const el = $("#v-timeline .content"), cur = currentDest(), where = whereNow();
     const ci = DESTS.indexOf(cur);
     const state = (i) => phase === "after" || (phase === "during" && i < ci) ? "done" : phase === "during" && i === ci ? "now" : "next";
+    const numbered = DAYS.filter((x) => /^Day /.test(x.label)).length;
+    let big, small = "", line;
+    if (phase === "during") {
+      const n = today.label.match(/^Day (\d+)/);
+      big = n ? `Day ${n[1]}` : esc(today.label); small = n ? `/ ${numbered}` : "";
+      const m = ELEV[today.date]?.m;
+      line = `${dow(today.date)} ${dayNum(today.date)} Nov · <b>${esc(where ? where.label : cur.name)}</b>${m ? ` · ${m.toLocaleString()} m` : ""}`;
+    } else if (phase === "before") {
+      const d = Math.round((parse(FIRST) - parse(now.date)) / 864e5);
+      big = `${d} day${d === 1 ? "" : "s"}`; small = "to go"; line = `Starts <b>${dowLong(FIRST)} 6 November</b> in Chengdu`;
+    } else { big = "Done"; small = `${DAYS.length} days`; line = "Chengdu to Kunming, <b>6–20 November</b>"; }
     el.innerHTML = `
-      <a class="tl-back" href="#itinerary">${icon("chevron-left")}Itinerary</a>
-      <h1 class="display">Timeline</h1>
-      <p class="lede">${phase === "during" ? `${esc(today.label)}, ${dowLong(today.date)} ${dayNum(today.date)} November. ${where ? esc(where.label) + "." : ""}` : phase === "before" ? "Nothing travelled yet. The journey starts on Friday 6 November in Chengdu." : "The whole route, travelled."}</p>
-      ${progressCard()}
-      ${crewLine(today ? today.date : FIRST)}
-      <ol class="tl">${DESTS.map((d, i) => {
-        const st = state(i);
-        return `<li class="tl-stop ${st} ${d.region}">
-          <span class="tl-node" aria-hidden="true">${st === "done" ? icon("circle-check") : ""}</span>
-          <div class="tl-body">
-            <a class="tl-head" href="#dest-${d.id}">
-              <span class="tl-thumb">${cover("dest-" + d.id, d.zh, d.region, true)}</span>
-              <span><span class="eyebrow">${i === 0 ? "First stop" : i === DESTS.length - 1 ? "Last stop" : `Stop ${i + 1}`} · ${esc(dateRange(d.days))}${st === "now" ? ` · <em>You are here</em>` : st === "done" ? " · Done" : ""}</span>
-              <span class="tl-name">${esc(d.name)}</span></span>
-              ${icon("chevron-right")}
-            </a>
-            <ol class="tl-days">${d.days.filter((x) => DAY[x].stay === d.stay || !d.stay || x === d.days[0]).map((x) => {
+      <header class="tlx-top">
+        <a class="tlx-back" href="#itinerary">${icon("chevron-left")}Itinerary</a>
+        <p class="tlx-count">${big}${small ? `<small>${small}</small>` : ""}</p>
+        <p class="tlx-where">${line}</p>
+        <canvas class="tlx-alt" id="tlxAlt" aria-hidden="true"></canvas>
+      </header>
+      <ol class="tlx">${DESTS.map((d, i) => {
+        const st = state(i), ph = PHOTOS["dest-" + d.id];
+        const days = d.days.filter((x) => DAY[x].stay === d.stay || !d.stay || x === d.days[0]);
+        return `<li class="tlx-item ${st}">
+          <span class="tlx-node" aria-hidden="true"></span>
+          <div class="tlx-card">
+            <a class="tlx-ph" href="#dest-${d.id}">${ph ? `<img src="${esc(ph.small)}" alt="" loading="lazy" decoding="async"${ph.pos ? ` style="object-position:${esc(ph.pos)}"` : ""}>` : ""}
+              <span class="tlx-name">${esc(d.name)}</span>
+              ${st === "now" ? `<span class="tlx-flag now">You are here</span>` : st === "done" ? `<span class="tlx-flag">Visited</span>` : ""}</a>
+            <p class="tlx-meta"><span>Stop ${i + 1} of ${DESTS.length}</span><span>${esc(dateRange(d.days))}</span></p>
+            <ul class="tlx-days">${days.map((x) => {
               const dd = DAY[x], past = phase === "after" || (today && x < today.date), isToday = today && x === today.date;
-              return `<li class="${past ? "past" : ""} ${isToday ? "today" : ""}"><a href="#dest-${d.id}"><b>${dow(x)} ${dayNum(x)}</b><span>${esc(dd.title)}</span>${dd.flags ? icon("triangle-alert", "warn-i") : ""}</a>
-                ${isToday && where ? `<span class="tl-live">${icon("locate-fixed")}${esc(where.label)}</span>` : ""}</li>`;
-            }).join("")}</ol>
+              return `<li class="${past ? "past" : ""} ${isToday ? "today" : ""}"><a href="#dest-${d.id}"><b>${dow(x)} ${dayNum(x)}</b><span>${esc(dd.title)}${dd.flags ? icon("triangle-alert", "tlx-warn") : ""}${isToday && where ? `<span class="tlx-live">${icon("locate-fixed")}${esc(where.label)} now</span><span class="tlx-fine">Estimated from the date and time in China, not GPS.</span>` : ""}</span></a></li>`;
+            }).join("")}</ul>
           </div>
         </li>`;
       }).join("")}</ol>`;
+    requestAnimationFrame(drawTimelineAlt);
   }
+  function drawTimelineAlt() {
+    const cv = $("#tlxAlt"); if (!cv || !cv.clientWidth) return;
+    const w = cv.clientWidth, h = cv.clientHeight, dpr = Math.min(devicePixelRatio || 1, 3);
+    cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+    const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const X = (t) => 4 + (t + 0.5) * ((w - 8) / DAYS.length), Y = (m) => h - 4 - (Math.min(m, 5000) / 5000) * (h - 8);
+    const pts = altPoints();
+    const ti = today ? DAYS.findIndex((x) => x.date === today.date) : phase === "after" ? DAYS.length - 1 : -1;
+    const stroke = (ps, col, lw) => { if (ps.length < 2) return; g.beginPath(); ps.forEach((p, k) => (k ? g.lineTo(X(p[0]), Y(p[1])) : g.moveTo(X(p[0]), Y(p[1])))); g.strokeStyle = col; g.lineWidth = lw; g.lineJoin = "round"; g.lineCap = "round"; g.stroke(); };
+    stroke(pts, "rgba(255,255,255,0.45)", 1.3);
+    stroke(pts.filter((p) => p[0] <= ti), "#e0564a", 1.8);
+    if (ti >= 0) { g.beginPath(); g.arc(X(ti), Y(ELEV[DAYS[ti].date]?.m || 0), 3.5, 0, 7); g.fillStyle = "#fff"; g.fill(); }
+  }
+  addEventListener("resize", () => { if ($("#tlxAlt")) drawTimelineAlt(); });
 
   /* =====================================================================
      GUIDE
@@ -897,7 +925,8 @@
         setView(v);
         window.scrollTo(0, changed ? 0 : wasDetail ? scrollMemo[v] || 0 : window.scrollY);
         if (v === "timeline" && changed) {
-          const target = $(".tl-stop.now") || $(".tl-stop.next") || $$(".tl-stop.done").at(-1);
+          const target = $(".tlx-item.now") || $(".tlx-item.next") || $$(".tlx-item.done").at(-1);
+          drawTimelineAlt();
           if (target) requestAnimationFrame(() => target.scrollIntoView({ block: "center", behavior: reduceMotion ? "instant" : "smooth" }));
         }
         const back = lastCard && $(`#v-${v} a.card[data-key="${lastCard}"] .card-media`);
