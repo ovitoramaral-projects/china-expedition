@@ -1201,3 +1201,6 @@ details.tech[open] summary .i { transform: rotate(180deg); }
 .detail .foot-note { margin: 1rem .5rem 0; padding: 0 1.125rem; }
 .detail .d-pager { margin: 1rem .5rem 0; }
 @media (min-width: 52rem) { .detail .foot-note { margin: 1.25rem 0 0; padding: 0 1.5rem; } .detail .d-pager { margin: 1rem 0 0; } }
+
+/* The marker follows the scroll directly (no time-based glide), so it stays on the line */
+@media (max-width: 51.99rem) { .alt-dock .ad-dot, .alt-dock .ad-lab { transition: opacity 200ms ease; } }

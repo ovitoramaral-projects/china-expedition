@@ -285,18 +285,29 @@
       const onHero = r.top > vh * 0.5;
       dock.classList.toggle("at-hero", onHero);
       if (onHero) return; // still on the opening screen: just the line
-      const d = DEST[cards[i].dataset.key.slice(5)];
-      const a = DAYS.findIndex((x) => x.date === d.days[0]);
-      const mid = a, m = ELEV[DAYS[a].date]?.m || 0; // the stop's first night (later days may already be the next stop's)
-      // Place the dot on the line and the label above it with transforms (compositor-only),
-      // so moving between stops can glide smoothly without touching layout.
+      // The dot rides the line itself: between two stops it follows the profile (passes and
+      // dips included) in step with the scroll, from one stop's first night to the next one's.
+      const firstNight = (dd) => DAYS.findIndex((x) => x.date === dd.days[0]);
+      const stopOf = (k) => DEST[cards[k].dataset.key.slice(5)];
+      const fIdx = Math.max(0, Math.min(cards.length - 1, -cards[0].getBoundingClientRect().top / cards[0].offsetHeight));
+      const k0 = Math.floor(fIdx), k1 = Math.min(cards.length - 1, k0 + 1), fr = fIdx - k0;
+      const ease = fr * fr * (3 - 2 * fr);
+      const t = firstNight(stopOf(k0)) + (firstNight(stopOf(k1)) - firstNight(stopOf(k0))) * ease;
+      const pts = altPoints();
+      let m = pts[0][1];
+      for (let q = 1; q < pts.length; q++) {
+        if (t <= pts[q][0]) { const [x0, y0] = pts[q - 1], [x1, y1] = pts[q]; m = x1 === x0 ? y1 : y0 + (y1 - y0) * ((t - x0) / (x1 - x0)); break; }
+        m = pts[q][1];
+      }
+      // The label names the stop nearest the centre of the screen.
+      const d = DEST[cards[i].dataset.key.slice(5)], a = firstNight(d), mNight = ELEV[DAYS[a].date]?.m || 0;
       const own = d.days.filter((x) => DAY[x].stay === d.stay); // days you sleep at this stop
       const top = Math.max(...(own.length ? own : d.days).map(dayHigh));
-      const txt = top > m + 150 ? `${m.toLocaleString()} m – ${top.toLocaleString()} m` : `${m.toLocaleString()} m`;
+      const txt = top > mNight + 150 ? `${mNight.toLocaleString()} m – ${top.toLocaleString()} m` : `${mNight.toLocaleString()} m`;
       const dot = $("#adDot"), lab = $("#adLab"), cv = $("#adCv");
       if (lab.textContent !== txt) lab.textContent = txt;
       const W = dock.clientWidth, cvTop = cv.offsetTop, cvH = cv.clientHeight;
-      const cx = (apX(mid) / AP.W) * W, cy = cvTop + (apY(m) / AP.H) * cvH;
+      const cx = (apX(t) / AP.W) * W, cy = cvTop + (apY(m) / AP.H) * cvH;
       const lw = lab.offsetWidth, lx = Math.max(0, Math.min(W - lw, cx - lw / 2));
       dot.style.transform = `translate3d(${cx.toFixed(1)}px, ${cy.toFixed(1)}px, 0)`;
       lab.style.transform = `translate3d(${lx.toFixed(1)}px, ${(cy - 22).toFixed(1)}px, 0)`;
