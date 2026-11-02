@@ -694,7 +694,7 @@
   const counter = (keys) => `<span class="shot-count" data-shotcount="${keys.join("|")}"><b>${keys.filter((k) => shotDone[k]).length}</b> of ${keys.length} ${keys.length === 1 ? "shot" : "shots"}</span>`;
 
   function carousel(d) {
-    const boards = (STORYBOARDS[d.id] || []).map((b) => ({ img: b.src, cap: b.title || "", about: b.about, shot: b.shot, tag: "Storyboard" }));
+    const boards = (STORYBOARDS[d.id] || []).map((b) => ({ img: b.src, cap: b.title || "", about: b.about, shot: b.shot, tag: b.board || "Storyboard" }));
     const refs = d.places.filter((p) => PHOTOS[p] && (PLACES[p].photo || []).length).map((p) => ({ img: PHOTOS[p].small, cap: PLACES[p].name, tag: "Reference" }));
     const cov = PHOTOS["dest-" + d.id];
     const fallback = !boards.length && !refs.length && cov && d.places.length ? [{ img: cov.small, cap: d.name, tag: "Reference" }] : [];

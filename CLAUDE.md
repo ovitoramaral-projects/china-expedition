@@ -9,7 +9,7 @@ Static site (index.html + styles.css + app.js + data.js + places.js + destinatio
 3. Amap links are keyword searches, not verified pins. Never present them as exact locations or claim routes or distances are verified.
 4. Distinguish sourced facts from outside knowledge (for example, the elevations in `ELEV` are general references, and the page says so; so are the pronunciations in `pronounce.js`: pinyin + a rough English-style guide; and the ticket advice in `tickets.js`, researched online from guides and resellers, each with sources and a "checked on" date).
 5. Dali stay is in Dazhuang Village / Xiaguan, not Dali Ancient Town.
-6. Storyboards: follow `.claude/skills/cinematic-storyboard` (every frame exactly 4:3).
+6. Storyboards: follow `.claude/skills/cinematic-storyboard` (every frame exactly 4:3). The boards come from the user's storyboard PDF; frames are cut to 4:3 into assets/storyboards/<board>-<n>.jpg and listed in storyboards.js with title, about and shot notes transcribed from the board.
 
 ## Privacy
 The repo must never contain the booking PDF, booking/confirmation numbers, PINs, or travellers' surnames, emails or phone numbers. The crew's first names (Vitor, Ricardo, Ikho, Anastasia), given by the user, are fine and live in `CREW` in data.js. Hotel public contact numbers are fine.
