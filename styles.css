@@ -938,3 +938,15 @@ details.tech[open] summary .i { transform: rotate(180deg); }
 @media (max-width: 51.99rem) {
   #v-itinerary .card-zh .card-py { color: #a7a39c; }
 }
+
+/* Phone feed, v4: free scrolling (no snap) and a compositor-only scale instead of clip-path */
+@media (max-width: 51.99rem) {
+  :root[data-view="itinerary"] { scroll-snap-type: none; }
+  #v-itinerary .card {
+    scroll-snap-align: none; clip-path: none; overflow: hidden;
+    transform: scale(calc(.86 + .14 * var(--g)));
+    border-radius: calc((1 - var(--g)) * 26px);
+    will-change: transform;
+  }
+  #v-itinerary .card-media img { transform: scale(1.03); }
+}
