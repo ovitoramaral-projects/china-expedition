@@ -101,7 +101,7 @@
       <span class="card-media">${cover("dest-" + d.id, d.zh, d.region)}</span>
       <span class="pills"><span class="pill">${DESTS.indexOf(d) === 0 ? "First stop" : DESTS.indexOf(d) === DESTS.length - 1 ? "Last stop" : `Stop ${DESTS.indexOf(d) + 1}`}</span>${isNow ? `<span class="pill now">${icon("locate-fixed")}You are here</span>` : ""}${isDone ? `<span class="pill done">${icon("circle-check")}Visited</span>` : ""}</span>
       <span class="card-panel">
-        <span class="eyebrow">${regionName(d.region)}<span class="stopn"> · Stop ${DESTS.indexOf(d) + 1} of ${DESTS.length}</span>${isNow ? `<span class="card-flag now">You are here</span>` : isDone ? `<span class="card-flag">Visited</span>` : ""}</span>
+        <span class="eyebrow"><span class="stopn">${String(DESTS.indexOf(d) + 1).padStart(2, "0")} / ${DESTS.length} · </span>${regionName(d.region)}${isNow ? `<span class="card-flag now">You are here</span>` : isDone ? `<span class="card-flag">Visited</span>` : ""}</span>
         <span class="card-title">${esc(d.name)}</span>
         <span class="card-zh"><span lang="zh">${esc(d.zh)}</span>${sayOf("stop", d.id)?.py ? `<span class="card-py">${esc(sayOf("stop", d.id).py)}</span>` : ""}</span>
         <span class="card-line">
@@ -251,7 +251,8 @@
       lab.style.left = `clamp(1.5rem, ${left}, calc(100% - 1.5rem))`; // keep the label on screen at either end
       dot.style.top = `calc(100% - 2.1rem + ${f} * 2.1rem)`;
       lab.style.top = `calc(100% - 2.1rem + ${f} * 2.1rem - 1rem)`;
-      const top = Math.max(...d.days.map(dayHigh));
+      const own = d.days.filter((x) => DAY[x].stay === d.stay); // days you sleep at this stop
+      const top = Math.max(...(own.length ? own : d.days).map(dayHigh));
       const txt = top > m + 150 ? `${m.toLocaleString()} m · up to ${top.toLocaleString()}` : `${m.toLocaleString()} m`;
       if (lab.textContent !== txt) lab.textContent = txt;
     };

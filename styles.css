@@ -978,3 +978,25 @@ details.tech[open] summary .i { transform: rotate(180deg); }
   .alt-dock { height: 3rem; }
   .alt-dock svg { height: 2.1rem; }
 }
+
+/* Phone feed, caption card (option A): no box, type straight on the photo over a dark fade */
+@media (max-width: 51.99rem) {
+  #v-itinerary .card-media::after {
+    background: linear-gradient(180deg, rgb(0 0 0 / .32) 0%, transparent 20%, transparent 36%, rgb(0 0 0 / .5) 58%, rgb(0 0 0 / .82) 78%, rgb(0 0 0 / .92) 100%);
+  }
+  #v-itinerary .card-panel {
+    display: block; left: 1.375rem; right: 1.375rem; bottom: calc(var(--dock-h) + 1.6rem + env(safe-area-inset-bottom));
+    padding: 0; border: 0; border-radius: 0; background: none; -webkit-backdrop-filter: none; backdrop-filter: none;
+  }
+  #v-itinerary .card-panel > .eyebrow { display: flex; align-items: center; gap: .65rem; font: 600 .6875rem/1 var(--sans); letter-spacing: .14em; color: rgb(255 255 255 / .78); }
+  #v-itinerary .card-flag { margin-left: 0; }
+  #v-itinerary .card-title { padding: .65rem 0 .5rem; font: 500 2.4rem/1.02 var(--serif); text-shadow: 0 2px 18px rgb(0 0 0 / .35); }
+  #v-itinerary .card-zh { display: none; }
+  #v-itinerary .card-line { justify-content: flex-start; font-size: .9375rem; color: rgb(255 255 255 / .88); }
+  #v-itinerary .card-line .warn { display: inline-block; width: 6px; height: 6px; margin-left: .55rem; border-radius: 50%; background: #f0c27a; vertical-align: middle; }
+  #v-itinerary .card-line .warn .i { display: none; }
+}
+@media (max-width: 51.99rem) {
+  #v-itinerary .card-panel > .eyebrow { display: block; line-height: 1.6; }
+  #v-itinerary .card-flag { margin-left: .65rem; vertical-align: 1px; }
+}
