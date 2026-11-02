@@ -1,30 +1,29 @@
 # China Expedition
 
-Interactive itinerary for the 6–20 November 2026 Western Sichuan & Yunnan trip. Plain HTML, CSS and JS: no build step and no external fonts or CDNs, so it works in mainland China and offline once loaded.
+Day-by-day companion for the Western Sichuan & Yunnan trip, 6–20 November 2026.
+A static site: no build step, no frameworks, nothing loaded from outside the site
+(Google Fonts and CDNs are blocked or slow in mainland China).
 
-## Run it
+## Use it on the trip
 
-Open `index.html` in a browser. Add `?date=2026-11-12` to the URL to preview how the page looks on a given trip day.
+1. Open the site on your phone **on good wifi before you fly**.
+2. Wait a minute: the whole app (about 20 MB) is saved for offline use.
+3. iPhone: Share → **Add to Home Screen**. Android: menu → **Install app**.
+4. From then on it opens from the Home Screen with no signal at all.
 
-## Files
+Booking vouchers are not in this repository (they contain PINs) and are not
+part of the hosted site.
 
-| File | What it holds |
-|---|---|
-| `data.js` | Days, stays, elevations, practical notes, gear, crew |
-| `places.js` | Place guide for every stop (from `knowledge/location_field_guide_v1.4.md`) |
-| `food.js` | **Your restaurant picks** per stop (name, Chinese name, note, link). They show first under Food |
-| `geo.js` | Approximate coordinates for rough walking/driving distances from each stay |
-| `photos.js` | Photo slots: drop a JPG in `assets/photos/` and register it with its credit |
-| `icons.js` | Lucide icons (ISC), inlined |
-| `app.js` | Views, cards, detail pages, time-based progress |
-| `styles.css` | Look and feel (light + dark) |
-| `knowledge/` | Source material from the planning handoff |
-| `.claude/skills/` | Claude Code skills used on this project |
+## Hosting
 
-## What it does now
+Any static host works; the site is the repository root. GitHub Pages:
+Settings → Pages → "Deploy from a branch" → `main` (or `first-version`) → `/ (root)`.
 
-Four tabs: **Today** (where you probably are, estimated from the date and time in China; today's places; tonight's stay; the crew), **Route** (the itinerary with progress and a live marker on today's row, plus the altitude chart), **Places** (photo cards for every stop and stay, with filters), **Guide** (crew, documentary arc, practical notes, camera kit).
+Foreign hosts (github.io, Vercel, Netlify, Cloudflare) can be slow or blocked in
+mainland China, which is why the offline copy matters: install it before you go.
 
-Tap any card to expand it into a full page: place guide, hotel details, or the whole day. Direct links: `#today`, `#route`, `#places`, `#guide`, `#place-pearl`, `#stay-lijiang`, `#day-2026-11-13`.
+## After changing app files
 
-Preview any moment with `?date=2026-11-13&time=14:30`.
+Regenerate the offline file list so phones pick up the update:
+
+    python3 tools/build-sw.py
