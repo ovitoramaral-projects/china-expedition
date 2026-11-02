@@ -85,7 +85,7 @@
 
   function cover(key, zh, region, small = false) {
     const ph = PHOTOS[key];
-    if (ph) return `<img src="${esc(small ? ph.small : ph.src)}" alt="" loading="lazy" decoding="async">`;
+    if (ph) return `<img src="${esc(small ? ph.small : ph.src)}" alt="" loading="lazy" decoding="async"${ph.pos ? ` style="object-position:${esc(ph.pos)}"` : ""}>`;
     return `<span class="cover ${region}" aria-hidden="true"><span class="cover-zh" lang="zh">${esc(clean(zh || "").replace(/\s*·\s*/g, " "))}</span></span>`;
   }
 
@@ -680,7 +680,7 @@
     const ph = PHOTOS["dest-" + d.id];
     const hasDistances = d.places.some((p) => distanceLabel(p, d)?.mode === "walk" || distanceLabel(p, d)?.mode === "car");
     // Hero: the small photo paints at once (blurred), the sharp one fades in over it.
-    const hero = ph ? `<img class="d-lo" src="${esc(ph.small)}" alt="" decoding="sync"><img class="d-hi" src="${esc(ph.src)}" alt="" fetchpriority="high" decoding="async">` : cover("dest-" + d.id, d.zh, d.region);
+    const hero = ph ? `<img class="d-lo" src="${esc(ph.small)}" alt="" decoding="sync"${ph.pos ? ` style="object-position:${esc(ph.pos)}"` : ""}><img class="d-hi" src="${esc(ph.src)}" alt="" fetchpriority="high" decoding="async"${ph.pos ? ` style="object-position:${esc(ph.pos)}"` : ""}>` : cover("dest-" + d.id, d.zh, d.region);
     return `<div class="d-hero">${hero}
         <a class="d-back" href="${lastView()}" aria-label="Back">${icon("chevron-left")}</a>
         ${ph ? (ph.page ? `<a class="d-credit" href="${esc(ph.page)}" target="_blank" rel="noopener">${esc(ph.credit)}</a>` : `<span class="d-credit">${esc(ph.credit)}</span>`) : ""}
