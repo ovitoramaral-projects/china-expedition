@@ -521,7 +521,8 @@
 
   function placeItem(id, d, open) {
     const P = PLACES[id], dist = distanceLabel(id, d), sy = sayOf("place", id);
-    const line = [esc(P.kind), dist ? esc(dist.short) : "", P.status !== "planned" ? `<em>${esc(PLACE_STATUS[P.status])}</em>` : ""].filter(Boolean).join(" · ");
+    const tk = typeof TICKETS !== "undefined" ? TICKETS[id] : null;
+    const line = [esc(P.kind), dist ? esc(dist.short) : "", P.status !== "planned" ? `<em>${esc(PLACE_STATUS[P.status])}</em>` : "", tk?.book === "ahead" ? `<em class="book">Book ahead</em>` : ""].filter(Boolean).join(" · ");
     const story = [P.history && `<p>${esc(P.history)}</p>`, P.look && `<h4>What to look for</h4>${ul(P.look)}`, P.todo && `<h4>What to do</h4>${ul(P.todo)}`].filter(Boolean).join("");
     const names = P.zh || sy ? `<p><span lang="zh">${esc(clean(P.zh || ""))}</span>${sy?.py ? ` · <span class="py">${esc(sy.py)}</span>` : ""}</p>${sy ? `<p class="meta">Say “${esc(sy.say)}”</p>` : ""}` : "";
     return `<li class="place st-${P.status}" id="pl-${id}">
@@ -538,6 +539,7 @@
             ${P.map ? extLink(P.map, "Open in Amap", "navigation") : ""}
             ${P.zh ? `<button class="tlink" type="button" data-copy="${esc(clean(P.zh).split(" · ")[0])}" data-copy-label="Chinese name copied">Copy 中文 name${icon("copy")}</button>` : ""}
           </p>
+          ${tk ? `<div class="callout ${tk.book === "ahead" ? "warn" : "info"} tickets">${icon(tk.book === "ahead" ? "calendar-days" : "info")}<div><b>${tk.book === "ahead" ? "Book ahead." : "Tickets."}</b> ${esc(tk.text)}<p class="meta">Checked online on 2 Nov 2026; prices and rules change.</p>${tk.src.length ? `<p class="tk-src">${tk.src.map(([n, u]) => extLink(u, n)).join("")}</p>` : ""}</div></div>` : ""}
           ${more("History & what to do", story)}
           ${more("Photo tips", ul(P.photo))}
           ${more("Care", ul(P.care))}
@@ -771,7 +773,8 @@
             <p class="meta">Departure times, stops and detours aren't in the itinerary. Confirm them with the driver or guide.</p>`, `${dow(arrival.date)} ${dayNum(arrival.date)} Nov`, "getting")}
           <div class="stack">${d.days.map((x) => dayBlock(DAY[x], { role: role(x) })).join("")}</div>`, esc(dateRange(d.days)))}
         ${d.places.length ? sheet("j-places", 3, "Places",
-          `<ul class="places">${d.places.map((p) => placeItem(p, d, p === openPlace)).join("")}</ul>
+          `${(() => { const ahead = d.places.filter((p) => typeof TICKETS !== "undefined" && TICKETS[p]?.book === "ahead"); return ahead.length ? `<div class="blk book-list"><p class="label">To book before you go</p><ul>${ahead.map((p) => `<li><a class="tlink" href="#place-${p}">${esc(PLACES[p].name)}</a></li>`).join("")}</ul><p class="meta">Details and sources inside each place. Checked online on 2 Nov 2026.</p></div>` : ""; })()}
+          <ul class="places">${d.places.map((p) => placeItem(p, d, p === openPlace)).join("")}</ul>
           ${hasDistances ? `<p class="meta">Distances are straight-line estimates from where you sleep. Open Amap for the real route.</p>` : ""}`, String(d.places.length)) : ""}
         ${sheet("j-photo", 4, "Photo", photoBlock(d))}
         ${sheet("j-stay", 5, "Stay", stayBlock(d))}

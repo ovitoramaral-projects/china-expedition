@@ -1212,3 +1212,15 @@ details.tech[open] summary .i { transform: rotate(180deg); }
   .alt-dock.scrubbing .ad-dot { box-shadow: 0 0 0 6px rgb(255 255 255 / .22); }
   .alt-dock:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: 8px; }
 }
+
+/* Ticket advice */
+.detail .pl-sub em.book { color: var(--cinnabar); font-weight: 600; }
+.detail .callout.info { background: color-mix(in srgb, var(--ink) 5%, var(--s-tint)); color: var(--ink-2); }
+.detail .callout.tickets { margin: .875rem 0 0; }
+.detail .callout.tickets .meta { margin: .4rem 0 0; font-size: .8125rem; }
+.detail .callout.tickets .tlink { font-size: .8125rem; margin-right: .75rem; }
+.detail .book-list { margin: 0 0 1rem; }
+.detail .book-list ul { margin: .5rem 0 .35rem; padding-left: 1.1rem; display: grid; gap: .3rem; }
+.detail .book-list .meta { margin: 0; font-size: .8125rem; }
+.detail .callout.tickets .tk-src { display: flex; flex-direction: column; align-items: flex-start; gap: .3rem; margin: .4rem 0 0; }
+.detail .callout.tickets .tk-src .tlink { margin: 0; color: inherit; }
