@@ -907,3 +907,8 @@ details.tech[open] summary .i { transform: rotate(180deg); }
   }
   #v-itinerary .card-media img { transform: scale(calc(1.04 + (1 - var(--g)) * .06)); transform-origin: 50% 50%; }
 }
+
+/* Phone feed: the stop card fades on its own curve (--p, set on scroll) instead of with the photo */
+@media (max-width: 51.99rem) {
+  #v-itinerary .card-panel { opacity: var(--p, 1); transform: translateY(calc((1 - var(--p, 1)) * 18px)); will-change: opacity, transform; }
+}
