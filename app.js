@@ -217,14 +217,9 @@
         const g = reduceMotion ? 1 : 1 - (1 - x) * (1 - x);
         const v = g.toFixed(3);
         if (c.style.getPropertyValue("--g") !== v) c.style.setProperty("--g", v);
-        // The stop card has its own curve: it eases in late and smoothly as the photo arrives,
-        // and on the way out it is gone within the first quarter screen of scrolling.
-        let pv;
-        if (reduceMotion) pv = 1;
-        else if (off < 0) pv = Math.max(0, Math.min(1, 1 + off * 4.5));
-        else { const t = Math.max(0, Math.min(1, (0.42 - off) / 0.36)); pv = t * t * (3 - 2 * t); }
-        const ps = pv.toFixed(3);
-        if (c.style.getPropertyValue("--p") !== ps) c.style.setProperty("--p", ps);
+        // The stop card is shown only while its stop is near the centre. It animates on its
+        // own timing (CSS): a smooth rise in, a quick fade out. Never half-transparent mid-scroll.
+        c.classList.toggle("panel-in", reduceMotion || Math.abs(off) < 0.16);
       });
       const r = list.getBoundingClientRect();
       const onHero = r.top > vh * 0.5;

@@ -912,3 +912,18 @@ details.tech[open] summary .i { transform: rotate(180deg); }
 @media (max-width: 51.99rem) {
   #v-itinerary .card-panel { opacity: var(--p, 1); transform: translateY(calc((1 - var(--p, 1)) * 18px)); will-change: opacity, transform; }
 }
+
+/* Phone feed: the stop card animates in and out on its own timing (not tied to the scroll) */
+@media (max-width: 51.99rem) {
+  #v-itinerary .card-panel {
+    opacity: 0; transform: translateY(16px) scale(.985); transform-origin: 50% 100%;
+    transition: opacity 150ms ease-in, transform 150ms ease-in;
+  }
+  #v-itinerary .card.panel-in .card-panel {
+    opacity: 1; transform: none;
+    transition: opacity 420ms cubic-bezier(.23, 1, .32, 1) 60ms, transform 520ms cubic-bezier(.23, 1, .32, 1) 60ms;
+  }
+}
+@media (max-width: 51.99rem) and (prefers-reduced-motion: reduce) {
+  #v-itinerary .card-panel, #v-itinerary .card.panel-in .card-panel { transition: none; }
+}
