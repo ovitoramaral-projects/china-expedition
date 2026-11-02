@@ -14,6 +14,9 @@ Static site (index.html + styles.css + app.js + data.js + places.js + destinatio
 ## Privacy
 The repo must never contain the booking PDF, booking/confirmation numbers, PINs, or travellers' surnames, emails or phone numbers. The crew's first names (Vitor, Ricardo, Ikho, Anastasia), given by the user, are fine and live in `CREW` in data.js. Hotel public contact numbers are fine.
 
+## Home (phone)
+"Altitude film": stop cards are full-screen and sticky, so each slides up over the last (no scroll-snap). Stop details sit on a dark glass card; a fixed altitude strip (`altProfile()`, ELEV per day, general references) follows the stop on screen and opens the timeline. Desktop keeps the card grid.
+
 ## Detail-page typography (keep it this way)
 Six roles only: page title (serif), section h2 (serif 1.5rem), item h3 (sans 1.0625rem/600), body (1rem/1.6), meta (.875rem muted), label (.6875rem caps). Links are `.tlink` (underlined text), not buttons; the only button on a stop page is the booking voucher.
 Cards show the HIGHEST point per stop (`PEAK` in destinations.js, each marked files/general). Distances in `geo.js` are straight-line estimates from approximate coordinates and must always be labelled as such.

@@ -98,7 +98,7 @@
       <span class="card-media">${cover("dest-" + d.id, d.zh, d.region)}</span>
       <span class="pills"><span class="pill">${DESTS.indexOf(d) === 0 ? "First stop" : DESTS.indexOf(d) === DESTS.length - 1 ? "Last stop" : `Stop ${DESTS.indexOf(d) + 1}`}</span>${isNow ? `<span class="pill now">${icon("locate-fixed")}You are here</span>` : ""}${isDone ? `<span class="pill done">${icon("circle-check")}Visited</span>` : ""}</span>
       <span class="card-panel">
-        <span class="eyebrow">${regionName(d.region)}</span>
+        <span class="eyebrow">${regionName(d.region)}<span class="stopn"> · Stop ${DESTS.indexOf(d) + 1} of ${DESTS.length}</span>${isNow ? `<span class="card-flag now">You are here</span>` : isDone ? `<span class="card-flag">Visited</span>` : ""}</span>
         <span class="card-title">${esc(d.name)}</span>
         <span class="card-zh" lang="zh">${esc(d.zh)}</span>
         <span class="card-line">
@@ -150,7 +150,11 @@
       <div class="chips" role="radiogroup" aria-label="Filter destinations">
         ${chips.map(([k, l, ic]) => `<button role="radio" aria-checked="${k === "all"}" data-filter="${k}">${ic ? icon(ic) : ""}${esc(l)}</button>`).join("")}
       </div>
-      <div id="destList"></div>`;
+      <div id="destList"></div>
+      <a class="alt-dock on-hero" id="altDock" href="#timeline" aria-label="Altitude across the trip. Open the timeline">
+        <span class="ad-head"><span class="ad-name" id="adName"></span><span>Altitude</span></span>
+        ${altProfile()}
+      </a>`;
     $(".chips", el).addEventListener("click", (e) => {
       const b = e.target.closest("[data-filter]"); if (!b) return;
       destFilter = b.dataset.filter; drawDests();
@@ -179,10 +183,55 @@
       new IntersectionObserver(([en]) => {
         const onHero = en.isIntersecting;
         $("#fabs").classList.toggle("on-hero", onHero);
+        $("#altDock")?.classList.toggle("on-hero", onHero);
         if (onHero) setOpen(false);
       }, { threshold: 0.35 }).observe(hero);
     }
     drawDests();
+    trackFeed();
+  }
+
+  /* Phone feed: the altitude strip follows the stop on screen. Sleeping altitude
+     per day from ELEV (general references), with the day's high point as a spike. */
+  const AP = { W: 360, H: 64, top: 6, bot: 52, max: 5000 };
+  const apX = (i) => 4 + i * ((AP.W - 8) / (DAYS.length - 1));
+  const apY = (m) => AP.bot - (Math.min(m, AP.max) / AP.max) * (AP.bot - AP.top);
+  function altProfile() {
+    const pts = DAYS.map((x, i) => `${apX(i).toFixed(1)},${apY(ELEV[x.date]?.m || 0).toFixed(1)}`);
+    const area = `M${apX(0)},${AP.bot} L${pts.join(" L")} L${apX(DAYS.length - 1)},${AP.bot} Z`;
+    const ti = today ? DAYS.findIndex((x) => x.date === today.date) : phase === "after" ? DAYS.length - 1 : -1;
+    const spikes = DAYS.map((x, i) => { const e = ELEV[x.date]; return e?.high ? `<line x1="${apX(i)}" x2="${apX(i)}" y1="${apY(e.m)}" y2="${apY(e.high)}" class="ad-high"/><circle cx="${apX(i)}" cy="${apY(e.high)}" r="2" class="ad-high-dot"/>` : ""; }).join("");
+    const grid = [1000, 3000, 5000].map((m) => `<line x1="0" x2="${AP.W}" y1="${apY(m)}" y2="${apY(m)}" class="ad-grid"/><text x="${AP.W}" y="${apY(m) - 2}" class="ad-gl" text-anchor="end">${m / 1000}k m</text>`).join("");
+    const ticks = [0, 4, 9, DAYS.length - 1].map((i) => `<text x="${apX(i)}" y="${AP.H}" class="ad-tick" text-anchor="${i === 0 ? "start" : i === DAYS.length - 1 ? "end" : "middle"}">${+DAYS[i].date.slice(8)} Nov</text>`).join("");
+    return `<svg viewBox="0 0 ${AP.W} ${AP.H}" preserveAspectRatio="none" aria-hidden="true">
+      ${grid}<path d="${area}" class="ad-area"/>
+      ${ti >= 0 ? `<clipPath id="adPast"><rect x="0" y="0" width="${apX(ti)}" height="${AP.H}"/></clipPath><path d="${area}" class="ad-past" clip-path="url(#adPast)"/>` : ""}
+      <polyline points="${pts.join(" ")}" class="ad-line"/>${spikes}
+      <line id="adCur" x1="${apX(0)}" x2="${apX(0)}" y1="${AP.top - 4}" y2="${AP.bot}" class="ad-cur"/>
+      ${ti >= 0 ? `<circle cx="${apX(ti)}" cy="${apY(ELEV[DAYS[ti].date]?.m || 0)}" r="3.5" class="ad-today"/>` : ""}
+      ${ticks}</svg>`;
+  }
+  let feedBound = false;
+  function trackFeed() {
+    const update = () => {
+      const list = $("#destList"), cards = $$("#v-itinerary .card"), cur = $("#adCur"), name = $("#adName");
+      if (!list || !cur || !cards.length || !cards[0].offsetHeight) return;
+      const r = list.getBoundingClientRect(), h = cards[0].offsetHeight;
+      const i = Math.max(0, Math.min(cards.length - 1, Math.floor((-r.top + innerHeight * 0.5) / h)));
+      const d = DEST[cards[i].dataset.key.slice(5)];
+      const a = DAYS.findIndex((x) => x.date === d.days[0]), b = DAYS.findIndex((x) => x.date === d.days.at(-1));
+      const x = ((apX(a) + apX(b)) / 2).toFixed(1);
+      cur.setAttribute("x1", x); cur.setAttribute("x2", x);
+      const label = `<b>${esc(d.name)}</b> · ${esc(dateRange(d.days))}`;
+      if (name.innerHTML !== label) name.innerHTML = label;
+    };
+    if (!feedBound) {
+      feedBound = true;
+      let raf = 0;
+      addEventListener("scroll", () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; update(); }); }, { passive: true });
+      addEventListener("resize", update);
+    }
+    update();
   }
   function drawDests() {
     $$("#v-itinerary .chips button, #filterPanel button").forEach((b) => b.setAttribute("aria-checked", b.dataset.filter === destFilter));
@@ -194,6 +243,7 @@
       return list.length ? `<h2 class="group-title"><span>${regionName(r)}</span><small>${r === "sichuan" ? "6 – 13 Nov" : "14 – 20 Nov"}</small></h2><div class="cards grid">${list.map((d) => destCard(d)).join("")}</div>` : "";
     }).join("");
     $("#destList").innerHTML = out || `<p class="empty">${icon("search")}Nothing matches this filter.</p>`;
+    if (feedBound) requestAnimationFrame(() => dispatchEvent(new Event("scroll")));
   }
 
   /* =====================================================================
@@ -573,7 +623,9 @@
     const plateau = ["tagong", "yajiang", "yading", "meili", "shangrila", "siguniang"].includes(d.id);
     const ph = PHOTOS["dest-" + d.id];
     const hasDistances = d.places.some((p) => distanceLabel(p, d)?.mode === "walk" || distanceLabel(p, d)?.mode === "car");
-    return `<div class="d-hero">${cover("dest-" + d.id, d.zh, d.region)}
+    // Hero: the small photo paints at once (blurred), the sharp one fades in over it.
+    const hero = ph ? `<img class="d-lo" src="${esc(ph.small)}" alt="" decoding="sync"><img class="d-hi" src="${esc(ph.src)}" alt="" fetchpriority="high" decoding="async">` : cover("dest-" + d.id, d.zh, d.region);
+    return `<div class="d-hero">${hero}
         <a class="d-back" href="${lastView()}" aria-label="Back">${icon("chevron-left")}</a>
         ${ph ? `<a class="d-credit" href="${esc(ph.page)}" target="_blank" rel="noopener">${esc(ph.credit)}</a>` : ""}
       </div>
@@ -631,6 +683,31 @@
   }
 
   // Highlight the jump-bar link for the section being read.
+  // Opening a stop: the header builds in, then content rises into place as you scroll.
+  function stageDetail(det) {
+    const hi = $(".d-hi", det);
+    if (hi) { const ok = () => hi.classList.add("ok"); if (hi.complete && hi.naturalWidth) ok(); else hi.addEventListener("load", ok, { once: true }); }
+    if (reduceMotion) return;
+    det.classList.remove("entering"); void det.offsetWidth; det.classList.add("entering");
+    clearTimeout(stageDetail.t); stageDetail.t = setTimeout(() => det.classList.remove("entering"), 1400);
+    if (!("IntersectionObserver" in window)) return;
+    const fold = det.clientHeight, targets = [];
+    $$(".dsec > *", det).forEach((el) => {
+      const kids = [...el.children];
+      if (el.offsetHeight > fold * 0.6 && kids.length > 1) targets.push(...kids); else targets.push(el);
+    });
+    stageDetail.io?.disconnect();
+    const io = stageDetail.io = new IntersectionObserver((ents) => {
+      let k = 0;
+      for (const en of ents) {
+        if (!en.isIntersecting) continue;
+        en.target.style.transitionDelay = `${Math.min(k++, 4) * 60}ms`;
+        en.target.classList.add("in"); io.unobserve(en.target);
+      }
+    }, { root: det, rootMargin: "0px 0px -6% 0px" });
+    for (const t of targets) if (t.getBoundingClientRect().top > fold) { t.classList.add("rv"); io.observe(t); }
+  }
+
   function spyJump(det) {
     const links = $$(".jump a", det);
     if (!links.length) return;
@@ -695,6 +772,7 @@
         document.body.classList.add("has-detail");
         if (focus) requestAnimationFrame(() => $(focus)?.scrollIntoView({ block: "start" }));
         spyJump(det);
+        stageDetail(det);
         if (typeof Light3D !== "undefined") Light3D.attach(det);
       } else {
         const wasDetail = !det.hidden;

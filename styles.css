@@ -767,3 +767,84 @@ details.tech[open] summary .i { transform: rotate(180deg); }
 .detail h3 + .meta { margin-top: .5rem; }
 .detail .alt-note { order: 9; margin-top: 1rem; }
 .detail .alt-note { align-items: flex-start; } .detail .alt-note .i { align-self: flex-start; margin-top: .2rem; }
+
+/* =====================================================================
+   HOME (phone) — "altitude film": each stop slides up over the last;
+   details sit on a dark glass card; the altitude strip follows you.
+   ===================================================================== */
+.stopn, .card-flag, .alt-dock { display: none; }
+@media (max-width: 51.99rem) {
+  :root { --dock-h: 6.1rem; }
+  :root[data-view="itinerary"] { scroll-snap-type: none; }
+  .home-hero { scroll-snap-align: none; }
+  #v-itinerary .cards.grid { display: contents; }
+  #v-itinerary .card { position: sticky; top: 0; height: 100svh; scroll-snap-align: none; scroll-snap-stop: normal; box-shadow: none; }
+  #v-itinerary .card.is-now { box-shadow: none; }
+  #v-itinerary .pills { display: none; }
+  #v-itinerary .card-media img { transform: scale(1.04); }
+  #v-itinerary .card.is-done .card-media img { filter: saturate(.45) brightness(.82); }
+  #v-itinerary .card.is-done .card-title { opacity: 1; }
+  #v-itinerary .card-media::after { background: linear-gradient(180deg, rgb(0 0 0 / .3), transparent 26%, transparent 60%, rgb(0 0 0 / .4)); }
+  #v-itinerary .card-panel {
+    left: .625rem; right: .625rem; bottom: calc(var(--dock-h) + 1.25rem + env(safe-area-inset-bottom));
+    padding: 1rem 1rem .9rem; border-radius: 18px;
+    background: rgb(14 14 15 / .62); border: 1px solid rgb(255 255 255 / .08);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
+  }
+  #v-itinerary .card-panel > .eyebrow { display: flex; align-items: center; gap: 0; color: #bdb8b0; letter-spacing: .14em; }
+  #v-itinerary .stopn { display: inline; white-space: pre; }
+  #v-itinerary .card-flag { display: inline-block; margin-left: auto; padding: .3rem .55rem; border-radius: 99px; font: 600 .625rem/1 var(--sans); letter-spacing: .1em; text-transform: uppercase; background: rgb(255 255 255 / .12); color: #e9e4dc; }
+  #v-itinerary .card-flag.now { background: var(--cinnabar); color: #fff; }
+  #v-itinerary .card-title { padding: .6rem 0 0; font: 500 2.3rem/1.02 var(--serif); letter-spacing: -.01em; text-wrap: balance; }
+  #v-itinerary .card-zh { color: #d6d2cb; }
+  #v-itinerary .card-line { margin-top: .7rem; padding-top: .7rem; border-top: 1px solid rgb(255 255 255 / .12); color: #d6d2cb; font-variant-numeric: tabular-nums; }
+
+  .alt-dock {
+    display: block; position: fixed; z-index: 22; left: .625rem; right: .625rem; bottom: calc(.625rem + env(safe-area-inset-bottom));
+    padding: .6rem .75rem .45rem; border-radius: 18px; color: #fff; text-decoration: none;
+    background: rgb(14 14 15 / .72); border: 1px solid rgb(255 255 255 / .08);
+    -webkit-backdrop-filter: blur(14px) saturate(1.2); backdrop-filter: blur(14px) saturate(1.2);
+    transition: transform 320ms cubic-bezier(.23, 1, .32, 1), opacity 240ms ease;
+  }
+  :root:not([data-view="itinerary"]) .alt-dock, .has-detail .alt-dock { display: none; }
+  .alt-dock.on-hero { transform: translateY(calc(100% + 1.5rem)); opacity: 0; pointer-events: none; }
+  .ad-head { display: flex; justify-content: space-between; gap: .75rem; margin-bottom: .3rem; font: 600 .625rem/1.2 var(--sans); letter-spacing: .1em; text-transform: uppercase; color: #a7a39c; }
+  .ad-head b { color: #fff; font-weight: 600; }
+  .ad-name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .alt-dock svg { display: block; width: 100%; height: 3.6rem; overflow: visible; }
+  .ad-grid { stroke: #fff; stroke-opacity: .08; }
+  .ad-gl, .ad-tick { font: 400 7.5px var(--sans); fill: #6c675f; }
+  .ad-tick { font-size: 8.5px; fill: #8d8981; }
+  .ad-area { fill: #fff; fill-opacity: .09; }
+  .ad-past { fill: var(--cinnabar); fill-opacity: .38; }
+  .ad-line { fill: none; stroke: #fff; stroke-opacity: .75; stroke-width: 1.5; stroke-linejoin: round; }
+  .ad-high { stroke: #e3b46b; stroke-width: 1.5; stroke-linecap: round; }
+  .ad-high-dot { fill: #e3b46b; }
+  .ad-cur { stroke: #fff; stroke-width: 1.5; }
+  .ad-today { fill: var(--cinnabar); stroke: #fff; stroke-width: 1.5; }
+}
+@media (max-width: 51.99rem) and (prefers-reduced-motion: reduce) { .alt-dock { transition: none; } }
+
+/* =====================================================================
+   Stop page: fast hero, staged entrance, reveal on scroll
+   ===================================================================== */
+.d-hero .d-lo, .d-hero .d-hi { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.d-hero .d-lo { filter: blur(14px); transform: scale(1.08); }
+.d-hero .d-hi { opacity: 0; transition: opacity 450ms ease; }
+.d-hero .d-hi.ok { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .detail.entering .d-hero .d-hi { animation: d-settle 1200ms cubic-bezier(.23, 1, .32, 1) both; }
+  .detail.entering .d-sheet { animation: d-sheet 560ms cubic-bezier(.23, 1, .32, 1) both; }
+  .detail.entering .d-head > *, .detail.entering .jump { animation: d-rise 600ms cubic-bezier(.23, 1, .32, 1) both; }
+  .detail.entering .d-head > :nth-child(1) { animation-delay: 80ms; }
+  .detail.entering .d-head > :nth-child(2) { animation-delay: 130ms; }
+  .detail.entering .d-head > :nth-child(3) { animation-delay: 180ms; }
+  .detail.entering .d-head > :nth-child(4) { animation-delay: 230ms; }
+  .detail.entering .d-head > :nth-child(n+5) { animation-delay: 280ms; }
+  .detail.entering .jump { animation-delay: 320ms; }
+  .rv { opacity: 0; transform: translateY(18px); transition: opacity 600ms cubic-bezier(.23, 1, .32, 1), transform 700ms cubic-bezier(.23, 1, .32, 1); }
+  .rv.in { opacity: 1; transform: none; }
+}
+@keyframes d-settle { from { transform: scale(1.07); } to { transform: scale(1); } }
+@keyframes d-sheet { from { transform: translateY(28px); } to { transform: none; } }
+@keyframes d-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
