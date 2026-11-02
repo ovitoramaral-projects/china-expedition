@@ -957,3 +957,17 @@ details.tech[open] summary .i { transform: rotate(180deg); }
   :root[data-view="itinerary"] { scroll-snap-type: y mandatory; }
   .home-hero, #v-itinerary .card { scroll-snap-align: start; scroll-snap-stop: normal; }
 }
+
+/* Phone feed, v6 (no bounce): the snap target (.card) never changes size or position;
+   only the photo inside scales and rounds. Snap aligns exactly to the top of the screen. */
+@media (max-width: 51.99rem) {
+  :root[data-view="itinerary"] { scroll-padding-top: 0; scroll-padding-bottom: 0; }
+  #v-itinerary .card { transform: none; border-radius: 0; will-change: auto; background: #0d0d0c; overflow: hidden; contain: paint; }
+  #v-itinerary .card-media {
+    position: absolute; inset: 0; overflow: hidden;
+    transform: scale(calc(.86 + .14 * var(--g))); border-radius: calc((1 - var(--g)) * 26px);
+    will-change: transform; backface-visibility: hidden;
+  }
+  #v-itinerary .card-media img { transform: none; }
+  .ad-dot, .ad-lab { transition: opacity 200ms ease; }
+}
