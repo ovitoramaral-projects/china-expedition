@@ -142,6 +142,22 @@
     return "Journey complete";
   }
 
+  // Live countdown to 00:00 on the first day, China time (UTC+8). With ?date= preview,
+  // it counts from that previewed moment instead of the real clock.
+  const START_MS = parse(FIRST) - 8 * 36e5;
+  const previewOffset = qs.get("date") ? (parse(now.date) - 8 * 36e5 + now.hour * 36e5) - Date.now() : 0;
+  let timerId = 0;
+  function tickTimer() {
+    const el = document.getElementById("hhTimer");
+    if (!el) { clearInterval(timerId); timerId = 0; return; }
+    let left = Math.max(0, Math.floor((START_MS - (Date.now() + previewOffset)) / 1000));
+    const v = { days: Math.floor(left / 86400), hours: Math.floor(left / 3600) % 24, min: Math.floor(left / 60) % 60, sec: left % 60 };
+    for (const [u, n] of Object.entries(v)) { const b = el.querySelector(`[data-u="${u}"]`); const t = String(n).padStart(2, "0"); if (b.textContent !== t) b.textContent = t; }
+    if (v.sec === 0 || !el.dataset.label) { el.dataset.label = "1"; el.setAttribute("aria-label", `${v.days} days, ${v.hours} hours and ${v.min} minutes until the trip starts`); }
+    if (!left) { clearInterval(timerId); timerId = 0; el.outerHTML = `<p class="hh-count">Starting today</p>`; }
+  }
+  function startTimer() { clearInterval(timerId); if (!document.getElementById("hhTimer")) return; tickTimer(); timerId = setInterval(tickTimer, 1000); }
+
   function renderItinerary() {
     const el = $("#v-itinerary .content");
     const chips = [["all", "All", null], ...Object.entries(CATS).filter(([k]) => k !== "stops").map(([k, c]) => [k, c.label, c.icon])];
@@ -153,8 +169,7 @@
           <h1 class="hh-title">China Expedition</h1>
           <p class="hh-sub">6–20 Nov 2026 · ${DESTS.length} stops</p>
           <p class="hh-bless" lang="zh" aria-label="Yílù píng'ān, a safe journey">一路平安</p>
-          <p class="hh-count">${esc(heroCountdown())}</p>
-          <a class="hh-link" href="#timeline">Open the timeline${icon("chevron-right")}</a>
+          ${phase === "before" ? `<div class="hh-timer" id="hhTimer" role="timer" aria-label="Time until the trip starts">${["days", "hours", "min", "sec"].map((u) => `<span class="hh-u"><b data-u="${u}">--</b><small>${u}</small></span>`).join('<span class="hh-sep" aria-hidden="true">:</span>')}</div>` : `<p class="hh-count">${esc(heroCountdown())}</p>`}
         </div>
         <span class="hh-cue">Scroll to travel</span>
       </section>
@@ -201,6 +216,7 @@
     }
     drawDests();
     trackFeed();
+    startTimer();
   }
 
   /* Phone feed: the altitude strip follows the stop on screen. Sleeping altitude

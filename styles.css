@@ -1154,3 +1154,18 @@ details.tech[open] summary .i { transform: rotate(180deg); }
   .hh-link .i { width: .95rem; height: .95rem; }
   .hh-link:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: 4px; }
 }
+
+/* Opening screen: live countdown (days : hours : min : sec) */
+@media (max-width: 51.99rem) {
+  .hh-timer { display: flex; align-items: flex-start; justify-content: center; gap: .5rem; margin: 1.9rem 0 0; color: #f3efe8; }
+  .hh-u { display: grid; justify-items: center; min-width: 3.1rem; }
+  .hh-u b { font: 400 2.4rem/1 var(--serif); font-variant-numeric: lining-nums tabular-nums; letter-spacing: .01em; }
+  .hh-u small { margin-top: .45rem; font: 600 .75rem/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: #8d8981; }
+  .hh-sep { font: 400 2rem/1.1 var(--serif); color: #5d5953; }
+}
+
+/* Floating buttons: Guide, Timeline, then Filters (its panel opens beside the third button) */
+@media (max-width: 51.99rem) {
+  .filter-panel { top: 6.7rem; }
+  .fp-title { font-size: .75rem; }
+}
