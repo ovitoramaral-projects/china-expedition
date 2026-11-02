@@ -346,7 +346,7 @@
         <p>${icon("info")}<span>Icons by Lucide (ISC licence).</span></p>
       </footer>
       <details class="credits"><summary>Photo credits (${Object.keys(PHOTOS).length})${icon("chevron-down")}</summary>
-        <ul>${Object.entries(PHOTOS).map(([k, ph]) => `<li><b>${esc(k.startsWith("dest-") ? DEST[k.slice(5)].name : PLACES[k]?.name || k)}</b> <a href="${esc(ph.page)}" target="_blank" rel="noopener">${esc(ph.title)}</a><br><span>${esc(ph.credit)}</span></li>`).join("")}</ul>
+        <ul>${Object.entries(PHOTOS).map(([k, ph]) => `<li><b>${esc(k.startsWith("dest-") ? DEST[k.slice(5)].name : PLACES[k]?.name || k)}</b> ${ph.page ? `<a href="${esc(ph.page)}" target="_blank" rel="noopener">${esc(ph.title)}</a>` : esc(ph.title)}<br><span>${esc(ph.credit)}</span></li>`).join("")}</ul>
       </details>`;
     const update = () => { $("#gearProgress").textContent = `${Object.values(state).filter(Boolean).length} of ${total} packed`; };
     el.addEventListener("change", (e) => {
@@ -640,7 +640,7 @@
     const hero = ph ? `<img class="d-lo" src="${esc(ph.small)}" alt="" decoding="sync"><img class="d-hi" src="${esc(ph.src)}" alt="" fetchpriority="high" decoding="async">` : cover("dest-" + d.id, d.zh, d.region);
     return `<div class="d-hero">${hero}
         <a class="d-back" href="${lastView()}" aria-label="Back">${icon("chevron-left")}</a>
-        ${ph ? `<a class="d-credit" href="${esc(ph.page)}" target="_blank" rel="noopener">${esc(ph.credit)}</a>` : ""}
+        ${ph ? (ph.page ? `<a class="d-credit" href="${esc(ph.page)}" target="_blank" rel="noopener">${esc(ph.credit)}</a>` : `<span class="d-credit">${esc(ph.credit)}</span>`) : ""}
       </div>
       <div class="d-sheet">
         <header class="d-head">
