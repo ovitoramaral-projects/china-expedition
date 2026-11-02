@@ -1,13 +1,13 @@
 # China Expedition — project rules
 
-Static site (index.html + styles.css + app.js + data.js + places.js + destinations.js + photos.js + geo.js + food.js + storyboards.js + light3d.js + icons.js; elevation grids in terrain/; booking vouchers in vouchers/ are gitignored). No build step, no frameworks, **no external resources** (Google Fonts/CDNs are blocked or slow in mainland China). Mobile-first; it is used on a phone in the field.
+Static site (index.html + styles.css + app.js + data.js + places.js + destinations.js + photos.js + geo.js + food.js + storyboards.js + light3d.js + pronounce.js + icons.js; elevation grids in terrain/; booking vouchers in vouchers/ are gitignored). No build step, no frameworks, **no external resources** (Google Fonts/CDNs are blocked or slow in mainland China). Mobile-first; it is used on a phone in the field.
 
 ## Content rules (from the planning handoff, `knowledge/HANDOFF_README.md`)
 1. The current route is `knowledge/itinerary_working.txt`. The older supplier itinerary is historical reference only.
 2. Hotel dates/addresses come from the booking vouchers. Where itinerary text and vouchers disagree, **do not silently resolve it**: keep or add a `flags` entry on that day in `data.js`.
    Open conflicts (Chengdu resolved: Vitor & Ricardo arrive 6 Nov, Ikho & Anastasia 7 Nov): 12 Nov itinerary says "Shangri-La" but hotel is Daocheng/Yading 12–14 Nov; 14 Nov start point; no Kunming booking for 20 Nov.
 3. Amap links are keyword searches, not verified pins. Never present them as exact locations or claim routes or distances are verified.
-4. Distinguish sourced facts from outside knowledge (for example, the elevations in `ELEV` are general references, and the page says so).
+4. Distinguish sourced facts from outside knowledge (for example, the elevations in `ELEV` are general references, and the page says so; so are the pronunciations in `pronounce.js`: pinyin + a rough English-style guide).
 5. Dali stay is in Dazhuang Village / Xiaguan, not Dali Ancient Town.
 6. Storyboards: follow `.claude/skills/cinematic-storyboard` (every frame exactly 4:3).
 

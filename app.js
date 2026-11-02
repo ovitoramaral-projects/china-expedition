@@ -80,6 +80,9 @@
   /* =====================================================================
      Images: real photo if registered, otherwise a quiet typographic cover
      ===================================================================== */
+  // Pronunciation (pronounce.js): pinyin with tones, plus a rough English-style guide.
+  const sayOf = (kind, id) => (typeof SAY !== "undefined" && SAY[kind]?.[id]) || null;
+
   function cover(key, zh, region, small = false) {
     const ph = PHOTOS[key];
     if (ph) return `<img src="${esc(small ? ph.small : ph.src)}" alt="" loading="lazy" decoding="async">`;
@@ -100,7 +103,7 @@
       <span class="card-panel">
         <span class="eyebrow">${regionName(d.region)}<span class="stopn"> · Stop ${DESTS.indexOf(d) + 1} of ${DESTS.length}</span>${isNow ? `<span class="card-flag now">You are here</span>` : isDone ? `<span class="card-flag">Visited</span>` : ""}</span>
         <span class="card-title">${esc(d.name)}</span>
-        <span class="card-zh" lang="zh">${esc(d.zh)}</span>
+        <span class="card-zh"><span lang="zh">${esc(d.zh)}</span>${sayOf("stop", d.id)?.py ? `<span class="card-py">${esc(sayOf("stop", d.id).py)}</span>` : ""}</span>
         <span class="card-line">
           <span>${esc(dateRange(d.days))}</span>
           ${nights.length ? `<span>${nights.length} night${nights.length > 1 ? "s" : ""}</span>` : ""}
@@ -398,8 +401,10 @@
 
   function placeItem(id, d, open) {
     const P = PLACES[id], dist = distanceLabel(id, d);
-    const sub = [P.zh ? `<span lang="zh">${esc(clean(P.zh))}</span>` : "", esc(P.kind)].filter(Boolean).join(" · ");
+    const sy = sayOf("place", id);
+    const sub = [P.zh ? `<span lang="zh">${esc(clean(P.zh))}</span>` : "", sy?.py ? `<span class="py">${esc(sy.py)}</span>` : "", esc(P.kind)].filter(Boolean).join(" · ");
     const parts = [
+      sy && `<p class="pl-say">Say it: <b>${esc(sy.say)}</b>${sy.py ? ` <span class="py">(${esc(sy.py)})</span>` : ""}</p>`,
       P.history && `<h4>History & context</h4>${para(P.history)}`,
       P.look && `<h4>What to look for</h4>${ul(P.look)}`,
       P.todo && `<h4>What to do</h4>${ul(P.todo)}`,
@@ -647,6 +652,7 @@
           <p class="label">${regionName(d.region)} · ${idx === 0 ? "First stop" : idx === DESTS.length - 1 ? "Last stop" : `Stop ${idx + 1}`}</p>
           <h1 class="d-title">${esc(d.name)}</h1>
           <p class="d-zh" lang="zh">${esc(d.zh)}</p>
+          ${sayOf("stop", d.id) ? `<p class="d-say">${sayOf("stop", d.id).py ? `<span class="py">${esc(sayOf("stop", d.id).py)}</span>` : ""}<span>Say “${esc(sayOf("stop", d.id).say)}”</span></p>` : ""}
           <dl class="facts">
             <div><dt>Dates</dt><dd>${esc(dateRange(d.days))}</dd></div>
             <div><dt>Nights</dt><dd>${nights.length || "–"}</dd></div>

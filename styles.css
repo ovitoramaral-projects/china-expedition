@@ -927,3 +927,14 @@ details.tech[open] summary .i { transform: rotate(180deg); }
 @media (max-width: 51.99rem) and (prefers-reduced-motion: reduce) {
   #v-itinerary .card-panel, #v-itinerary .card.panel-in .card-panel { transition: none; }
 }
+
+/* Pronunciation: pinyin with tones and a rough "say it" guide */
+.py { font-style: italic; }
+.d-say { margin: .2rem 0 0; display: flex; flex-wrap: wrap; gap: .1rem .6rem; font-size: .875rem; color: var(--muted); }
+.d-say .py { color: var(--ink-2); }
+.pl-say { margin: 0 0 .75rem; font-size: .875rem; color: var(--muted); }
+.pl-say b { color: var(--ink); font-weight: 600; }
+.card-zh .card-py { display: block; margin-top: .1rem; font: italic .8125rem/1.3 var(--sans); color: var(--muted); }
+@media (max-width: 51.99rem) {
+  #v-itinerary .card-zh .card-py { color: #a7a39c; }
+}

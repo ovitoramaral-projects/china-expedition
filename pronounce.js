@@ -1,0 +1,66 @@
+// How to say the names. General knowledge, not from the planning files.
+// py  = Hanyu Pinyin with tone marks (the official romanisation).
+// say = a rough English-style guide; CAPITALS mark the stronger syllable.
+//       Pinyin sounds that trip English speakers: x ≈ "sh", q ≈ "ch", zh ≈ "j",
+//       c ≈ "ts", z ≈ "dz", e ≈ "uh", ui ≈ "way", ü ≈ "ew" with rounded lips.
+// SAY.stop is keyed by stop id (DESTS), SAY.place by place id (PLACES). Where the Chinese name in the
+// files is marked unconfirmed (?), the pinyin follows that tentative name.
+"use strict";
+
+const SAY = {
+  stop: {
+  chengdu:   { py: "Chéngdū", say: "chung-DOO" },
+  siguniang: { py: "Sìgūniang Shān", say: "suh-goo-NYAHNG shahn" },
+  danba:     { py: "Dānbā · Jiǎjū", say: "dahn-BAH · jyah-JOO" },
+  tagong:    { py: "Tǎgōng", say: "tah-GONG" },
+  yajiang:   { py: "Yǎjiāng", say: "yah-JYAHNG" },
+  yading:    { py: "Lǐtáng · Dàochéng Yàdīng", say: "lee-TAHNG · dow-CHUNG yah-DING" },
+  meili:     { py: "Déqīn · Méilǐ Xuěshān", say: "duh-CHIN · may-LEE shweh-SHAHN" },
+  shangrila: { py: "Xiānggélǐlā", say: "shyahng-guh-lee-LAH" },
+  lijiang:   { py: "Lìjiāng", say: "lee-JYAHNG" },
+  shaxi:     { py: "Shāxī", say: "shah-SHEE" },
+  dali:      { py: "Ěrhǎi · Dàlǐ", say: "ar-HIGH · dah-LEE" },
+  kunming:   { py: "Kūnmíng", say: "kwun-MING" },
+  },
+  place: {
+  siguniang:       { py: "Sìgūniang Shān", say: "suh-goo-NYAHNG shahn" },
+  danba:           { py: "Dānbā", say: "dahn-BAH" },
+  yading:          { py: "Dàochéng Yàdīng", say: "dow-CHUNG yah-DING" },
+  meili:           { py: "Méilǐ Xuěshān", say: "may-LEE shweh-SHAHN" },
+  shaxi:           { py: "Shāxī Gǔzhèn", say: "shah-SHEE goo-JUN" },
+  dujiangyan:      { py: "Dūjiāngyàn", say: "doo-jyahng-YEN" },
+  wolong:          { py: "Wòlóng", say: "waw-LONG" },
+  shuangqiao:      { py: "Shuāngqiáo Gōu", say: "shwahng-CHYOW go" },
+  jiaju:           { py: "Jiǎjū Zàngzhài", say: "jyah-JOO dzahng-JAI" },
+  zhonglu:         { py: "Zhōnglù Zàngzhài", say: "jong-LOO dzahng-JAI" },
+  suopo:           { py: "Suōpō", say: "swaw-PAW" },
+  tagongGrass:     { py: "Tǎgōng Cǎoyuán", say: "tah-GONG tsow-YWEN" },
+  tagongMonastery: { py: "Tǎgōng Sì", say: "tah-GONG suh" },
+  gunong:          { say: "goo-NONG" },
+  muya:            { py: "Mùyǎ Dà Sì", say: "moo-YAH dah suh" },
+  heishicheng:     { py: "Hēishíchéng", say: "hay-shr-CHUNG" },
+  litang:          { py: "Lǐtáng", say: "lee-TAHNG" },
+  changqing:       { py: "Chángqīng Chūnkē'ěr Sì", say: "chahng-CHING chwun-kuh-AR suh" },
+  chonggu:         { py: "Chōnggǔ Sì", say: "chong-GOO suh" },
+  pearl:           { py: "Zhēnzhū Hǎi", say: "jun-joo HIGH" },
+  luorong:         { py: "Luòróng Niúchǎng", say: "lwaw-RONG nyo-CHAHNG" },
+  milkLake:        { py: "Niúnǎi Hǎi · Wǔsè Hǎi", say: "nyo-NIGH high · woo-SUH high" },
+  feilai:          { py: "Fēilái Sì", say: "fay-LIE suh" },
+  dukezong:        { py: "Dúkèzōng Gǔchéng", say: "doo-kuh-DZONG goo-CHUNG" },
+  songzanlin:      { py: "Gādān Sōngzànlín Sì", say: "song-dzahn-LIN suh" },
+  napa:            { py: "Nàpà Hǎi", say: "nah-PAH high" },
+  jadeDragon:      { py: "Yùlóng Xuěshān", say: "yew-LONG shweh-SHAHN" },
+  blackDragon:     { py: "Hēilóngtán", say: "hay-long-TAHN" },
+  wangu:           { py: "Wàngǔ Lóu", say: "wahn-GOO low" },
+  baisha:          { py: "Báishā", say: "bye-SHAH" },
+  lijiangOld:      { py: "Lìjiāng Gǔchéng", say: "lee-JYAHNG goo-CHUNG" },
+  shuhe:           { py: "Shùhé", say: "shoo-HUH" },
+  blueMoon:        { py: "Lán Yuè Gǔ", say: "lahn yweh GOO" },
+  impression:      { py: "Yìnxiàng Lìjiāng", say: "yin-SHYAHNG lee-JYAHNG" },
+  shibaoshan:      { py: "Shíbǎo Shān", say: "shr-bow SHAHN" },
+  erhai:           { py: "Ěrhǎi", say: "ar-HIGH" },
+  xizhou:          { py: "Xǐzhōu", say: "shee-JOE" },
+  zhoucheng:       { py: "Zhōuchéng", say: "joe-CHUNG" },
+  daliOld:         { py: "Dàlǐ Gǔchéng", say: "dah-LEE goo-CHUNG" },
+  },
+};
