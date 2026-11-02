@@ -133,14 +133,13 @@
     const cur = currentDest();
     el.innerHTML = `
       <section class="home-hero" aria-label="China Expedition">
-        <span class="seal" aria-hidden="true" lang="zh"><span>川</span><span>滇</span></span>
-        <p class="blessing" lang="zh" aria-label="Yílù píng'ān, a safe journey"><span>一</span><span>路</span><span>平</span><span>安</span></p>
-        <div class="hero-text">
-          <p class="hero-kicker">6 – 20 November 2026</p>
-          <h1 class="hero-title">China<br>Expedition</h1>
-          <p class="hero-sub"><span class="red">Yílù píng'ān</span> · a safe journey, from Chengdu to Kunming through Sichuan and Yunnan.</p>
+        <div class="hh-center">
+          <p class="hh-seal" lang="zh" aria-hidden="true">川滇</p>
+          <h1 class="hh-title">China Expedition</h1>
+          <p class="hh-sub">6–20 Nov 2026 · ${DESTS.length} stops</p>
+          <p class="hh-bless" lang="zh" aria-label="Yílù píng'ān, a safe journey">一路平安</p>
         </div>
-        <div class="hero-bottom">${progressCard()}<span class="scroll-cue">${icon("chevron-down")}Scroll through the stops</span></div>
+        <span class="hh-cue">Scroll to travel</span>
       </section>
       <div class="desk-intro">
         <h1 class="display">Itinerary</h1>
@@ -151,8 +150,8 @@
         ${chips.map(([k, l, ic]) => `<button role="radio" aria-checked="${k === "all"}" data-filter="${k}">${ic ? icon(ic) : ""}${esc(l)}</button>`).join("")}
       </div>
       <div id="destList"></div>
-      <a class="alt-dock on-hero" id="altDock" href="#timeline" aria-label="Altitude across the trip. Open the timeline">
-        <span class="ad-head"><span class="ad-name" id="adName"></span><span>Altitude</span></span>
+      <a class="alt-dock" id="altDock" href="#timeline" aria-label="Altitude across the trip. Open the timeline">
+        <span class="ad-head"><span class="ad-name" id="adName"><b>China Expedition</b></span><span>Altitude</span></span>
         ${altProfile()}
       </a>`;
     $(".chips", el).addEventListener("click", (e) => {
@@ -183,7 +182,6 @@
       new IntersectionObserver(([en]) => {
         const onHero = en.isIntersecting;
         $("#fabs").classList.toggle("on-hero", onHero);
-        $("#altDock")?.classList.toggle("on-hero", onHero);
         if (onHero) setOpen(false);
       }, { threshold: 0.35 }).observe(hero);
     }
@@ -216,8 +214,13 @@
     const update = () => {
       const list = $("#destList"), cards = $$("#v-itinerary .card"), cur = $("#adCur"), name = $("#adName");
       if (!list || !cur || !cards.length || !cards[0].offsetHeight) return;
-      const r = list.getBoundingClientRect(), h = cards[0].offsetHeight;
-      const i = Math.max(0, Math.min(cards.length - 1, Math.floor((-r.top + innerHeight * 0.5) / h)));
+      const r = list.getBoundingClientRect(), h = cards[0].offsetHeight, pos = -r.top + innerHeight * 0.5;
+      if (pos < 0) { // still on the opening screen
+        cur.setAttribute("x1", apX(0)); cur.setAttribute("x2", apX(0));
+        if (name.textContent !== "China Expedition") name.innerHTML = "<b>China Expedition</b>";
+        return;
+      }
+      const i = Math.max(0, Math.min(cards.length - 1, Math.floor(pos / h)));
       const d = DEST[cards[i].dataset.key.slice(5)];
       const a = DAYS.findIndex((x) => x.date === d.days[0]), b = DAYS.findIndex((x) => x.date === d.days.at(-1));
       const x = ((apX(a) + apX(b)) / 2).toFixed(1);

@@ -848,3 +848,15 @@ details.tech[open] summary .i { transform: rotate(180deg); }
 @keyframes d-settle { from { transform: scale(1.07); } to { transform: scale(1); } }
 @keyframes d-sheet { from { transform: translateY(28px); } to { transform: none; } }
 @keyframes d-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* Phone opening screen: centred seal, title and blessing (as in the altitude-film mockup) */
+@media (max-width: 51.99rem) {
+  .home-hero { display: grid; place-items: center; justify-content: center; text-align: center; padding: env(safe-area-inset-top) var(--pad) 0;
+    background: radial-gradient(120% 80% at 50% 32%, #1b1b1d, #000); height: 100svh; }
+  .hh-center { display: grid; justify-items: center; gap: .55rem; margin-top: -4rem; }
+  .hh-seal { margin: 0 0 .4rem; font: 400 clamp(4.6rem, 24vw, 6.2rem)/1 var(--han); letter-spacing: .06em; color: var(--cinnabar); }
+  .hh-title { margin: 0; font: 500 clamp(2rem, 9vw, 2.4rem)/1.1 var(--serif); color: #f3efe8; }
+  .hh-sub { margin: 0; font-size: .9375rem; color: #a7a39c; font-variant-numeric: tabular-nums; }
+  .hh-bless { margin: .9rem 0 0; font: 400 1.05rem/1 var(--han); letter-spacing: .45em; padding-left: .45em; color: var(--cinnabar); }
+  .hh-cue { position: absolute; left: 0; right: 0; bottom: calc(var(--dock-h) + 1.75rem + env(safe-area-inset-bottom)); font: 500 .75rem/1 var(--sans); letter-spacing: .22em; text-transform: uppercase; color: #8d8981; }
+}
