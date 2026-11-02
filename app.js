@@ -439,7 +439,7 @@
           ${more("Photo tips", ul(P.photo))}
           ${more("Care", ul(P.care))}
           ${more("Name & pronunciation", names)}
-          ${P.sources ? `<p class="meta src">Sources: ${P.sources.map(([n, u]) => extLink(u, n)).join(" ")}</p>` : ""}
+          ${more("Sources", P.sources ? `<p class="links">${P.sources.map(([n, u]) => extLink(u, n)).join("")}</p>` : "")}
         </div>
       </details>
     </li>`;
@@ -454,7 +454,7 @@
       s.meals && ["Meals", esc(s.meals)],
       s.phone && ["Phone", `<a class="tlink inline" href="tel:${esc(s.phone.replace(/[^\d+]/g, ""))}">${esc(s.phone)}</a>`],
     ].filter(Boolean);
-    const extra = `${rows.length ? `<dl class="kv">${rows.map(([k, v]) => `<div><dt>${k}</dt><dd>${v}</dd></div>`).join("")}</dl>` : ""}
+    const extra = `${rows.length ? `<div class="facts-list">${rows.map(([k, v]) => `<div class="fl-row"><span class="fl-k">${k}</span><span class="fl-v">${v}</span></div>`).join("")}</div>` : ""}
       ${s.note ? `<p class="meta">${esc(s.note)}</p>` : ""}
       ${s.nearby ? `<h4>Around the stay</h4><p class="links">${s.nearby.map(([n, u, dist]) => extLink(u, n + (dist ? ` · ${dist}` : ""), "navigation")).join("")}</p>` : ""}`;
     return `<div class="blk stay">
