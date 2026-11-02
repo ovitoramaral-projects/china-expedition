@@ -214,6 +214,15 @@
     const update = () => {
       const list = $("#destList"), cards = $$("#v-itinerary .card"), cur = $("#adCur"), name = $("#adName");
       if (!list || !cur || !cards.length || !cards[0].offsetHeight) return;
+      // Each stop enters as an inset, rounded card and grows to fill the screen as it rises.
+      const vh = innerHeight;
+      for (const c of cards) {
+        const t = c.getBoundingClientRect().top;
+        let g = reduceMotion || t <= 0 ? 1 : t >= vh ? 0 : 1 - t / vh;
+        g = 1 - (1 - g) * (1 - g); // ease out: grows quickly at first, settles gently
+        const v = g.toFixed(3);
+        if (c.style.getPropertyValue("--g") !== v) c.style.setProperty("--g", v);
+      }
       const r = list.getBoundingClientRect(), h = cards[0].offsetHeight, pos = -r.top + innerHeight * 0.5;
       if (pos < 0) { // still on the opening screen
         cur.setAttribute("x1", apX(0)); cur.setAttribute("x2", apX(0));
