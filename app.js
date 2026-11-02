@@ -185,7 +185,7 @@
         ${chips.map(([k, l, ic]) => `<button role="radio" aria-checked="${k === "all"}" data-filter="${k}">${ic ? icon(ic) : ""}${esc(l)}</button>`).join("")}
       </div>
       <div id="destList"></div>
-      <a class="alt-dock at-hero" id="altDock" href="#timeline" aria-label="Sleeping altitude across the trip. Open the timeline">${altProfile()}</a>`;
+      <div class="alt-dock at-hero" id="altDock" role="slider" tabindex="0" aria-label="Altitude across the trip. Slide along it to jump to a stop" aria-valuemin="1" aria-valuemax="${DESTS.length}" aria-valuenow="1">${altProfile()}</div>`;
     $(".chips", el).addEventListener("click", (e) => {
       const b = e.target.closest("[data-filter]"); if (!b) return;
       destFilter = b.dataset.filter; drawDests();
@@ -261,6 +261,50 @@
     stroke(all, "rgba(255,255,255,0.6)", 1.3);
     stroke(all.filter((p) => p[0] <= ti), "#e0564a", 1.8);
   }
+  // Scrub the altitude line: touch and slide to jump to the stop under your finger;
+  // a tap goes to that stop; arrow keys step through the stops.
+  function bindScrub() {
+    const dock = $("#altDock"); if (!dock || dock.dataset.scrub) return;
+    dock.dataset.scrub = "1";
+    const cards = () => $$("#v-itinerary .card");
+    const firstNight = (c) => DAYS.findIndex((x) => x.date === DEST[c.dataset.key.slice(5)].days[0]);
+    const nearest = (clientX) => {
+      const r = dock.getBoundingClientRect(), cs = cards(); if (!cs.length) return -1;
+      const vx = ((clientX - r.left) / r.width) * AP.W;
+      let best = 0, bd = Infinity;
+      cs.forEach((c, k) => { const dd = Math.abs(apX(firstNight(c)) - vx); if (dd < bd) { bd = dd; best = k; } });
+      return best;
+    };
+    const goTo = (k, smooth) => {
+      const c = cards()[k]; if (!c) return;
+      scrollTo({ top: scrollY + c.getBoundingClientRect().top, behavior: smooth && !reduceMotion ? "smooth" : "instant" });
+      dock.setAttribute("aria-valuenow", String(k + 1));
+    };
+    let dragging = false, last = -1;
+    dock.addEventListener("pointerdown", (e) => {
+      dragging = true; last = -1; dock.setPointerCapture(e.pointerId); dock.classList.add("scrubbing");
+      document.documentElement.style.scrollSnapType = "none";
+      const k = nearest(e.clientX); last = k; goTo(k, false);
+    });
+    dock.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      const k = nearest(e.clientX); if (k !== last) { last = k; goTo(k, false); }
+    });
+    const end = () => {
+      if (!dragging) return; dragging = false; dock.classList.remove("scrubbing");
+      requestAnimationFrame(() => { document.documentElement.style.scrollSnapType = ""; });
+    };
+    dock.addEventListener("pointerup", end); dock.addEventListener("pointercancel", end);
+    dock.addEventListener("keydown", (e) => {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(e.key)) return;
+      e.preventDefault();
+      const cs = cards(), top = cs.findIndex((c) => c.getBoundingClientRect().top > -innerHeight / 2);
+      const cur = Math.max(0, top);
+      const k = e.key === "Home" ? 0 : e.key === "End" ? cs.length - 1 : Math.max(0, Math.min(cs.length - 1, cur + (e.key === "ArrowRight" ? 1 : -1)));
+      goTo(k, true);
+    });
+  }
+
   let feedBound = false;
   function trackFeed() {
     const update = () => {
@@ -320,6 +364,7 @@
     }
     update();
     requestAnimationFrame(drawAlt);
+    bindScrub();
   }
   function drawDests() {
     $$("#v-itinerary .chips button, #filterPanel button").forEach((b) => b.setAttribute("aria-checked", b.dataset.filter === destFilter));

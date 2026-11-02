@@ -1204,3 +1204,11 @@ details.tech[open] summary .i { transform: rotate(180deg); }
 
 /* The marker follows the scroll directly (no time-based glide), so it stays on the line */
 @media (max-width: 51.99rem) { .alt-dock .ad-dot, .alt-dock .ad-lab { transition: opacity 200ms ease; } }
+
+/* Altitude strip as a scrubber: a taller touch area and a little feedback while sliding */
+@media (max-width: 51.99rem) {
+  .alt-dock { touch-action: none; cursor: grab; padding-top: .75rem; height: 3.75rem; -webkit-user-select: none; user-select: none; }
+  .alt-dock.scrubbing { cursor: grabbing; }
+  .alt-dock.scrubbing .ad-dot { box-shadow: 0 0 0 6px rgb(255 255 255 / .22); }
+  .alt-dock:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: 8px; }
+}
