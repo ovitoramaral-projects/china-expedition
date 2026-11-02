@@ -950,3 +950,10 @@ details.tech[open] summary .i { transform: rotate(180deg); }
   }
   #v-itinerary .card-media img { transform: scale(1.03); }
 }
+
+/* Phone feed, v5: always come to rest on a whole card (opening screen or one stop).
+   Mandatory snap; snap-stop normal so a fast flick can still pass several stops. */
+@media (max-width: 51.99rem) {
+  :root[data-view="itinerary"] { scroll-snap-type: y mandatory; }
+  .home-hero, #v-itinerary .card { scroll-snap-align: start; scroll-snap-stop: normal; }
+}
