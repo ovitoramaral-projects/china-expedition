@@ -483,7 +483,7 @@
       <h1 class="display g-title">Guide</h1>
       <p class="lede">The crew, the story you're telling, and how to travel well on this route.</p>
       <h2 class="section-title">Crew</h2>
-      <div class="flights">${CREW.map((c) => `<div class="fl-p"><h3>${esc(c.name)}${c.role ? `<span class="fl-role">${esc(c.role)}</span>` : ""}</h3>${[["Out", "plane", c.out], ["Home", "plane", c.back]].filter(([, , f]) => f).map(([k, ic, f]) => {
+      <div class="flights">${CREW.map((c) => `<div class="fl-p"><h3>${esc(c.name)}${c.role ? `<span class="fl-role">${esc(c.role)}</span>` : ""}</h3>${c.note ? `<p class="fl-pn">${esc(c.note)}</p>` : ""}${[["Out", "plane", c.out], ["Home", "plane", c.back]].filter(([, , f]) => f).map(([k, ic, f]) => {
         const d = new Date(f.date + "T12:00:00Z");
         const day = d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
         return `<div class="fl-r${k === "Home" ? " fl-home" : ""}">${icon(ic)}<span class="fl-k">${k}</span><span class="fl-d">${esc(day)}</span><span class="fl-t">${esc(f.time)}</span><span class="fl-n">${esc([f.from, f.note].filter(Boolean).join(" · "))}</span></div>`;

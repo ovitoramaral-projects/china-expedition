@@ -1339,3 +1339,4 @@ details.tech[open] summary .i { transform: rotate(180deg); }
 .fl-r { border-top-color: var(--line); }
 .fl-role { margin-left: .5rem; font-size: .75rem; font-weight: 400; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
 .fl-p h3:last-child { margin-bottom: 0; }
+.fl-pn { margin: -.25rem 0 0; font-size: .875rem; color: var(--muted); }
