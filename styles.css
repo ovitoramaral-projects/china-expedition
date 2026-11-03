@@ -1295,7 +1295,7 @@ details.tech[open] summary .i { transform: rotate(180deg); }
 .d-close:active { transform: scale(.86); transition: transform 90ms ease-out; }
 .d-close:focus-visible { outline: 2px solid var(--cinnabar); outline-offset: 3px; }
 @media (prefers-reduced-motion: no-preference) {
-  .detail.entering .d-close { animation: d-close-in 420ms cubic-bezier(.34, 1.56, .64, 1) 120ms both; }
+  .detail.entering .d-close { animation: d-close-in 420ms cubic-bezier(.34, 1.56, .64, 1) 120ms backwards; }
 }
 @keyframes d-close-in { from { opacity: 0; transform: scale(.5) rotate(-90deg); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .d-close, .d-close.gone, .d-close.leaving { transition: opacity 120ms ease; transform: none; } }
@@ -1329,3 +1329,11 @@ details.tech[open] summary .i { transform: rotate(180deg); }
 .fl-n { grid-column: 3 / -1; font-size: .75rem; }
 .fl-n:empty { display: none; }
 .fl-note { margin-top: .7rem; }
+
+/* Guide: close ✕ like the stop pages; flight cards follow the theme */
+.g-title { margin-top: calc(3.6rem + env(safe-area-inset-top)); }
+#v-guide.on .g-close { animation: d-close-in 420ms cubic-bezier(.34, 1.56, .64, 1) 120ms backwards; }
+#v-guide.on .g-close.gone, #v-guide.on .g-close.leaving { animation: none; }
+@media (prefers-reduced-motion: reduce) { #v-guide.on .g-close { animation: none; } }
+.fl-p { background: var(--surface); border: 1px solid var(--line); }
+.fl-r { border-top-color: var(--line); }

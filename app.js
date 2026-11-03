@@ -479,8 +479,8 @@
     const total = GEAR.reduce((n, [, items]) => n + items.length, 0);
     const PICON = { "Weather & roads": "mountain", Altitude: "mountain-snow", Photography: "camera", "Amap links": "map", Timings: "clock" };
     el.innerHTML = `
-      <a class="tl-back" href="#itinerary">${icon("chevron-left")}Itinerary</a>
-      <h1 class="display">Guide</h1>
+      <a class="d-back d-close g-close" href="#itinerary" aria-label="Close guide">${icon("x")}</a>
+      <h1 class="display g-title">Guide</h1>
       <p class="lede">The crew, the story you're telling, and how to travel well on this route.</p>
       <h2 class="section-title">Crew</h2>
       <div class="flights">${CREW.map((c) => `<div class="fl-p"><h3>${esc(c.name)}</h3>${[["Out", "plane", c.out], ["Home", "plane", c.back]].map(([k, ic, f]) => {
@@ -1011,6 +1011,22 @@
   renderItinerary();
   renderTimeline();
   renderGuide();
+  // Guide close: same behaviour as the stop pages' ✕ (hides on scroll down, exit on close).
+  (() => {
+    const btn = $(".g-close"); if (!btn) return;
+    let lastY = scrollY;
+    addEventListener("scroll", () => {
+      if (view !== "guide") return;
+      const y = scrollY, dy = y - lastY;
+      if (Math.abs(dy) > 6) { btn.classList.toggle("gone", dy > 0 && y > 140); lastY = y; }
+    }, { passive: true });
+    addEventListener("hashchange", () => btn.classList.remove("gone", "leaving"));
+    btn.addEventListener("click", (e) => {
+      if (reduceMotion || e.metaKey || e.ctrlKey) return;
+      e.preventDefault(); btn.classList.add("leaving");
+      setTimeout(() => { location.hash = "#itinerary"; }, 170);
+    });
+  })();
   setView(VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : "itinerary");
   route();
   booted = true;
