@@ -28,7 +28,7 @@ const STAYS = {
     name: "Poshpacker Chengdu Flipflop Hostel",
     sub: "Taikoo Li / Chunxi Road Metro Station",
     address: "No. 98 Dongsheng Street, Jinjiang District, Chengdu",
-    dates: "two rooms: Vitor & Ricardo 6 → 8 Nov, Ikho & Anastasia 7 → 8 Nov",
+    dates: "two rooms: Vitor & Ricardo 6 → 8 Nov, Ikho & Nia 7 → 8 Nov",
     phone: "+86 028-62500185",
     checkin: "After 14:00", checkout: "Before 12:00",
     meals: "No breakfast",
@@ -38,7 +38,7 @@ const STAYS = {
       ["太古里 Taikoo Li", amap("成都远洋太古里", C.chengdu), "≈650 m (listing figure)"],
       ["IFS", amap("成都国际金融中心", C.chengdu), "≈630 m (listing figure)"],
     ],
-    note: "Two rooms on two vouchers: Vitor & Ricardo arrive 6 Nov (booked 6–8 Nov); Ikho & Anastasia arrive 7 Nov (booked 7–8 Nov). Airport pickup available for a fee — contact the hostel at least 72 h before arrival.",
+    note: "Two rooms on two vouchers: Vitor & Ricardo arrive 6 Nov (booked 6–8 Nov); Ikho & Nia arrive 7 Nov (booked 7–8 Nov). Airport pickup available for a fee — contact the hostel at least 72 h before arrival.",
   },
   siguniang: {
     name: "Qianyu Cloud Lodge",
@@ -182,7 +182,8 @@ const DAYS = [
     summary: "Transfer to the hostel and check in. Keep the evening relaxed after the journey.",
     focus: "Arrival, rest — and if energy permits, an evening walk around Chunxi Road or Taikoo Li.",
     stay: "chengdu",
-    notes: ["Vitor & Ricardo arrive today (room booked 6–8 Nov). Ikho & Anastasia join on 7 Nov (room booked 7–8 Nov)."],
+    notes: ["Vitor & Ricardo arrive today (room booked 6–8 Nov). Ikho & Nia join on 7 Nov (room booked 7–8 Nov).", "Flights out: Ricardo departs 5 Nov 18:00, Vitor 5 Nov 20:35 (CET). Arrival times in Chengdu not given."],
+    flags: ["Nia's flight departs 6 Nov 00:25 (arrival time not given), but her room is booked from 7 Nov. Check when she lands and whether she needs the night of 6 Nov."],
   },
   {
     date: "2026-11-07", label: "Day 1", region: "sichuan",
@@ -190,6 +191,7 @@ const DAYS = [
     route: ["Chengdu"],
     summary: "Explore the neighbourhood and enjoy your first Sichuan meal.",
     focus: "Street life, food and preparation.",
+    notes: ["Ikho lands at 11:00 (departed 7 Nov, 00:40). Nia joins today too."],
     stay: "chengdu",
   },
   {
@@ -275,7 +277,8 @@ const DAYS = [
     route: ["Shangri-La", "Songzanlin Monastery", "Lijiang"],
     summary: "Visit Songzanlin, one of Yunnan's most important Tibetan Buddhist monasteries, then drive to Lijiang.",
     focus: "Monastery architecture, religious life, and the move into Naxi cultural territory.",
-    notes: ["Anastasia is dropped at the airport today and leaves the trip here."],
+    notes: ["Nia is dropped at Diqing Shangri-La airport today and leaves the trip here."],
+    flags: ["Nia's flight is at 08:50, so the airport drop has to come first thing, before Songzanlin. Agree the morning order with the driver."],
     stay: "lijiang",
   },
   {
@@ -315,7 +318,8 @@ const DAYS = [
     summary: "Morning transfer to Kunming, arriving in the afternoon.",
     focus: "Closing the journey.",
     stay: null,
-    flags: ["No Kunming hotel or onward departure booking is in the supplied files — verify onward arrangements."],
+    notes: ["Flights home: Ikho 20:50 from Kunming; Ricardo at midnight (night of 20 → 21 Nov); Vitor 21 Nov 08:30 from Kunming."],
+    flags: ["No Kunming hotel is booked for tonight, but Vitor's flight is 21 Nov 08:30. He needs a bed near the airport (and Ricardo somewhere to wait until midnight)."],
   },
 ];
 
@@ -362,9 +366,12 @@ const ELEV = {
 };
 
 // The crew (first names only). `until` = last day with the group.
+// Flights as the user gave them on 3 Nov 2026. "out" is the departure from home (local
+// time there; only Vitor's was given with a time zone); arrival times in Chengdu are not
+// known except Ikho's. "back" is the flight home. Not checked against any ticket.
 const CREW = [
-  { name: "Vitor" },
-  { name: "Ricardo" },
-  { name: "Ikho", from: "2026-11-07" },
-  { name: "Anastasia", from: "2026-11-07", until: "2026-11-16", leaves: "Leaves on 16 Nov, dropped at the airport on the way to Lijiang" },
+  { name: "Vitor", out: "Departs 5 Nov, 20:35 (CET)", back: "Flies home 21 Nov, 08:30 from Kunming" },
+  { name: "Ricardo", until: "2026-11-20", out: "Departs 5 Nov, 18:00", back: "Flies home at midnight, night of 20 → 21 Nov" },
+  { name: "Ikho", from: "2026-11-07", until: "2026-11-20", out: "Departs 7 Nov, 00:40; arrives 11:00", back: "Flies home 20 Nov, 20:50 from Kunming" },
+  { name: "Nia", from: "2026-11-07", until: "2026-11-16", out: "Departs 6 Nov, 00:25", back: "Flies home 16 Nov, 08:50 from Diqing Shangri-La airport" },
 ];

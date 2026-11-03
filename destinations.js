@@ -8,7 +8,7 @@
 const DESTS = [
   { id: "chengdu", name: "Chengdu", zh: "成都", region: "sichuan",
     days: ["2026-11-06", "2026-11-07"], stay: "chengdu", lead: null, places: [], voucher: 4,
-    voucherLabels: ["Ikho & Anastasia's room · 7–8 Nov", "", "Vitor & Ricardo's room · 6–8 Nov", ""],
+    voucherLabels: ["Ikho & Nia's room · 7–8 Nov", "", "Vitor & Ricardo's room · 6–8 Nov", ""],
     intro: "The arrival city and a soft start: rest, street life around Chunxi Road and Taikoo Li, a first Sichuan meal, and preparation before the mountains." },
   { id: "siguniang", name: "Siguniang", zh: "四姑娘山", region: "sichuan",
     days: ["2026-11-08", "2026-11-09"], stay: "siguniang", lead: "siguniang", places: ["dujiangyan", "wolong", "siguniang", "shuangqiao"], voucher: 2 },
