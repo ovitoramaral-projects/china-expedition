@@ -382,4 +382,5 @@ const CREW = [
   { name: "Nia", from: "2026-11-07", until: "2026-11-16",
     out: { date: "2026-11-06", time: "00:25" },
     back: { date: "2026-11-16", time: "08:50", from: "from Diqing Shangri-La" } },
+  { name: "Cary", role: "Driver" },
 ];
