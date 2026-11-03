@@ -1315,3 +1315,17 @@ details.tech[open] summary .i { transform: rotate(180deg); }
   .tlx-item.rv-tl { opacity: 0; transform: translateY(26px) scale(.98); transition: opacity 520ms cubic-bezier(.23, 1, .32, 1), transform 620ms cubic-bezier(.23, 1, .32, 1); }
   .tlx-item.rv-tl.in { opacity: 1; transform: none; }
 }
+
+/* Guide: crew flights */
+.flights { display: grid; gap: .6rem; }
+.fl-p { background: #fff; border-radius: 14px; padding: .85rem 1rem .9rem; }
+.fl-p h3 { margin: 0 0 .5rem; font-size: 1.0625rem; font-weight: 600; color: var(--ink); }
+.fl-r { display: grid; grid-template-columns: 1.1rem 3.2rem 6.4rem auto; column-gap: .55rem; align-items: baseline; padding: .4rem 0; border-top: 1px solid rgba(0,0,0,.06); font-size: .875rem; color: var(--muted); }
+.fl-r .i { width: 1rem; height: 1rem; align-self: center; color: var(--ink-2); }
+.fl-home .i { transform: scaleX(-1); }
+.fl-k { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.fl-d { color: var(--ink); }
+.fl-t { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.fl-n { grid-column: 3 / -1; font-size: .75rem; }
+.fl-n:empty { display: none; }
+.fl-note { margin-top: .7rem; }

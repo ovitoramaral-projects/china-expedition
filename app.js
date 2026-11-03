@@ -483,8 +483,12 @@
       <h1 class="display">Guide</h1>
       <p class="lede">The crew, the story you're telling, and how to travel well on this route.</p>
       <h2 class="section-title">Crew</h2>
-      <ul class="plist">${CREW.map((c) => `<li>${icon("plane")}<span><b>${esc(c.name)}</b>${esc([c.out, c.back].filter(Boolean).join(". "))}</span></li>`).join("")}</ul>
-      <p class="meta">Flight times as given on 3 Nov, not checked against tickets. Departures are local time at home.</p>
+      <div class="flights">${CREW.map((c) => `<div class="fl-p"><h3>${esc(c.name)}</h3>${[["Out", "plane", c.out], ["Home", "plane", c.back]].map(([k, ic, f]) => {
+        const d = new Date(f.date + "T12:00:00Z");
+        const day = d.toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+        return `<div class="fl-r${k === "Home" ? " fl-home" : ""}">${icon(ic)}<span class="fl-k">${k}</span><span class="fl-d">${esc(day)}</span><span class="fl-t">${esc(f.time)}</span><span class="fl-n">${esc([f.from, f.note].filter(Boolean).join(" · "))}</span></div>`;
+      }).join("")}</div>`).join("")}</div>
+      <p class="meta fl-note">As given on 3 Nov, not checked against tickets. "Out" is the departure from home, in local time there.</p>
       <h2 class="section-title">The documentary arc</h2>
       <ol class="arc">${ARC.map(([t, d], i) => `<li><span class="arc-n">${i + 1}</span><span><b>${esc(t)}</b>${esc(d)}</span></li>`).join("")}</ol>
       <h2 class="section-title">Practical</h2>

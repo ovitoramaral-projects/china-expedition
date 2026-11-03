@@ -370,8 +370,16 @@ const ELEV = {
 // time there; only Vitor's was given with a time zone); arrival times in Chengdu are not
 // known except Ikho's. "back" is the flight home. Not checked against any ticket.
 const CREW = [
-  { name: "Vitor", out: "Departs 5 Nov, 20:35 (CET)", back: "Flies home 21 Nov, 08:30 from Kunming" },
-  { name: "Ricardo", until: "2026-11-20", out: "Departs 5 Nov, 18:00", back: "Flies home at midnight, night of 20 → 21 Nov" },
-  { name: "Ikho", from: "2026-11-07", until: "2026-11-20", out: "Departs 7 Nov, 00:40; arrives 11:00", back: "Flies home 20 Nov, 20:50 from Kunming" },
-  { name: "Nia", from: "2026-11-07", until: "2026-11-16", out: "Departs 6 Nov, 00:25", back: "Flies home 16 Nov, 08:50 from Diqing Shangri-La airport" },
+  { name: "Vitor",
+    out: { date: "2026-11-05", time: "20:35", note: "CET" },
+    back: { date: "2026-11-21", time: "08:30", from: "from Kunming" } },
+  { name: "Ricardo", until: "2026-11-20",
+    out: { date: "2026-11-05", time: "18:00" },
+    back: { date: "2026-11-21", time: "00:00", note: "midnight, night of 20 → 21 Nov" } },
+  { name: "Ikho", from: "2026-11-07", until: "2026-11-20",
+    out: { date: "2026-11-07", time: "00:40", note: "lands in Chengdu 11:00" },
+    back: { date: "2026-11-20", time: "20:50", from: "from Kunming" } },
+  { name: "Nia", from: "2026-11-07", until: "2026-11-16",
+    out: { date: "2026-11-06", time: "00:25" },
+    back: { date: "2026-11-16", time: "08:50", from: "from Diqing Shangri-La" } },
 ];
