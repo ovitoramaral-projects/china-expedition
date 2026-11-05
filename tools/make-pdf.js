@@ -49,11 +49,12 @@ const base = process.argv[3] || "http://localhost:8765/";
       const places = d.places.map((id) => PLACES[id]).filter(Boolean);
       const food = FOOD[d.id] || [];
       return `<section class="stop"><div class="lbl">${String(i + 1).padStart(2, "0")} / ${DESTS.length} · ${d.region === "sichuan" ? "Sichuan" : "Yunnan"}</div>
+        ${(() => { const ph = PHOTOS["dest-" + d.id] || PHOTOS[d.lead] || PHOTOS[d.places.find((x) => PHOTOS[x])]; return ph ? `<figure class="cov"><img src="${base}${esc(ph.src)}"><figcaption>${esc(ph.credit)}</figcaption></figure>` : ""; })()}
         <h2>${esc(d.name)} <span class="zh">${esc(d.zh)}</span></h2>
         <div class="m">${d.days.map(fmt).join(", ")}</div>
         ${d.intro ? `<p>${esc(d.intro)}</p>` : d.lead && PLACES[d.lead] ? `<p>${esc(PLACES[d.lead].about)}</p>` : ""}
         ${d.stay ? `<h4>Stay</h4>${stayBox(d.stay)}` : ""}
-        ${places.length ? `<h4>Places</h4>${places.map((pl) => `<div class="pl"><b>${esc(pl.name)}</b> <span class="zh">${esc(pl.zh || "")}</span> <span class="m">· ${esc(pl.kind || "")}</span>
+        ${places.length ? `<h4>Places</h4>${places.map((pl) => `<div class="pl">${(() => { const id = d.places.find((x) => PLACES[x] === pl), ph = PHOTOS[id]; return ph ? `<figure class="pph"><img src="${base}${esc(ph.small || ph.src)}"><figcaption>${esc(ph.credit)}</figcaption></figure>` : ""; })()}<b>${esc(pl.name)}</b> <span class="zh">${esc(pl.zh || "")}</span> <span class="m">· ${esc(pl.kind || "")}</span>
           <p>${esc(pl.about || "")}</p>${pl.todo ? `<div class="m">To do</div>${list(pl.todo)}` : ""}${pl.care ? `<div class="m">Careful</div>${list(pl.care)}` : ""}
           ${TICKETS[pl.id] || TICKETS[d.places.find((x) => PLACES[x] === pl)] ? `<p class="m">Ticket: ${esc((TICKETS[d.places.find((x) => PLACES[x] === pl)]).book === "ahead" ? "book ahead" : "pay on site")}</p>` : ""}</div>`).join("")}` : ""}
         ${food.length ? `<h4>Food</h4><ul>${food.map((f) => `<li><b>${esc(f.name)}</b>${f.zh ? ` <span class="zh">${esc(f.zh)}</span>` : ""}. ${esc(f.note || "")}</li>`).join("")}</ul>` : ""}
@@ -78,6 +79,11 @@ const base = process.argv[3] || "http://localhost:8765/";
       .stop, .part { break-before: page; } .cover { text-align: center; padding-top: 40mm; } .cover .big { font-size: 40pt; color: #c8352a; }
       a { color: #1b1a18; } .v { break-before: page; } .v img { width: 100%; display: block; margin-top: 2mm; }
       .toc li { list-style: none; } .toc { padding: 0; }
+      figure { margin: 0; } figcaption { font-size: 6pt; color: #9a948c; margin-top: .6mm; }
+      .cov img { width: 100%; height: 58mm; object-fit: cover; border-radius: 2mm; display: block; margin-bottom: 2.5mm; }
+      .cov figcaption { margin: -1.8mm 0 2mm; }
+      .pph img { width: 100%; height: 40mm; object-fit: cover; border-radius: 1.5mm; display: block; }
+      .pph { margin-bottom: 1.5mm; }
     </style></head><body>
       <div class="cover"><div class="big">川滇</div><h1>China Expedition</h1><div class="m">Western Sichuan & Yunnan · 6–20 Nov 2026</div><p style="margin-top:8mm">一路平安</p>
         <p class="m" style="margin-top:30mm">Offline copy (Plan B), made ${new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}. Altitudes and distances are general references; Amap links are keyword searches, not verified pins; ticket advice was researched online on 2 Nov 2026.</p></div>
